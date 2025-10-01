@@ -27,17 +27,12 @@ class MyApp extends StatelessWidget {
         onGenerateRoute: AppRouter.generateRoute,
         home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
           builder: (context, state) {
-            print('🚀 Building UI with auth status: ${state.status}');
-            
             switch (state.status) {
               case AuthenticationStatus.authenticated:
-                print('🏠 Showing HomeScreen');
                 return const HomeScreen();
               case AuthenticationStatus.unauthenticated:
-                print('🔐 Showing LoginScreen');
                 return const LoginScreen();
               case AuthenticationStatus.unknown:
-                print('⏳ Showing SplashScreen');
                 return const _SplashScreen();
             }
           },
