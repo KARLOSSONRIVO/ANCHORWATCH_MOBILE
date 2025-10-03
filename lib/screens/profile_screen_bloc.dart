@@ -30,14 +30,7 @@ class ProfileScreenBloc extends StatelessWidget {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  SnackBarHelper.showInfo(context, 'Settings coming soon!');
-                },
-                icon: const Icon(Icons.settings, color: Colors.white),
-              ),
-            ],
+
           ),
           drawer: const NavigationDrawerWidget(),
           body: _buildBody(context, state),
@@ -209,24 +202,7 @@ class ProfileScreenBloc extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          _buildProfileOption(
-            context,
-            icon: Icons.notifications,
-            title: 'Notifications',
-            onTap: () {
-              SnackBarHelper.showInfo(context, 'Notifications settings coming soon!');
-            },
-          ),
-          const SizedBox(height: 16),
 
-          _buildProfileOption(
-            context,
-            icon: Icons.security,
-            title: 'Privacy & Security',
-            onTap: () {
-              SnackBarHelper.showInfo(context, 'Privacy settings coming soon!');
-            },
-          ),
           const SizedBox(height: 16),
 
           _buildProfileOption(

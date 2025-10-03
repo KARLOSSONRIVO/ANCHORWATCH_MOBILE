@@ -5,6 +5,7 @@ import '../blocs/navigation/navigation_event.dart';
 import '../blocs/navigation/navigation_state.dart';
 import '../widgets/custom_snackbar.dart';
 import '../routes/route_guard.dart';
+import '../routes/app_routes.dart';
 
 /// Navigation indices enum for better type safety
 enum NavigationIndex {
@@ -95,10 +96,10 @@ class NavigationService {
 
     switch (action) {
       case 'contact_support':
-        SnackBarHelper.showInfo(context, 'Contact support coming soon!');
+        Navigator.of(context).pushNamed(AppRoutes.contact);
         break;
       case 'faqs':
-        SnackBarHelper.showInfo(context, 'FAQs coming soon!');
+        Navigator.of(context).pushNamed(AppRoutes.faq);
         break;
       case 'logout':
         await NavigationHelper.handleLogout(context);
@@ -122,5 +123,17 @@ class NavigationService {
   /// Reset navigation to dashboard
   static void resetToHome(BuildContext context) {
     context.read<NavigationBloc>().add(const NavigationReset());
+  }
+
+  /// Navigate to Contact screen
+  /// Use this method to programmatically navigate to the Contact screen with BLoC integration
+  static void navigateToContact(BuildContext context) {
+    Navigator.of(context).pushNamed(AppRoutes.contact);
+  }
+
+  /// Navigate to FAQ screen
+  /// Use this method to programmatically navigate to the FAQ screen with BLoC integration
+  static void navigateToFaq(BuildContext context) {
+    Navigator.of(context).pushNamed(AppRoutes.faq);
   }
 }

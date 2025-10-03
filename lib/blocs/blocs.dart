@@ -7,3 +7,5 @@ export 'navigation/navigation_state.dart';
 export 'profile/profile.dart';
 export 'alerts/alerts.dart';
 export 'anchorwise/anchorwise.dart';
+export 'contact/contact.dart';
+export 'faq/faq.dart';

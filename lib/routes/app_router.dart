@@ -5,6 +5,8 @@ import '../screens/onboarding_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
 import '../screens/main_navigation_screen.dart';
+import '../screens/contact_screen.dart';
+import '../screens/faq_screen.dart';
 import 'app_routes.dart';
 
 /// Main app router that handles navigation and route generation
@@ -44,6 +46,18 @@ class AppRouter {
       case AppRoutes.profile:
         return MaterialPageRoute(
           builder: (_) => const MainNavigationScreen(),
+          settings: settings,
+        );
+        
+      case AppRoutes.contact:
+        return MaterialPageRoute(
+          builder: (_) => const ContactScreen(),
+          settings: settings,
+        );
+        
+      case AppRoutes.faq:
+        return MaterialPageRoute(
+          builder: (_) => const FaqScreen(),
           settings: settings,
         );
         
@@ -125,12 +139,6 @@ class _SplashScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 48),
-            Text(
-              'Initializing...',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.white70,
-              ),
-            ),
           ],
         ),
       ),

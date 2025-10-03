@@ -13,12 +13,14 @@ class AppRoutes {
   static const String anchorwise = '/anchorwise';
   static const String alerts = '/alerts';
   static const String profile = '/profile';
-  static const String settings = '/settings';
+  
+  // Support and help routes
+  static const String contact = '/contact';
+  static const String faq = '/faq';
   
   // AnchorWatch specific routes (for future features)
-  static const String anchorMap = '/anchor-map';
   static const String anchorHistory = '/anchor-history';
-  static const String weather = '/weather';
+
   
   /// List of all available routes
   static const List<String> allRoutes = [
@@ -32,10 +34,9 @@ class AppRoutes {
     anchorwise,
     alerts,
     profile,
-    settings,
-    anchorMap,
+    contact,
+    faq,
     anchorHistory,
-    weather,
   ];
   
   /// Protected routes that require authentication
@@ -46,10 +47,9 @@ class AppRoutes {
     anchorwise,
     alerts,
     profile,
-    settings,
-    anchorMap,
-    anchorHistory,
-    weather,
+    contact,
+    faq,
+    anchorHistory
   ];
   
   /// Public routes accessible without authentication

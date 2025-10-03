@@ -26,14 +26,6 @@ class ProfileScreen extends StatelessWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              SnackBarHelper.showInfo(context, 'Settings coming soon!');
-            },
-            icon: const Icon(Icons.settings, color: Colors.white),
-          ),
-        ],
       ),
       drawer: const NavigationDrawerWidget(),
       body: const Center(

@@ -25,14 +25,6 @@ class DiscoverScreen extends StatelessWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              SnackBarHelper.showInfo(context, 'Search coming soon!');
-            },
-            icon: const Icon(Icons.search),
-          ),
-        ],
       ),
       drawer: const NavigationDrawerWidget(),
       body: const Padding(
