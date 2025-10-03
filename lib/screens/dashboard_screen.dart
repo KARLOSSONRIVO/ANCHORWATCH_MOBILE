@@ -1,0 +1,77 @@
+import 'package:flutter/material.dart';
+import '../widgets/widgets.dart';
+
+/// Dashboard page content only (no navigation)
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.blue.shade50,
+      appBar: AppBar(
+        backgroundColor: Colors.blue.shade700,
+        foregroundColor: Colors.white,
+        title: const Text(
+          'Dashboard',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              SnackBarHelper.showInfo(context, 'Notifications coming soon!');
+            },
+            icon: const Icon(Icons.notifications),
+          ),
+        ],
+      ),
+      drawer: const NavigationDrawerWidget(),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Welcome to AnchorWatch',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+              ),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Your maritime anchor monitoring dashboard',
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'Inter',
+                color: Colors.grey,
+              ),
+            ),
+            SizedBox(height: 32),
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Dashboard content coming soon!',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

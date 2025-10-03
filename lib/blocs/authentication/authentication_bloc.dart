@@ -8,6 +8,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     on<AuthenticationStatusRequested>(_onAuthenticationStatusRequested);
     on<AuthenticationLoginRequested>(_onAuthenticationLoginRequested);
     on<AuthenticationLogoutRequested>(_onAuthenticationLogoutRequested);
+    on<AuthenticationSignUpRequested>(_onAuthenticationSignUpRequested);
   }
 
   /// Check authentication status on app start
@@ -65,5 +66,44 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     emit(const AuthenticationState(
       status: AuthenticationStatus.unauthenticated,
     ));
+  }
+
+  /// Handle sign-up request
+  void _onAuthenticationSignUpRequested(
+    AuthenticationSignUpRequested event,
+    Emitter<AuthenticationState> emit,
+  ) async {
+    // Emit loading state
+    emit(state.copyWith(
+      status: AuthenticationStatus.loading,
+      isLoading: true,
+      error: null,
+    ));
+
+    try {
+      // Simulate API call for sign-up
+      await Future.delayed(const Duration(seconds: 2));
+      
+      // Simple validation for demo
+      if (event.username.isNotEmpty && event.email.isNotEmpty && event.password.isNotEmpty) {
+        emit(state.copyWith(
+          status: AuthenticationStatus.signUpSuccess,
+          isLoading: false,
+          user: event.username,
+        ));
+      } else {
+        emit(state.copyWith(
+          status: AuthenticationStatus.unauthenticated,
+          isLoading: false,
+          error: 'Please fill in all fields',
+        ));
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        status: AuthenticationStatus.unauthenticated,
+        isLoading: false,
+        error: 'Sign-up failed: $e',
+      ));
+    }
   }
 }

@@ -4,8 +4,7 @@ import '../blocs/authentication/authentication.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
-import '../screens/home_screen.dart';
-import '../screens/profile_screen.dart';
+import '../screens/main_navigation_screen.dart';
 import 'app_routes.dart';
 
 /// Main app router that handles navigation and route generation
@@ -37,15 +36,14 @@ class AppRouter {
           settings: settings,
         );
         
-      case AppRoutes.home:
-        return MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-          settings: settings,
-        );
-        
+      // All main navigation routes point to the same screen
+      case AppRoutes.dashboard:
+      case AppRoutes.discover:
+      case AppRoutes.anchorwise:
+      case AppRoutes.alerts:
       case AppRoutes.profile:
         return MaterialPageRoute(
-          builder: (_) => const ProfileScreen(),
+          builder: (_) => const MainNavigationScreen(),
           settings: settings,
         );
         
@@ -61,9 +59,13 @@ class AppRouter {
   static String getInitialRoute(AuthenticationStatus status) {
     switch (status) {
       case AuthenticationStatus.authenticated:
-        return AppRoutes.home;
+        return AppRoutes.dashboard; // Start at dashboard instead of home
       case AuthenticationStatus.unauthenticated:
         return AppRoutes.login;
+      case AuthenticationStatus.loading:
+        return AppRoutes.login; // Stay on login during loading
+      case AuthenticationStatus.signUpSuccess:
+        return AppRoutes.login; // Redirect to login after successful signup
       case AuthenticationStatus.unknown:
         return AppRoutes.splash;
     }
@@ -91,7 +93,7 @@ class AppRouter {
   
   static void navigateToHome(BuildContext context) {
     Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.home,
+      AppRoutes.dashboard, // Navigate to dashboard instead of home
       (route) => false,
     );
   }

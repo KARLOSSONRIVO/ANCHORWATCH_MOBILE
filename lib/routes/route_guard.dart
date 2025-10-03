@@ -52,8 +52,19 @@ class RouteGuard extends StatelessWidget {
                 }
                 break;
                 
+              case AuthenticationStatus.loading:
+                // Handle loading states - stay on current screen
+                break;
+                
+              case AuthenticationStatus.signUpSuccess:
+                // After successful signup, navigate to login
+                if (currentRoute != AppRoutes.login) {
+                  AppRouter.navigateToLogin(context);
+                }
+                break;
+                
               case AuthenticationStatus.unknown:
-                // Handle loading states if needed
+                // Handle unknown states if needed
                 break;
             }
           },

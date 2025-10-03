@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'blocs/blocs.dart';
 import 'routes/routes.dart';
 import 'screens/onboarding_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_navigation_screen.dart';
 import 'screens/login_screen.dart';
 
 void main() {
@@ -24,6 +24,21 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => AuthenticationBloc()
             ..add(const AuthenticationStatusRequested()),
+        ),
+        BlocProvider(
+          create: (context) => NavigationBloc(),
+        ),
+        BlocProvider(
+          create: (context) => ProfileBloc()
+            ..add(const ProfileLoadRequested()),
+        ),
+        BlocProvider(
+          create: (context) => AlertsBloc()
+            ..add(const AlertsLoadRequested()),
+        ),
+        BlocProvider(
+          create: (context) => AnchorWiseBloc()
+            ..add(const AnchorWiseLoadHistory()),
         ),
       ],
       child: MaterialApp(
@@ -57,9 +72,13 @@ class MyApp extends StatelessWidget {
                 // Onboarding completed, check authentication
                 switch (authState.status) {
                   case AuthenticationStatus.authenticated:
-                    return const HomeScreen();
+                    return const MainNavigationScreen();
                   case AuthenticationStatus.unauthenticated:
                     return const LoginScreen();
+                  case AuthenticationStatus.loading:
+                    return const LoginScreen(); // Stay on login during loading
+                  case AuthenticationStatus.signUpSuccess:
+                    return const LoginScreen(); // Redirect to login after successful signup
                   case AuthenticationStatus.unknown:
                     // Only show splash on app startup, not during login
                     if (onboardingState.status == OnboardingStatus.loading) {

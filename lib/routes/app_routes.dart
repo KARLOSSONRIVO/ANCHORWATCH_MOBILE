@@ -8,6 +8,10 @@ class AppRoutes {
   
   // Main app routes
   static const String home = '/home';
+  static const String dashboard = '/dashboard';
+  static const String discover = '/discover';
+  static const String anchorwise = '/anchorwise';
+  static const String alerts = '/alerts';
   static const String profile = '/profile';
   static const String settings = '/settings';
   
@@ -23,6 +27,10 @@ class AppRoutes {
     login,
     signup,
     home,
+    dashboard,
+    discover,
+    anchorwise,
+    alerts,
     profile,
     settings,
     anchorMap,
@@ -33,6 +41,10 @@ class AppRoutes {
   /// Protected routes that require authentication
   static const List<String> protectedRoutes = [
     home,
+    dashboard,
+    discover,
+    anchorwise,
+    alerts,
     profile,
     settings,
     anchorMap,

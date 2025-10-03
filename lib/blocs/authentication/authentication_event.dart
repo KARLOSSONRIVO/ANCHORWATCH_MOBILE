@@ -31,3 +31,19 @@ class AuthenticationLoginRequested extends AuthenticationEvent {
 class AuthenticationLogoutRequested extends AuthenticationEvent {
   const AuthenticationLogoutRequested();
 }
+
+/// Event to sign up a new user
+class AuthenticationSignUpRequested extends AuthenticationEvent {
+  const AuthenticationSignUpRequested({
+    required this.username,
+    required this.email,
+    required this.password,
+  });
+
+  final String username;
+  final String email;
+  final String password;
+
+  @override
+  List<Object> get props => [username, email, password];
+}
