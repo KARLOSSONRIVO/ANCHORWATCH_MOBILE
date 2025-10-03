@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../routes/route_guard.dart';
-import 'custom_snackbar.dart';
+import '../services/navigation_service.dart';
 
 /// Reusable navigation drawer widget matching the provided design
 class NavigationDrawerWidget extends StatelessWidget {
@@ -60,8 +59,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                     iconPath: 'assets/images/Navigation_Icons/Home.png',
                     title: 'Dashboard',
                     onTap: () {
-                      Navigator.pop(context);
-                      SnackBarHelper.showInfo(context, 'Home selected');
+                      NavigationService.handleMainNavigation(context, NavigationIndex.dashboard);
                     },
                   ),
                   _buildMenuItem(
@@ -69,8 +67,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                     iconPath: 'assets/images/Navigation_Icons/Compass.png',
                     title: 'Discover',
                     onTap: () {
-                      Navigator.pop(context);
-                      SnackBarHelper.showInfo(context, 'Discover feature coming soon!');
+                      NavigationService.handleMainNavigation(context, NavigationIndex.discover);
                     },
                   ),
                   _buildMenuItem(
@@ -78,8 +75,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                     iconPath: 'assets/images/Navigation_Icons/AnchorWise.png',
                     title: 'AnchorWise',
                     onTap: () {
-                      Navigator.pop(context);
-                      SnackBarHelper.showInfo(context, 'AnchorWise coming soon!');
+                      NavigationService.handleMainNavigation(context, NavigationIndex.anchorwise);
                     },
                   ),
                   _buildMenuItem(
@@ -87,8 +83,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                     iconPath: 'assets/images/Navigation_Icons/Notifications.png',
                     title: 'Alerts',
                     onTap: () {
-                      Navigator.pop(context);
-                      SnackBarHelper.showInfo(context, 'Alerts system coming soon!');
+                      NavigationService.handleMainNavigation(context, NavigationIndex.alerts);
                     },
                   ),
                   _buildMenuItem(
@@ -96,8 +91,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                     iconPath: 'assets/images/Navigation_Icons/Profile.png',
                     title: 'Profile',
                     onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/profile');
+                      NavigationService.handleMainNavigation(context, NavigationIndex.profile);
                     },
                   ),
                   
@@ -114,8 +108,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                     iconPath: 'assets/images/Navigation_Icons/Phone.png',
                     title: 'Contact Support',
                     onTap: () {
-                      Navigator.pop(context);
-                      SnackBarHelper.showInfo(context, 'Contact support coming soon!');
+                      NavigationService.handleSpecialNavigation(context, 'contact_support');
                     },
                   ),
                   _buildMenuItem(
@@ -123,8 +116,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                     iconPath: 'assets/images/Navigation_Icons/Faqs.png',
                     title: 'FAQS',
                     onTap: () {
-                      Navigator.pop(context);
-                      SnackBarHelper.showInfo(context, 'FAQs coming soon!');
+                      NavigationService.handleSpecialNavigation(context, 'faqs');
                     },
                   ),
                 ],
@@ -138,8 +130,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    Navigator.pop(context);
-                    await NavigationHelper.handleLogout(context);
+                    await NavigationService.handleSpecialNavigation(context, 'logout');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFD32F2F), // Red color matching the image
