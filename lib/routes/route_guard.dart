@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
+import '../blocs/onboarding/onboarding.dart';
+import '../widgets/widgets.dart';
 import 'app_router.dart';
 import 'app_routes.dart';
 
@@ -15,31 +17,48 @@ class RouteGuard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthenticationBloc, AuthenticationState>(
-      listener: (context, state) {
-        final currentRoute = ModalRoute.of(context)?.settings.name;
-        
-        // Handle authentication state changes
-        switch (state.status) {
-          case AuthenticationStatus.authenticated:
-            // If user is authenticated but on login screen, navigate to home
-            if (currentRoute == AppRoutes.login || currentRoute == AppRoutes.splash) {
-              AppRouter.navigateToHome(context);
-            }
-            break;
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<OnboardingBloc, OnboardingState>(
+          listener: (context, state) {
+            final currentRoute = ModalRoute.of(context)?.settings.name;
             
-          case AuthenticationStatus.unauthenticated:
-            // If user is unauthenticated and on a protected route, navigate to login
-            if (AppRouter.isProtectedRoute(currentRoute)) {
-              AppRouter.navigateToLogin(context);
+            // Handle onboarding completion
+            if (state.status == OnboardingStatus.completed) {
+              // If onboarding completed and we're on onboarding screen, navigate to login
+              if (currentRoute == AppRoutes.onboarding) {
+                AppRouter.navigateToLogin(context);
+              }
             }
-            break;
+          },
+        ),
+        BlocListener<AuthenticationBloc, AuthenticationState>(
+          listener: (context, state) {
+            final currentRoute = ModalRoute.of(context)?.settings.name;
             
-          case AuthenticationStatus.unknown:
-            // Handle loading states if needed
-            break;
-        }
-      },
+            // Handle authentication state changes
+            switch (state.status) {
+              case AuthenticationStatus.authenticated:
+                // If user is authenticated but on login screen, navigate to home
+                if (currentRoute == AppRoutes.login || currentRoute == AppRoutes.splash) {
+                  AppRouter.navigateToHome(context);
+                }
+                break;
+                
+              case AuthenticationStatus.unauthenticated:
+                // If user is unauthenticated and on a protected route, navigate to login
+                if (AppRouter.isProtectedRoute(currentRoute)) {
+                  AppRouter.navigateToLogin(context);
+                }
+                break;
+                
+              case AuthenticationStatus.unknown:
+                // Handle loading states if needed
+                break;
+            }
+          },
+        ),
+      ],
       child: child,
     );
   }
@@ -47,18 +66,40 @@ class RouteGuard extends StatelessWidget {
 
 /// Navigation wrapper that provides easy access to navigation methods
 class NavigationHelper {
-  /// Show snackbar message
+  /// Show snackbar message using custom snackbar
   static void showMessage(BuildContext context, String message, {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
+    SnackBarHelper.show(context, message, isError: isError);
+  }
+
+  /// Show success message
+  static void showSuccess(BuildContext context, String message) {
+    SnackBarHelper.showSuccess(context, message);
+  }
+
+  /// Show error message
+  static void showError(BuildContext context, String message) {
+    SnackBarHelper.showError(context, message);
+  }
+
+  /// Show warning message
+  static void showWarning(BuildContext context, String message) {
+    SnackBarHelper.showWarning(context, message);
+  }
+
+  /// Show info message
+  static void showInfo(BuildContext context, String message) {
+    SnackBarHelper.showInfo(context, message);
+  }
+
+  /// Handle complete logout process with confirmation and success message
+  static Future<void> handleLogout(BuildContext context) async {
+    final confirmed = await confirmLogout(context);
+    if (confirmed) {
+      SnackBarHelper.showSuccess(context, 'Logged out successfully');
+      context.read<AuthenticationBloc>().add(
+        const AuthenticationLogoutRequested(),
+      );
+    }
   }
   
   /// Show loading dialog
@@ -70,8 +111,6 @@ class NavigationHelper {
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(),
-            const SizedBox(width: 16),
             Text(message ?? 'Loading...'),
           ],
         ),

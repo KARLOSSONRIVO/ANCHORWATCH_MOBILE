@@ -122,12 +122,7 @@ class ProfileScreen extends StatelessWidget {
                 // Logout Button
                 ElevatedButton.icon(
                   onPressed: () async {
-                    final confirmed = await NavigationHelper.confirmLogout(context);
-                    if (confirmed) {
-                      context.read<AuthenticationBloc>().add(
-                        const AuthenticationLogoutRequested(),
-                      );
-                    }
+                    await NavigationHelper.handleLogout(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,

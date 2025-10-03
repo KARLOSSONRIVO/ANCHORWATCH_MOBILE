@@ -1,8 +1,10 @@
 /// Application route constants
 class AppRoutes {
-  // Authentication routes
+  // App flow routes
   static const String splash = '/';
+  static const String onboarding = '/onboarding';
   static const String login = '/login';
+  static const String signup = '/signup';
   
   // Main app routes
   static const String home = '/home';
@@ -17,7 +19,9 @@ class AppRoutes {
   /// List of all available routes
   static const List<String> allRoutes = [
     splash,
+    onboarding,
     login,
+    signup,
     home,
     profile,
     settings,
@@ -39,6 +43,8 @@ class AppRoutes {
   /// Public routes accessible without authentication
   static const List<String> publicRoutes = [
     splash,
+    onboarding,
     login,
+    signup,
   ];
 }

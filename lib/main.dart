@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'blocs/authentication/authentication.dart';
+import 'blocs/blocs.dart';
 import 'routes/routes.dart';
+import 'screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 
@@ -14,27 +15,61 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthenticationBloc()
-        ..add(const AuthenticationStatusRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => OnboardingBloc()
+            ..add(const OnboardingStatusRequested()),
+        ),
+        BlocProvider(
+          create: (context) => AuthenticationBloc()
+            ..add(const AuthenticationStatusRequested()),
+        ),
+      ],
       child: MaterialApp(
         title: 'AnchorWatch',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
+          fontFamily: 'Inter',
+          textTheme: const TextTheme().apply(
+            fontFamily: 'Inter',
+          ),
         ),
         onGenerateRoute: AppRouter.generateRoute,
-        home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-          builder: (context, state) {
-            switch (state.status) {
-              case AuthenticationStatus.authenticated:
-                return const HomeScreen();
-              case AuthenticationStatus.unauthenticated:
-                return const LoginScreen();
-              case AuthenticationStatus.unknown:
-                return const _SplashScreen();
-            }
+        home: BlocBuilder<OnboardingBloc, OnboardingState>(
+          builder: (context, onboardingState) {
+            return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+              builder: (context, authState) {
+                print('🏗️ Building app - Onboarding: ${onboardingState.status}, Auth: ${authState.status}');
+                
+                // Check onboarding first - only show splash on initial load
+                if (onboardingState.status == OnboardingStatus.loading) {
+                  return const _SplashScreen();
+                }
+                
+                // If onboarding not completed, show onboarding
+                if (onboardingState.status == OnboardingStatus.notCompleted) {
+                  return const OnboardingScreen();
+                }
+                
+                // Onboarding completed, check authentication
+                switch (authState.status) {
+                  case AuthenticationStatus.authenticated:
+                    return const HomeScreen();
+                  case AuthenticationStatus.unauthenticated:
+                    return const LoginScreen();
+                  case AuthenticationStatus.unknown:
+                    // Only show splash on app startup, not during login
+                    if (onboardingState.status == OnboardingStatus.loading) {
+                      return const _SplashScreen();
+                    } else {
+                      return const LoginScreen(); // Stay on login during loading
+                    }
+                }
+              },
+            );
           },
         ),
       ),
@@ -68,10 +103,6 @@ class _SplashScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              color: Colors.white,
-            ),
-            const SizedBox(height: 16),
             Text(
               'Initializing...',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(

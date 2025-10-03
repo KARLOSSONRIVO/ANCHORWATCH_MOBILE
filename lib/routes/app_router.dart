@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
+import '../screens/onboarding_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/signup_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/profile_screen.dart';
 import 'app_routes.dart';
@@ -17,9 +19,21 @@ class AppRouter {
           settings: settings,
         );
         
+      case AppRoutes.onboarding:
+        return MaterialPageRoute(
+          builder: (_) => const OnboardingScreen(),
+          settings: settings,
+        );
+        
       case AppRoutes.login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),
+          settings: settings,
+        );
+        
+      case AppRoutes.signup:
+        return MaterialPageRoute(
+          builder: (_) => const SignUpScreen(),
           settings: settings,
         );
         
@@ -61,6 +75,13 @@ class AppRouter {
   }
   
   /// Navigation helpers
+  static void navigateToOnboarding(BuildContext context) {
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      AppRoutes.onboarding,
+      (route) => false,
+    );
+  }
+  
   static void navigateToLogin(BuildContext context) {
     Navigator.of(context).pushNamedAndRemoveUntil(
       AppRoutes.login,
@@ -102,10 +123,6 @@ class _SplashScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              color: Colors.white,
-            ),
-            const SizedBox(height: 16),
             Text(
               'Initializing...',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(

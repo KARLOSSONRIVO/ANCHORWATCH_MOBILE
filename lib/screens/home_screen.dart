@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
 import '../routes/routes.dart';
+import '../widgets/widgets.dart';
 
 /// Home screen shown after successful authentication
 class HomeScreen extends StatelessWidget {
@@ -25,12 +26,7 @@ class HomeScreen extends StatelessWidget {
                   if (value == 'profile') {
                     Navigator.of(context).pushNamed(AppRoutes.profile);
                   } else if (value == 'logout') {
-                    final confirmed = await NavigationHelper.confirmLogout(context);
-                    if (confirmed) {
-                      context.read<AuthenticationBloc>().add(
-                        const AuthenticationLogoutRequested(),
-                      );
-                    }
+                    await NavigationHelper.handleLogout(context);
                   }
                 },
                 itemBuilder: (BuildContext context) => [
@@ -126,11 +122,7 @@ class HomeScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Anchor watch features coming soon!'),
-            ),
-          );
+          SnackBarHelper.showInfo(context, 'Anchor watch features coming soon!');
         },
         backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
