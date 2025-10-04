@@ -37,12 +37,12 @@ class DashboardScreen extends StatelessWidget {
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Welcome to AnchorWatch',
               style: TextStyle(
                 fontSize: 24,
@@ -50,8 +50,8 @@ class DashboardScreen extends StatelessWidget {
                 fontFamily: 'Inter',
               ),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Your maritime anchor monitoring dashboard',
               style: TextStyle(
                 fontSize: 16,
@@ -59,8 +59,8 @@ class DashboardScreen extends StatelessWidget {
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 32),
-            Expanded(
+            const SizedBox(height: 32),
+            const Expanded(
               child: Center(
                 child: Text(
                   'Dashboard content coming soon!',

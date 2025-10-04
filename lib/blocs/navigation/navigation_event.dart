@@ -22,3 +22,30 @@ class NavigationPageChanged extends NavigationEvent {
 class NavigationReset extends NavigationEvent {
   const NavigationReset();
 }
+
+/// Event to push a new navigation page to the stack
+class NavigationStackPush extends NavigationEvent {
+  final int pageIndex;
+  final String routeName;
+
+  const NavigationStackPush(this.pageIndex, this.routeName);
+
+  @override
+  List<Object> get props => [pageIndex, routeName];
+}
+
+/// Event to pop from navigation stack
+class NavigationStackPop extends NavigationEvent {
+  const NavigationStackPop();
+}
+
+/// Event to replace current navigation stack entry
+class NavigationStackReplace extends NavigationEvent {
+  final int pageIndex;
+  final String routeName;
+
+  const NavigationStackReplace(this.pageIndex, this.routeName);
+
+  @override
+  List<Object> get props => [pageIndex, routeName];
+}

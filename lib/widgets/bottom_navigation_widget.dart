@@ -84,21 +84,43 @@ class BottomNavigationWidget extends StatelessWidget {
           onTap(index);
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Center(
-            child: SizedBox(
-              width: 32,
-              height: 32,
-              child: Image.asset(
-                iconPath,
-                color: isSelected 
-                  ? const Color(0xFF00BCD4) // Teal color for selected
-                  : Colors.white.withValues(alpha: 0.7), // White with opacity for unselected
-                fit: BoxFit.contain,
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 30,
+                height: 30,
+                child: Image.asset(
+                  iconPath,
+                  color: isSelected 
+                    ? const Color(0xFF00BCD4) // Teal color for selected
+                    : Colors.white.withValues(alpha: 0.7), // White with opacity for unselected
+                  fit: BoxFit.contain,
+                ),
               ),
-            ),
+              // Add small dot indicator for items in navigation stack
+              const SizedBox(height: 1),
+              _buildStackIndicator(context, index, isSelected),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Build a small indicator to show if this nav item is in the navigation stack
+  Widget _buildStackIndicator(BuildContext context, int index, bool isSelected) {
+    // For now, just return an empty container - you can enhance this later
+    // to show actual stack status by importing navigation bloc
+    return Container(
+      width: 4,
+      height: 4,
+      decoration: BoxDecoration(
+        color: isSelected 
+          ? const Color(0xFF00BCD4)
+          : Colors.transparent,
+        shape: BoxShape.circle,
       ),
     );
   }

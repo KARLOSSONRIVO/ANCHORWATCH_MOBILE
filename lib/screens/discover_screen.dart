@@ -29,12 +29,12 @@ class DiscoverScreen extends StatelessWidget {
         ),
       ),
       drawer: const NavigationDrawerWidget(),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Discover',
               style: TextStyle(
                 fontSize: 24,
@@ -42,8 +42,8 @@ class DiscoverScreen extends StatelessWidget {
                 fontFamily: 'Inter',
               ),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Explore maritime insights and trends',
               style: TextStyle(
                 fontSize: 16,
@@ -51,8 +51,8 @@ class DiscoverScreen extends StatelessWidget {
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 32),
-            Expanded(
+            const SizedBox(height: 32),
+            const Expanded(
               child: Center(
                 child: Text(
                   'Discover content coming soon!',

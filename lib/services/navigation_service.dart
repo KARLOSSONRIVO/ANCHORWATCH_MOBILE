@@ -48,16 +48,64 @@ enum NavigationIndex {
 /// Unified navigation service that handles navigation for both bottom nav and drawer
 /// This ensures consistent navigation behavior and prevents stacking issues
 class NavigationService {
-  /// Navigate to a specific tab/screen using the NavigationBloc
+  /// Navigate to a specific tab/screen using the NavigationBloc with smart stacking
   /// This method should be used by both bottom navigation and drawer navigation
   static void navigateToTab(BuildContext context, NavigationIndex destination) {
     // Close all open drawers before navigation
     _closeAllDrawers();
     
-    // Use NavigationBloc to handle the navigation
+    // Use NavigationBloc to handle the navigation with smart stacking
     context.read<NavigationBloc>().add(
       NavigationPageChanged(destination.tabIndex),
     );
+  }
+
+  /// Navigate to tab with explicit stack push (for special cases)
+  static void navigateToTabWithPush(BuildContext context, NavigationIndex destination) {
+    _closeAllDrawers();
+    
+    final routeName = _getRouteNameForIndex(destination.tabIndex);
+    context.read<NavigationBloc>().add(
+      NavigationStackPush(destination.tabIndex, routeName),
+    );
+  }
+
+  /// Go back in navigation stack
+  static void goBack(BuildContext context) {
+    final navigationBloc = context.read<NavigationBloc>();
+    if (navigationBloc.canGoBack) {
+      context.read<NavigationBloc>().add(
+        const NavigationStackPop(),
+      );
+    }
+  }
+
+  /// Replace current navigation with new destination
+  static void replaceCurrentNavigation(BuildContext context, NavigationIndex destination) {
+    _closeAllDrawers();
+    
+    final routeName = _getRouteNameForIndex(destination.tabIndex);
+    context.read<NavigationBloc>().add(
+      NavigationStackReplace(destination.tabIndex, routeName),
+    );
+  }
+
+  /// Helper method to get route name from index
+  static String _getRouteNameForIndex(int index) {
+    switch (index) {
+      case 0:
+        return '/dashboard';
+      case 1:
+        return '/discover';
+      case 2:
+        return '/anchorwise';
+      case 3:
+        return '/alerts';
+      case 4:
+        return '/profile';
+      default:
+        return '/dashboard';
+    }
   }
   
   /// Close all open drawers across all screens
@@ -180,6 +228,18 @@ class NavigationService {
       return state.currentIndex;
     }
     return 0; // Default to dashboard
+  }
+
+  /// Check if navigation can go back
+  static bool canGoBack(BuildContext context) {
+    final navigationBloc = context.read<NavigationBloc>();
+    return navigationBloc.canGoBack;
+  }
+
+  /// Get current navigation stack
+  static List<NavigationStackEntry> getNavigationStack(BuildContext context) {
+    final navigationBloc = context.read<NavigationBloc>();
+    return navigationBloc.navigationStack;
   }
 
   /// Reset navigation to dashboard
