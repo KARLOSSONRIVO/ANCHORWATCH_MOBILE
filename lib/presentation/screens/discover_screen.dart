@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import '../widgets/widgets.dart';
-import '../services/navigation_service.dart';
+import '../../services/navigation_service.dart';
 
-/// Dashboard page content only (no navigation)
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+/// Discover page content only (no navigation)
+class DiscoverScreen extends StatelessWidget {
+  const DiscoverScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: DrawerKeys.dashboardKey,
+      key: DrawerKeys.discoverKey,
       backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
         title: const Text(
-          'Dashboard',
+          'Discover',
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w500,
@@ -27,14 +27,6 @@ class DashboardScreen extends StatelessWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              SnackBarHelper.showInfo(context, 'Notifications coming soon!');
-            },
-            icon: const Icon(Icons.notifications),
-          ),
-        ],
       ),
       drawer: const NavigationDrawerWidget(),
       body: Padding(
@@ -43,7 +35,7 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Welcome to AnchorWatch',
+              'Discover',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -52,7 +44,7 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Your maritime anchor monitoring dashboard',
+              'Explore maritime insights and trends',
               style: TextStyle(
                 fontSize: 16,
                 fontFamily: 'Inter',
@@ -63,7 +55,7 @@ class DashboardScreen extends StatelessWidget {
             const Expanded(
               child: Center(
                 child: Text(
-                  'Dashboard content coming soon!',
+                  'Discover content coming soon!',
                   style: TextStyle(
                     fontSize: 18,
                     fontFamily: 'Inter',

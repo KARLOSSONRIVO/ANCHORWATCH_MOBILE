@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../models/faq_models.dart';
+import '../../../data/models/faq_models.dart';
 
 /// Status enum for FAQ state
 enum FaqStatus { initial, loading, success, failure }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/navigation_service.dart';
+import '../../services/navigation_service.dart';
 
 /// Bottom navigation bar widget with 5 main navigation items
 class BottomNavigationWidget extends StatelessWidget {

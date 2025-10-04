@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../blocs/navigation/navigation_bloc.dart';
-import '../blocs/navigation/navigation_event.dart';
-import '../blocs/navigation/navigation_state.dart';
-import '../blocs/authentication/authentication.dart';
-import '../widgets/custom_snackbar.dart';
-import '../routes/app_routes.dart';
+import '../presentation/blocs/navigation/navigation_bloc.dart';
+import '../presentation/blocs/navigation/navigation_event.dart';
+import '../presentation/blocs/navigation/navigation_state.dart';
+import '../presentation/blocs/authentication/authentication.dart';
+import '../presentation/widgets/custom_snackbar.dart';
+import '../presentation/routes/app_routes.dart';
 
 /// Global keys for each screen's scaffold to manage drawer state
 class DrawerKeys {

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'faq_event.dart';
 import 'faq_state.dart';
-import '../../models/faq_models.dart';
+import '../../../data/models/faq_models.dart';
 
 /// BLoC to manage FAQ screen state
 class FaqBloc extends Bloc<FaqEvent, FaqState> {

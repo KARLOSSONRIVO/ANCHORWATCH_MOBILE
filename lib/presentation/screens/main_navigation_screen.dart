@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_state.dart';
 import '../widgets/bottom_navigation_widget.dart';
-import '../services/navigation_service.dart';
+import '../../services/navigation_service.dart';
 import 'dashboard_screen.dart';
 import 'discover_screen.dart';
 import 'anchorwise_screen.dart';

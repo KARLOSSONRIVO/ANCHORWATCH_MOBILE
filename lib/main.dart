@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'blocs/blocs.dart';
-import 'routes/routes.dart';
-import 'screens/onboarding_screen.dart';
-import 'screens/main_navigation_screen.dart';
-import 'screens/login_screen.dart';
+import 'presentation/blocs/blocs.dart';
+import 'presentation/routes/routes.dart';
+import 'presentation/screens/onboarding_screen.dart';
+import 'presentation/screens/main_navigation_screen.dart';
+import 'presentation/screens/login_screen.dart';
 
 void main() {
   runApp(const MyApp());

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/widgets.dart';
 import '../blocs/profile/profile.dart';
-import '../services/navigation_service.dart';
+import '../../services/navigation_service.dart';
 
 /// Profile page content with dark theme using BLoC architecture
 class ProfileScreen extends StatelessWidget {

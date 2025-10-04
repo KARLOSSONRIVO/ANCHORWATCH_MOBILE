@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/faq/faq.dart';
 import '../widgets/loading_widget.dart';
-import '../models/faq_models.dart';
+import '../../data/models/faq_models.dart';
 
 /// FAQ screen with BLoC architecture
 class FaqScreen extends StatelessWidget {
