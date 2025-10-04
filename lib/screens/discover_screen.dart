@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/widgets.dart';
+import '../services/navigation_service.dart';
 
 /// Discover page content only (no navigation)
 class DiscoverScreen extends StatelessWidget {
@@ -8,6 +9,7 @@ class DiscoverScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: DrawerKeys.discoverKey,
       backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.blue.shade700,

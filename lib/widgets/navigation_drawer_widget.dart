@@ -129,8 +129,9 @@ class NavigationDrawerWidget extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () async {
-                    await NavigationService.handleSpecialNavigation(context, 'logout');
+                  onPressed: () {
+                    // Use a simple synchronous call to avoid context issues
+                    NavigationService.handleSpecialNavigation(context, 'logout');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFD32F2F), // Red color matching the image

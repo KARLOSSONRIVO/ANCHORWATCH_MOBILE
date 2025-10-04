@@ -78,7 +78,11 @@ class BottomNavigationWidget extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => onTap(index),
+        onTap: () {
+          // Close drawer if open before navigation
+          _closeDrawerIfOpen(context);
+          onTap(index);
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Center(
@@ -99,5 +103,17 @@ class BottomNavigationWidget extends StatelessWidget {
     );
   }
 
- 
+  /// Helper method to close drawer if it's open
+  void _closeDrawerIfOpen(BuildContext context) {
+    try {
+      // Find the scaffold in the current widget tree
+      final scaffoldState = Scaffold.maybeOf(context);
+      if (scaffoldState != null && scaffoldState.isDrawerOpen) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      // Silently handle any context-related errors
+      print('Debug: Could not close drawer - $e');
+    }
+  }
 }

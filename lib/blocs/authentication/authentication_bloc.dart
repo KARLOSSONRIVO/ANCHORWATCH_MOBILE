@@ -61,11 +61,31 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   void _onAuthenticationLogoutRequested(
     AuthenticationLogoutRequested event,
     Emitter<AuthenticationState> emit,
-  ) {
-    // Clear user data and set to unauthenticated
-    emit(const AuthenticationState(
-      status: AuthenticationStatus.unauthenticated,
+  ) async {
+    // Emit loading state during logout
+    emit(state.copyWith(
+      status: AuthenticationStatus.loading,
+      isLoading: true,
+      error: null,
     ));
+
+    try {
+      // Simulate logout API call or cleanup operations
+      await Future.delayed(const Duration(seconds: 1));
+      
+      // Clear user data and set to unauthenticated
+      emit(const AuthenticationState(
+        status: AuthenticationStatus.unauthenticated,
+        isLoading: false,
+      ));
+    } catch (e) {
+      // Handle any errors during logout
+      emit(state.copyWith(
+        status: AuthenticationStatus.authenticated, // Keep user logged in if logout fails
+        isLoading: false,
+        error: 'Logout failed: $e',
+      ));
+    }
   }
 
   /// Handle sign-up request

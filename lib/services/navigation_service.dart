@@ -3,9 +3,27 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_event.dart';
 import '../blocs/navigation/navigation_state.dart';
+import '../blocs/authentication/authentication.dart';
 import '../widgets/custom_snackbar.dart';
-import '../routes/route_guard.dart';
 import '../routes/app_routes.dart';
+
+/// Global keys for each screen's scaffold to manage drawer state
+class DrawerKeys {
+  static final GlobalKey<ScaffoldState> dashboardKey = GlobalKey<ScaffoldState>();
+  static final GlobalKey<ScaffoldState> discoverKey = GlobalKey<ScaffoldState>();
+  static final GlobalKey<ScaffoldState> anchorwiseKey = GlobalKey<ScaffoldState>();
+  static final GlobalKey<ScaffoldState> alertsKey = GlobalKey<ScaffoldState>();
+  static final GlobalKey<ScaffoldState> profileKey = GlobalKey<ScaffoldState>();
+  
+  /// Get all drawer keys
+  static List<GlobalKey<ScaffoldState>> get allKeys => [
+        dashboardKey,
+        discoverKey,
+        anchorwiseKey,
+        alertsKey,
+        profileKey,
+      ];
+}
 
 /// Navigation indices enum for better type safety
 enum NavigationIndex {
@@ -33,20 +51,28 @@ class NavigationService {
   /// Navigate to a specific tab/screen using the NavigationBloc
   /// This method should be used by both bottom navigation and drawer navigation
   static void navigateToTab(BuildContext context, NavigationIndex destination) {
-    // Safely close drawer if open
-    try {
-      final scaffoldState = Scaffold.maybeOf(context);
-      if (scaffoldState != null && scaffoldState.isDrawerOpen) {
-        Navigator.of(context).pop();
-      }
-    } catch (e) {
-      // Ignore scaffold errors when called from bottom nav context
-    }
+    // Close all open drawers before navigation
+    _closeAllDrawers();
     
     // Use NavigationBloc to handle the navigation
     context.read<NavigationBloc>().add(
       NavigationPageChanged(destination.tabIndex),
     );
+  }
+  
+  /// Close all open drawers across all screens
+  static void _closeAllDrawers() {
+    for (final key in DrawerKeys.allKeys) {
+      try {
+        final scaffoldState = key.currentState;
+        if (scaffoldState != null && scaffoldState.isDrawerOpen) {
+          scaffoldState.closeDrawer();
+        }
+      } catch (e) {
+        // Silently handle any state-related errors
+        print('Debug: Could not close drawer for key: $e');
+      }
+    }
   }
 
   /// Navigate to a specific tab by index (for backward compatibility)
@@ -84,28 +110,64 @@ class NavigationService {
 
   /// Handle special navigation actions (non-main navigation items)
   static Future<void> handleSpecialNavigation(BuildContext context, String action) async {
-    // Safely close drawer if open
-    try {
-      final scaffoldState = Scaffold.maybeOf(context);
-      if (scaffoldState != null && scaffoldState.isDrawerOpen) {
-        Navigator.of(context).pop();
-      }
-    } catch (e) {
-      // Ignore scaffold errors when called from non-drawer context
-    }
-
     switch (action) {
       case 'contact_support':
+        _closeAllDrawers();
         Navigator.of(context).pushNamed(AppRoutes.contact);
         break;
       case 'faqs':
+        _closeAllDrawers();
         Navigator.of(context).pushNamed(AppRoutes.faq);
         break;
       case 'logout':
-        await NavigationHelper.handleLogout(context);
+        await _handleLogout(context);
         break;
       default:
         SnackBarHelper.showWarning(context, 'Unknown action: $action');
+    }
+  }
+
+  /// Handle logout directly in NavigationService to avoid context issues
+  static Future<void> _handleLogout(BuildContext context) async {
+    // First, get all required references while context is valid
+    final authBloc = context.read<AuthenticationBloc>();
+    
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed == true) {
+      // Close all drawers
+      _closeAllDrawers();
+      
+      // Trigger logout directly
+      authBloc.add(const AuthenticationLogoutRequested());
+      
+      // Show success message using custom snackbar
+      SnackBarHelper.showSuccess(
+        context,
+        'Logged out successfully',
+        duration: const Duration(seconds: 2),
+      );
     }
   }
 

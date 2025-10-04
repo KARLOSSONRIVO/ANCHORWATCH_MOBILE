@@ -102,15 +102,11 @@ class NavigationHelper {
     SnackBarHelper.showInfo(context, message);
   }
 
-  /// Handle complete logout process with confirmation and success message
+  /// DEPRECATED: Handle complete logout process with confirmation, loading screen and success message
+  /// This method is no longer used - logout is now handled directly in NavigationService
+  @deprecated
   static Future<void> handleLogout(BuildContext context) async {
-    final confirmed = await confirmLogout(context);
-    if (confirmed) {
-      SnackBarHelper.showSuccess(context, 'Logged out successfully');
-      context.read<AuthenticationBloc>().add(
-        const AuthenticationLogoutRequested(),
-      );
-    }
+    throw UnimplementedError('This method is deprecated. Use NavigationService._handleLogout instead.');
   }
   
   /// Show loading dialog
@@ -122,8 +118,54 @@ class NavigationHelper {
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 16),
             Text(message ?? 'Loading...'),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Show logout loading dialog with specific styling
+  static void showLogoutLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        content: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Logging out...',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Inter',
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Please wait while we securely log you out.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  fontFamily: 'Inter',
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
