@@ -81,21 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     'assets/images/LOGOnoBG.png',
                     width: 120,
                     height: 120,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 120,
-                        height: 120,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF00D4AA),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.anchor,
-                          size: 60,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 40),
                   
@@ -146,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color:Colors.blue),
+                        borderSide: const BorderSide(color:const Color(0xFF00BCD4)),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -186,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.blue),
+                        borderSide: const BorderSide(color: const Color(0xFF00BCD4)),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -244,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: ElevatedButton(
                           onPressed: isLoading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: const Color(0xFF00BCD4),
                             foregroundColor: Colors.black,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -288,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: const Text(
                           'Sign Up',
                           style: TextStyle(
-                            color: Colors.blue,
+                            color: const Color(0xFF00BCD4),
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Inter',
                           ),
@@ -308,7 +294,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: const Center(
                 child: LoadingWidget(
                   size: 48.0,
-                  color: Color(0xFF00D4AA),
+                  color: const Color(0xFF00BCD4),
                   strokeWidth: 3.0,
                   text: 'Signing in...',
                   textStyle: TextStyle(

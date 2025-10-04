@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../services/navigation_service.dart';
+import '../blocs/navigation/navigation_bloc.dart';
+import '../blocs/navigation/navigation_state.dart';
 
 /// Reusable navigation drawer widget matching the provided design
 class NavigationDrawerWidget extends StatelessWidget {
@@ -7,7 +10,14 @@ class NavigationDrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    return BlocBuilder<NavigationBloc, NavigationState>(
+      builder: (context, state) {
+        int currentIndex = 0;
+        if (state is NavigationPageSelected) {
+          currentIndex = state.currentIndex;
+        }
+
+        return Drawer(
       backgroundColor: const Color(0xFF2D2D2D), // Dark grey background matching the image
       child: SafeArea(
         child: Column(
@@ -58,6 +68,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                     context,
                     iconPath: 'assets/images/Navigation_Icons/Home.png',
                     title: 'Dashboard',
+                    currentIndex: currentIndex,
+                    itemIndex: 0,
                     onTap: () {
                       NavigationService.handleMainNavigation(context, NavigationIndex.dashboard);
                     },
@@ -66,6 +78,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                     context,
                     iconPath: 'assets/images/Navigation_Icons/Compass.png',
                     title: 'Discover',
+                    currentIndex: currentIndex,
+                    itemIndex: 1,
                     onTap: () {
                       NavigationService.handleMainNavigation(context, NavigationIndex.discover);
                     },
@@ -74,6 +88,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                     context,
                     iconPath: 'assets/images/Navigation_Icons/AnchorWise.png',
                     title: 'AnchorWise',
+                    currentIndex: currentIndex,
+                    itemIndex: 2,
                     onTap: () {
                       NavigationService.handleMainNavigation(context, NavigationIndex.anchorwise);
                     },
@@ -82,6 +98,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                     context,
                     iconPath: 'assets/images/Navigation_Icons/Notifications.png',
                     title: 'Alerts',
+                    currentIndex: currentIndex,
+                    itemIndex: 3,
                     onTap: () {
                       NavigationService.handleMainNavigation(context, NavigationIndex.alerts);
                     },
@@ -90,6 +108,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                     context,
                     iconPath: 'assets/images/Navigation_Icons/Profile.png',
                     title: 'Profile',
+                    currentIndex: currentIndex,
+                    itemIndex: 4,
                     onTap: () {
                       NavigationService.handleMainNavigation(context, NavigationIndex.profile);
                     },
@@ -107,6 +127,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                     context,
                     iconPath: 'assets/images/Navigation_Icons/Phone.png',
                     title: 'Contact Support',
+                    currentIndex: currentIndex,
+                    itemIndex: -1, // Special navigation, never active
                     onTap: () {
                       NavigationService.handleSpecialNavigation(context, 'contact_support');
                     },
@@ -115,6 +137,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                     context,
                     iconPath: 'assets/images/Navigation_Icons/Faqs.png',
                     title: 'FAQS',
+                    currentIndex: currentIndex,
+                    itemIndex: -2, // Special navigation, never active
                     onTap: () {
                       NavigationService.handleSpecialNavigation(context, 'faqs');
                     },
@@ -161,21 +185,36 @@ class NavigationDrawerWidget extends StatelessWidget {
         ),
       ),
     );
+      },
+    );
   }
 
-  /// Build individual menu item matching the design
+  /// Build individual menu item matching the design with active state indicator
   Widget _buildMenuItem(
     BuildContext context, {
     required String iconPath,
     required String title,
     required VoidCallback onTap,
+    required int currentIndex,
+    required int itemIndex,
   }) {
+    final bool isActive = currentIndex == itemIndex;
+    
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: isActive ? BoxDecoration(
+            color: const Color(0xFF00BCD4).withOpacity(0.15),
+            border: const Border(
+              right: BorderSide(
+                color: const Color(0xFF00BCD4),
+                width: 3,
+              ),
+            ),
+          ) : null,
           child: Row(
             children: [
               // Custom icon from assets
@@ -183,18 +222,18 @@ class NavigationDrawerWidget extends StatelessWidget {
                 iconPath,
                 width: 28,
                 height: 28,
-                color: Colors.white, // Tint the icons white to match the design
+                color: isActive ? const Color(0xFF00BCD4) : Colors.white,
                 fit: BoxFit.contain,
               ),
               const SizedBox(width: 16),
               // Menu title
               Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: isActive ? const Color(0xFF00BCD4): Colors.white,
                   fontSize: 16,
                   fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ],
