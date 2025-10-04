@@ -9,6 +9,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileUpdateRequested>(_onProfileUpdateRequested);
     on<ProfileLogoutRequested>(_onProfileLogoutRequested);
     on<ProfileThemeChangeRequested>(_onProfileThemeChangeRequested);
+    on<ProfileNavigateToEditAccount>(_onProfileNavigateToEditAccount);
+    on<ProfileNavigateToContactSupport>(_onProfileNavigateToContactSupport);
+    on<ProfileNavigateToFAQs>(_onProfileNavigateToFAQs);
   }
 
   /// Load user profile data
@@ -25,8 +28,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       // Mock profile data
       emit(state.copyWith(
         status: ProfileStatus.loaded,
-        name: 'John Doe',
-        email: 'john.doe@example.com',
+        name: 'Karlos Rivo',
+        email: 'karlos@gmail.com',
         avatar: null,
         isDarkTheme: true,
       ));
@@ -78,5 +81,29 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) {
     emit(state.copyWith(isDarkTheme: event.isDarkTheme));
+  }
+
+  /// Handle navigation to edit account
+  void _onProfileNavigateToEditAccount(
+    ProfileNavigateToEditAccount event,
+    Emitter<ProfileState> emit,
+  ) {
+    emit(state.copyWith(status: ProfileStatus.navigatingToEditAccount));
+  }
+
+  /// Handle navigation to contact support
+  void _onProfileNavigateToContactSupport(
+    ProfileNavigateToContactSupport event,
+    Emitter<ProfileState> emit,
+  ) {
+    emit(state.copyWith(status: ProfileStatus.navigatingToContactSupport));
+  }
+
+  /// Handle navigation to FAQs
+  void _onProfileNavigateToFAQs(
+    ProfileNavigateToFAQs event,
+    Emitter<ProfileState> emit,
+  ) {
+    emit(state.copyWith(status: ProfileStatus.navigatingToFAQs));
   }
 }

@@ -43,3 +43,18 @@ class ProfileThemeChangeRequested extends ProfileEvent {
   @override
   List<Object> get props => [isDarkTheme];
 }
+
+/// Event to navigate to edit account
+class ProfileNavigateToEditAccount extends ProfileEvent {
+  const ProfileNavigateToEditAccount();
+}
+
+/// Event to navigate to contact support
+class ProfileNavigateToContactSupport extends ProfileEvent {
+  const ProfileNavigateToContactSupport();
+}
+
+/// Event to navigate to FAQs
+class ProfileNavigateToFAQs extends ProfileEvent {
+  const ProfileNavigateToFAQs();
+}

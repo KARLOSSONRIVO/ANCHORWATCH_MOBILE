@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Profile status enum
-enum ProfileStatus { loading, loaded, error, updating }
+enum ProfileStatus { loading, loaded, error, updating, navigatingToEditAccount, navigatingToContactSupport, navigatingToFAQs }
 
 /// Profile state
 class ProfileState extends Equatable {
