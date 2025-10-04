@@ -17,3 +17,23 @@ class ContactLoadRequested extends ContactEvent {
 class ContactRefreshRequested extends ContactEvent {
   const ContactRefreshRequested();
 }
+
+/// Event when user types in the question field
+class ContactQuestionChanged extends ContactEvent {
+  const ContactQuestionChanged({required this.question});
+
+  final String question;
+
+  @override
+  List<Object> get props => [question];
+}
+
+/// Event to submit the contact form
+class ContactFormSubmitted extends ContactEvent {
+  const ContactFormSubmitted();
+}
+
+/// Event to navigate to FAQ (replaces current screen in stack)
+class ContactNavigateToFaq extends ContactEvent {
+  const ContactNavigateToFaq();
+}

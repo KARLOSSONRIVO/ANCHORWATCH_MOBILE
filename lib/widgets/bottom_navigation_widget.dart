@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/navigation_service.dart';
 
 /// Bottom navigation bar widget with 5 main navigation items
 class BottomNavigationWidget extends StatelessWidget {
@@ -80,7 +81,7 @@ class BottomNavigationWidget extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           // Close drawer if open before navigation
-          _closeDrawerIfOpen(context);
+          NavigationService.forceCloseDrawer();
           onTap(index);
         },
         child: Container(
@@ -125,17 +126,5 @@ class BottomNavigationWidget extends StatelessWidget {
     );
   }
 
-  /// Helper method to close drawer if it's open
-  void _closeDrawerIfOpen(BuildContext context) {
-    try {
-      // Find the scaffold in the current widget tree
-      final scaffoldState = Scaffold.maybeOf(context);
-      if (scaffoldState != null && scaffoldState.isDrawerOpen) {
-        Navigator.of(context).pop();
-      }
-    } catch (e) {
-      // Silently handle any context-related errors
-      print('Debug: Could not close drawer - $e');
-    }
-  }
+
 }

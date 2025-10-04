@@ -7,6 +7,9 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
   ContactBloc() : super(const ContactState()) {
     on<ContactLoadRequested>(_onContactLoadRequested);
     on<ContactRefreshRequested>(_onContactRefreshRequested);
+    on<ContactQuestionChanged>(_onContactQuestionChanged);
+    on<ContactFormSubmitted>(_onContactFormSubmitted);
+    on<ContactNavigateToFaq>(_onContactNavigateToFaq);
   }
 
   Future<void> _onContactLoadRequested(
@@ -45,5 +48,48 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
         errorMessage: 'Failed to refresh contact information: $error',
       ));
     }
+  }
+
+  void _onContactQuestionChanged(
+    ContactQuestionChanged event,
+    Emitter<ContactState> emit,
+  ) {
+    final isValid = event.question.trim().isNotEmpty;
+    emit(state.copyWith(
+      question: event.question,
+      isFormValid: isValid,
+    ));
+  }
+
+  Future<void> _onContactFormSubmitted(
+    ContactFormSubmitted event,
+    Emitter<ContactState> emit,
+  ) async {
+    if (!state.isFormValid) return;
+
+    emit(state.copyWith(status: ContactStatus.submitting));
+    
+    try {
+      // Simulate form submission
+      await Future.delayed(const Duration(seconds: 2));
+      
+      emit(state.copyWith(
+        status: ContactStatus.submitted,
+        question: '', // Clear the form after successful submission
+        isFormValid: false,
+      ));
+    } catch (error) {
+      emit(state.copyWith(
+        status: ContactStatus.failure,
+        errorMessage: 'Failed to submit your question: $error',
+      ));
+    }
+  }
+
+  void _onContactNavigateToFaq(
+    ContactNavigateToFaq event,
+    Emitter<ContactState> emit,
+  ) {
+    emit(state.copyWith(status: ContactStatus.navigatingToFaq));
   }
 }

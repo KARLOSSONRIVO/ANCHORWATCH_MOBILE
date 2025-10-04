@@ -33,7 +33,6 @@ class _AlertsView extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w500,
-            fontSize: 18,
           ),
         ),
         leading: Builder(

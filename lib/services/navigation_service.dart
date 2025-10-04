@@ -48,11 +48,13 @@ enum NavigationIndex {
 /// Unified navigation service that handles navigation for both bottom nav and drawer
 /// This ensures consistent navigation behavior and prevents stacking issues
 class NavigationService {
+  /// Global key to access the main scaffold state for drawer management
+  static final GlobalKey<ScaffoldState> mainScaffoldKey = GlobalKey<ScaffoldState>();
   /// Navigate to a specific tab/screen using the NavigationBloc with smart stacking
   /// This method should be used by both bottom navigation and drawer navigation
   static void navigateToTab(BuildContext context, NavigationIndex destination) {
-    // Close all open drawers before navigation
-    _closeAllDrawers();
+    // Close the current drawer if it's open
+    _closeCurrentDrawer(context);
     
     // Use NavigationBloc to handle the navigation with smart stacking
     context.read<NavigationBloc>().add(
@@ -60,9 +62,57 @@ class NavigationService {
     );
   }
 
+  /// Close the current drawer if it's open
+  static void _closeCurrentDrawer(BuildContext context) {
+    try {
+      // First try using the main scaffold key
+      if (mainScaffoldKey.currentState != null && mainScaffoldKey.currentState!.isDrawerOpen) {
+        mainScaffoldKey.currentState!.closeDrawer();
+        return;
+      }
+      
+      // Then try all individual screen drawer keys
+      for (final drawerKey in DrawerKeys.allKeys) {
+        if (drawerKey.currentState != null && drawerKey.currentState!.isDrawerOpen) {
+          drawerKey.currentState!.closeDrawer();
+          return;
+        }
+      }
+      
+      // Fallback to context-based approach
+      final scaffoldState = Scaffold.maybeOf(context);
+      if (scaffoldState != null && scaffoldState.isDrawerOpen) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      print('Debug: Could not close current drawer - $e');
+    }
+  }
+
+  /// Force close any open drawer - can be called from anywhere
+  static void forceCloseDrawer() {
+    try {
+      // First try the main scaffold key
+      if (mainScaffoldKey.currentState != null && mainScaffoldKey.currentState!.isDrawerOpen) {
+        mainScaffoldKey.currentState!.closeDrawer();
+        return;
+      }
+      
+      // Then try all individual screen drawer keys
+      for (final drawerKey in DrawerKeys.allKeys) {
+        if (drawerKey.currentState != null && drawerKey.currentState!.isDrawerOpen) {
+          drawerKey.currentState!.closeDrawer();
+          return;
+        }
+      }
+    } catch (e) {
+      print('Debug: Could not force close drawer - $e');
+    }
+  }
+
   /// Navigate to tab with explicit stack push (for special cases)
   static void navigateToTabWithPush(BuildContext context, NavigationIndex destination) {
-    _closeAllDrawers();
+    _closeCurrentDrawer(context);
     
     final routeName = _getRouteNameForIndex(destination.tabIndex);
     context.read<NavigationBloc>().add(
@@ -82,7 +132,7 @@ class NavigationService {
 
   /// Replace current navigation with new destination
   static void replaceCurrentNavigation(BuildContext context, NavigationIndex destination) {
-    _closeAllDrawers();
+    _closeCurrentDrawer(context);
     
     final routeName = _getRouteNameForIndex(destination.tabIndex);
     context.read<NavigationBloc>().add(
@@ -108,20 +158,7 @@ class NavigationService {
     }
   }
   
-  /// Close all open drawers across all screens
-  static void _closeAllDrawers() {
-    for (final key in DrawerKeys.allKeys) {
-      try {
-        final scaffoldState = key.currentState;
-        if (scaffoldState != null && scaffoldState.isDrawerOpen) {
-          scaffoldState.closeDrawer();
-        }
-      } catch (e) {
-        // Silently handle any state-related errors
-        print('Debug: Could not close drawer for key: $e');
-      }
-    }
-  }
+
 
   /// Navigate to a specific tab by index (for backward compatibility)
   static void navigateToIndex(BuildContext context, int index) {
@@ -137,18 +174,12 @@ class NavigationService {
         break;
       case NavigationIndex.discover:
         navigateToTab(context, NavigationIndex.discover);
-        // Show coming soon message
-        SnackBarHelper.showInfo(context, 'Discover feature coming soon!');
         break;
       case NavigationIndex.anchorwise:
         navigateToTab(context, NavigationIndex.anchorwise);
-        // Show coming soon message  
-        SnackBarHelper.showInfo(context, 'AnchorWise coming soon!');
         break;
       case NavigationIndex.alerts:
         navigateToTab(context, NavigationIndex.alerts);
-        // Show coming soon message
-        SnackBarHelper.showInfo(context, 'Alerts system coming soon!');
         break;
       case NavigationIndex.profile:
         navigateToTab(context, NavigationIndex.profile);
@@ -160,11 +191,11 @@ class NavigationService {
   static Future<void> handleSpecialNavigation(BuildContext context, String action) async {
     switch (action) {
       case 'contact_support':
-        _closeAllDrawers();
+        _closeCurrentDrawer(context);
         Navigator.of(context).pushNamed(AppRoutes.contact);
         break;
       case 'faqs':
-        _closeAllDrawers();
+        _closeCurrentDrawer(context);
         Navigator.of(context).pushNamed(AppRoutes.faq);
         break;
       case 'logout':
@@ -204,8 +235,8 @@ class NavigationService {
     );
     
     if (confirmed == true) {
-      // Close all drawers
-      _closeAllDrawers();
+      // Close current drawer
+      _closeCurrentDrawer(context);
       
       // Trigger logout directly
       authBloc.add(const AuthenticationLogoutRequested());

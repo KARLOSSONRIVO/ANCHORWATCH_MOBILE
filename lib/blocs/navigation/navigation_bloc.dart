@@ -21,6 +21,9 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
     NavigationPageChanged event,
     Emitter<NavigationState> emit,
   ) {
+    // Close any open drawer when navigation changes
+    _closeDrawerIfOpen();
+    
     final pageName = NavigationPageSelected.getPageName(event.pageIndex);
     final routeName = NavigationPageSelected.getRouteName(event.pageIndex);
     
@@ -200,5 +203,11 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
       return currentState.navigationStack;
     }
     return [];
+  }
+
+  /// Close drawer if it's open - called during navigation changes
+  void _closeDrawerIfOpen() {
+    // We'll handle this in the navigation service instead to avoid circular imports
+    // This is just a placeholder for now
   }
 }

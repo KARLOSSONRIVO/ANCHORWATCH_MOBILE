@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/contact/contact.dart';
-import '../widgets/loading_widget.dart';
 
 /// Contact screen with BLoC architecture
 class ContactScreen extends StatelessWidget {
@@ -16,8 +15,21 @@ class ContactScreen extends StatelessWidget {
   }
 }
 
-class _ContactView extends StatelessWidget {
+class _ContactView extends StatefulWidget {
   const _ContactView();
+
+  @override
+  State<_ContactView> createState() => _ContactViewState();
+}
+
+class _ContactViewState extends State<_ContactView> {
+  final TextEditingController _questionController = TextEditingController();
+
+  @override
+  void dispose() {
+    _questionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +39,11 @@ class _ContactView extends StatelessWidget {
         backgroundColor: const Color(0xFF000000),
         foregroundColor: Colors.white,
         title: const Text(
-          'Contact',
+          'Contact Support',
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w500,
+            fontSize: 18,
           ),
         ),
         elevation: 0,
@@ -39,48 +52,214 @@ class _ContactView extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: BlocBuilder<ContactBloc, ContactState>(
-        builder: (context, state) {
-          switch (state.status) {
-            case ContactStatus.loading:
-              return const Center(child: LoadingWidget());
-            case ContactStatus.failure:
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Error: ${state.errorMessage}',
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontFamily: 'Inter',
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<ContactBloc>().add(const ContactRefreshRequested());
-                      },
-                      child: const Text('Retry'),
-                    ),
-                  ],
+      body: BlocConsumer<ContactBloc, ContactState>(
+        listener: (context, state) {
+          if (state.status == ContactStatus.submitted) {
+            // Clear the text field when form is successfully submitted
+            _questionController.clear();
+            
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Your question has been submitted successfully!',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Colors.white,
+                  ),
                 ),
-              );
-            case ContactStatus.success:
-            case ContactStatus.initial:
-              return const Center(
-                child: Text(
-                  'Contact',
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          } else if (state.status == ContactStatus.failure) {
+            // Show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.errorMessage,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    color: Colors.white,
+                  ),
+                ),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          } else if (state.status == ContactStatus.navigatingToFaq) {
+            // Navigate to FAQ and replace current screen in stack
+            Navigator.of(context).pushReplacementNamed('/faq');
+          }
+        },
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header section
+                const Text(
+                  'Your Questions, Answered.',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Your Strategy. Strengthened.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                
+                // Description
+                const Text(
+                  'Our Help Desk is here to provide clear guidance and practical solutions to dedicated support to empower your financial decisions. Whether you\'re exploring strategic market moves, need help with your account, or want better insights into advanced trading strategies, we\'re here to help, making your AnchorWatch experience intuitive, secure, and precision trading.',
+                  style: TextStyle(
+                    color: Color(0xFFB3B3B3),
+                    fontSize: 14,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                
+                // How can we help section
+                const Text(
+                  'How can we help?',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: 'Inter',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              );
-          }
+                const SizedBox(height: 16),
+                
+                // Question input field
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A1A1A),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFF333333),
+                        width: 1,
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _questionController,
+                      onChanged: (value) {
+                        context.read<ContactBloc>().add(
+                          ContactQuestionChanged(question: value),
+                        );
+                      },
+                      maxLines: null,
+                      expands: true,
+                      textAlignVertical: TextAlignVertical.top,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                      ),
+                      decoration: const InputDecoration(
+                        hintText: 'Type your question here...',
+                        hintStyle: TextStyle(
+                          color: Color(0xFF666666),
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                
+                // Send button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: state.isFormValid && state.status != ContactStatus.submitting
+                        ? () {
+                            context.read<ContactBloc>().add(const ContactFormSubmitted());
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: state.isFormValid 
+                          ? const Color(0xFF4CAF50) 
+                          : const Color(0xFF424242),
+                      foregroundColor: state.isFormValid 
+                          ? Colors.white 
+                          : const Color(0xFFBBBBBB),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: state.isFormValid 
+                            ? BorderSide.none 
+                            : const BorderSide(
+                                color: Color(0xFF666666), 
+                                width: 1,
+                              ),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: state.status == ContactStatus.submitting
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            'Send',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: state.isFormValid 
+                                  ? Colors.white 
+                                  : const Color(0xFFBBBBBB),
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // Go to FAQs link
+                Center(
+                  child: TextButton(
+                    onPressed: () {
+                      // Trigger FAQ navigation through BLoC
+                      context.read<ContactBloc>().add(const ContactNavigateToFaq());
+                    },
+                    child: const Text(
+                      'Go to FAQs',
+                      style: TextStyle(
+                        color: Color(0xFF4CAF50),
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
+            ),
+          );
         },
       ),
     );
