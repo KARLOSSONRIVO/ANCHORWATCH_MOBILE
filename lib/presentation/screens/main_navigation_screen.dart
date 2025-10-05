@@ -6,6 +6,7 @@ import '../blocs/authentication/authentication_bloc.dart';
 import '../blocs/authentication/authentication_state.dart';
 import '../widgets/bottom_navigation_widget.dart';
 import '../widgets/navigation_drawer_widget.dart';
+import '../widgets/custom_snackbar.dart';
 import '../../services/navigation_service.dart';
 import 'dashboard_screen.dart';
 import 'discover_screen.dart';
@@ -63,24 +64,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             },
             icon: const Icon(Icons.history),
           ),
-          IconButton(
-            onPressed: () {
-              // TODO: Implement clear dialog
-            },
-            icon: const Icon(Icons.clear_all),
-          ),
         ];
       default: // All other screens
-        return [
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications coming soon!')),
-              );
-            },
-            icon: const Icon(Icons.notifications),
-          ),
-        ];
+        return [];
     }
   }
 
@@ -89,10 +75,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listener: (context, authState) {
         print('🔍 MainNavigationScreen: Auth state changed to ${authState.status}');
-        // If user is logged out, navigate back to login screen
+        // If user is logged out, show success message and navigate back to login screen
         if (authState.status == AuthenticationStatus.unauthenticated) {
           print('🚪 MainNavigationScreen: Navigating to login due to logout');
-          Navigator.of(context).pushReplacementNamed('/login');
+          // Show logout success message before navigation
+          SnackBarHelper.showSuccess(context, 'Logged out successfully');
+          // Small delay to ensure snackbar is shown before navigation
+          Future.delayed(const Duration(milliseconds: 100), () {
+            Navigator.of(context).pushReplacementNamed('/login');
+          });
         }
       },
       child: BlocListener<NavigationBloc, NavigationState>(

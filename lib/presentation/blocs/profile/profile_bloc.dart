@@ -2,11 +2,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
+import '../../../services/authentication_service.dart';
 
 /// BLoC for managing profile state
 @injectable
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  ProfileBloc() : super(const ProfileState()) {
+  final AuthenticationService _authService;
+  
+  ProfileBloc(this._authService) : super(const ProfileState()) {
     on<ProfileLoadRequested>(_onProfileLoadRequested);
     on<ProfileUpdateRequested>(_onProfileUpdateRequested);
     on<ProfileLogoutRequested>(_onProfileLogoutRequested);
@@ -24,17 +27,23 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(state.copyWith(status: ProfileStatus.loading));
 
     try {
-      // Simulate API call to load profile data
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Mock profile data
-      emit(state.copyWith(
-        status: ProfileStatus.loaded,
-        name: 'Karlos Rivo',
-        email: 'karlos@gmail.com',
-        avatar: null,
-        isDarkTheme: true,
-      ));
+      // Fetch user profile from server
+      final user = await _authService.fetchUserProfile();
+      
+      if (user != null) {
+        emit(state.copyWith(
+          status: ProfileStatus.loaded,
+          name: user.username,
+          email: user.email,
+          avatar: user.profileImageUrl,
+          isDarkTheme: true, // Keep theme setting as is
+        ));
+      } else {
+        emit(state.copyWith(
+          status: ProfileStatus.error,
+          error: 'Failed to load profile data',
+        ));
+      }
     } catch (e) {
       emit(state.copyWith(
         status: ProfileStatus.error,

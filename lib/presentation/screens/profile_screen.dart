@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../injection_container.dart';
 import '../blocs/profile/profile.dart';
 
 /// Profile page content with dark theme using BLoC architecture
@@ -9,7 +10,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ProfileBloc()..add(const ProfileLoadRequested()),
+      create: (context) => getIt<ProfileBloc>()..add(const ProfileLoadRequested()),
       child: const _ProfileView(),
     );
   }

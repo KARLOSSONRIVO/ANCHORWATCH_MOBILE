@@ -4,19 +4,21 @@ class User extends Equatable {
   final String id;
   final String username;
   final String email;
+  final String? profileImageUrl;
 
   const User({
     required this.id,
     required this.username,
     required this.email,
+    this.profileImageUrl,
   });
 
   @override
-  List<Object?> get props => [id, username, email];
+  List<Object?> get props => [id, username, email, profileImageUrl];
 
   @override
   String toString() {
-    return 'User(id: $id, username: $username, email: $email)';
+    return 'User(id: $id, username: $username, email: $email, profileImageUrl: $profileImageUrl)';
   }
 
   User copyWith({

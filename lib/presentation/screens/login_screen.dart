@@ -55,11 +55,19 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) {
-            if (state.status == AuthenticationStatus.authenticated) {
+            // Clear any existing snackbars when starting authentication
+            if (state.status == AuthenticationStatus.loading) {
+              ScaffoldMessenger.of(context).clearSnackBars();
+            }
+            // Show success message and navigate on successful authentication
+            else if (state.status == AuthenticationStatus.authenticated) {
+              ScaffoldMessenger.of(context).clearSnackBars();
               NavigationHelper.showMessage(context, 'Welcome back, ${state.user}!');
               // Navigate to main app after successful login
               Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
-            } else if (state.error != null) {
+            }
+            // Show error message only when authentication fails
+            else if (state.status == AuthenticationStatus.unauthenticated && state.error != null) {
               NavigationHelper.showMessage(context, state.error!, isError: true);
             }
           },

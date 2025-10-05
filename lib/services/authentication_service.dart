@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:dio/dio.dart';
 import '../domain/entities/auth_result.dart';
+import '../domain/entities/user.dart';
+import '../data/models/auth/user_model.dart';
+import '../core/network/api_endpoints/auth_endpoints.dart';
 import 'token_storage_service.dart';
 import 'storage_service.dart';
+import 'dio_client.dart';
 
 /// Service for handling authentication operations with JWT tokens
 @lazySingleton
 class AuthenticationService {
   final TokenStorageService _tokenStorage;
+  final DioClient _dioClient;
   
-  AuthenticationService(this._tokenStorage);
+  AuthenticationService(this._tokenStorage, this._dioClient);
 
   /// Check if user is authenticated by validating stored tokens
   Future<bool> isAuthenticated() async {
@@ -60,7 +66,29 @@ class AuthenticationService {
   /// Clear all authentication data (logout)
   Future<bool> logout() async {
     try {
-      // Clear tokens
+      // Get current tokens for server logout
+      final accessToken = _tokenStorage.getAccessToken();
+      final refreshToken = _tokenStorage.getRefreshToken();
+      
+      // Call server logout endpoint if we have tokens
+      if (accessToken != null && refreshToken != null) {
+        try {
+          debugPrint('AuthenticationService: Calling server logout endpoint');
+          await _dioClient.post(
+            AuthEndpoints.logout,
+            data: {
+              'access': accessToken,
+              'refresh': refreshToken,
+            },
+          );
+          debugPrint('AuthenticationService: Server logout successful');
+        } catch (serverError) {
+          debugPrint('AuthenticationService: Server logout failed: $serverError');
+          // Continue with local logout even if server logout fails
+        }
+      }
+      
+      // Clear local tokens and data
       final tokensCleared = await _tokenStorage.clearTokens();
       
       // Clear only authentication-related data, preserve onboarding status
@@ -137,6 +165,39 @@ class AuthenticationService {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
     };
+  }
+
+  /// Fetch user profile from server
+  Future<User?> fetchUserProfile() async {
+    try {
+      final token = getAccessToken();
+      if (token == null) {
+        debugPrint('AuthenticationService: No access token available for profile fetch');
+        return null;
+      }
+
+      debugPrint('AuthenticationService: Fetching user profile');
+      final response = await _dioClient.get<Map<String, dynamic>>(
+        AuthEndpoints.profile,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.data != null) {
+        final userModel = UserModel.fromJson(response.data!);
+        debugPrint('AuthenticationService: Profile fetched successfully');
+        return userModel.toEntity();
+      }
+
+      debugPrint('AuthenticationService: No profile data received');
+      return null;
+    } catch (e) {
+      debugPrint('AuthenticationService: Profile fetch error: $e');
+      return null;
+    }
   }
 
   /// Update DioClient with current access token

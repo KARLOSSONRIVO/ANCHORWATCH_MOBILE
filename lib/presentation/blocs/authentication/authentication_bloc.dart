@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import '../../../domain/use_cases/auth/login_use_case.dart';
+import '../../../domain/usecases/auth/login_usecase.dart';
+import '../../../domain/usecases/auth/register_usecase.dart';
 import '../../../services/authentication_service.dart';
 import '../../../services/dio_client.dart';
 import 'authentication_event.dart';
@@ -10,10 +11,12 @@ import 'authentication_state.dart';
 @injectable
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final LoginUseCase _loginUseCase;
+  final RegisterUseCase _registerUseCase;
   final AuthenticationService _authenticationService;
 
   AuthenticationBloc(
     this._loginUseCase,
+    this._registerUseCase,
     this._authenticationService,
   ) : super(const AuthenticationState()) {
     on<AuthenticationStatusRequested>(_onAuthenticationStatusRequested);
@@ -35,10 +38,12 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
         emit(state.copyWith(
           status: AuthenticationStatus.authenticated,
           user: 'Current User', // You might want to get actual user info
+          error: null,
         ));
       } else {
         emit(state.copyWith(
           status: AuthenticationStatus.unauthenticated,
+          error: null,
         ));
       }
     } catch (e) {
@@ -71,11 +76,12 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       // Store the authentication result (tokens + user info)
       await _authenticationService.storeAuthResult(authResult);
       
-      // Successful login
+      // Successful login - clear any previous error
       emit(state.copyWith(  
         status: AuthenticationStatus.authenticated,
         user: authResult.user.username,
         isLoading: false,
+        error: null,
       ));
     } catch (e) {
       // Handle login failure - show API error message directly
@@ -146,28 +152,46 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     ));
 
     try {
-      // Simulate API call for sign-up
-      await Future.delayed(const Duration(seconds: 2));
+      // Use the RegisterUseCase to perform registration
+      final authResult = await _registerUseCase(
+        username: event.username,
+        email: event.email,
+        password: event.password,
+      );
+
+      // Store authentication result
+      final stored = await _authenticationService.storeAuthResult(authResult);
       
-      // Simple validation for demo
-      if (event.username.isNotEmpty && event.email.isNotEmpty && event.password.isNotEmpty) {
+      if (stored) {
+        // Successful registration - set as authenticated
         emit(state.copyWith(
-          status: AuthenticationStatus.signUpSuccess,
+          status: AuthenticationStatus.authenticated,
           isLoading: false,
-          user: event.username,
+          user: authResult.user.username,
+          error: null,
         ));
       } else {
         emit(state.copyWith(
           status: AuthenticationStatus.unauthenticated,
           isLoading: false,
-          error: 'Please fill in all fields',
+          error: 'Failed to store authentication data',
         ));
       }
     } catch (e) {
+      // Handle registration failure - show API error message directly
+      String errorMessage;
+      if (e is AppException) {
+        // For API errors, show the exact message from the server
+        errorMessage = e.message;
+      } else {
+        // For other errors, add context
+        errorMessage = 'Registration failed: $e';
+      }
+      
       emit(state.copyWith(
         status: AuthenticationStatus.unauthenticated,
         isLoading: false,
-        error: 'Sign-up failed: $e',
+        error: errorMessage,
       ));
     }
   }
