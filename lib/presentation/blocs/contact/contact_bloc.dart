@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'contact_event.dart';
 import 'contact_state.dart';
 
 /// BLoC to manage contact screen state
+@injectable
 class ContactBloc extends Bloc<ContactEvent, ContactState> {
   ContactBloc() : super(const ContactState()) {
     on<ContactLoadRequested>(_onContactLoadRequested);

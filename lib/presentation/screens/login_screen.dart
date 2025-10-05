@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
 import '../routes/routes.dart';
+import '../routes/app_routes.dart';
 import '../widgets/widgets.dart';
 
 /// Login screen that handles user authentication
@@ -56,13 +57,15 @@ class _LoginScreenState extends State<LoginScreen> {
           listener: (context, state) {
             if (state.status == AuthenticationStatus.authenticated) {
               NavigationHelper.showMessage(context, 'Welcome back, ${state.user}!');
+              // Navigate to main app after successful login
+              Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
             } else if (state.error != null) {
               NavigationHelper.showMessage(context, state.error!, isError: true);
             }
           },
           child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
             builder: (context, state) {
-              final isLoading = state.status == AuthenticationStatus.unknown;
+              final isLoading = state.status == AuthenticationStatus.loading || state.isLoading;
               
               return Stack(
                 children: [
@@ -223,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Sign In Button
                   BlocBuilder<AuthenticationBloc, AuthenticationState>(
                     builder: (context, state) {
-                      final isLoading = state.status == AuthenticationStatus.unknown;
+                      final isLoading = state.status == AuthenticationStatus.loading || state.isLoading;
                       
                       return SizedBox(
                         width: double.infinity,

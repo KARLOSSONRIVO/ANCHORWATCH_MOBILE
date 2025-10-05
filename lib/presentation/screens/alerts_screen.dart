@@ -23,28 +23,9 @@ class _AlertsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AlertsBloc, AlertsState>(
       builder: (context, state) {
-        return Scaffold(
-      backgroundColor: const Color(0xFF000000),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF000000),
-        foregroundColor: Colors.white,
-        title: const Text(
-          'Alerts',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        elevation: 0,
-      ),
-      drawer: const NavigationDrawerWidget(),
-      body: _buildBody(context, state),
+        return Container(
+          color: const Color(0xFF000000),
+          child: _buildBody(context, state),
         );
       },
     );

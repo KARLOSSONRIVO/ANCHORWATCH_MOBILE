@@ -1,9 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'faq_event.dart';
 import 'faq_state.dart';
 import '../../../data/models/faq_models.dart';
 
 /// BLoC to manage FAQ screen state
+@injectable
 class FaqBloc extends Bloc<FaqEvent, FaqState> {
   FaqBloc() : super(const FaqState()) {
     on<FaqLoadRequested>(_onFaqLoadRequested);

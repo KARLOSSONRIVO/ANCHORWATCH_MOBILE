@@ -7,23 +7,7 @@ import '../presentation/blocs/authentication/authentication.dart';
 import '../presentation/widgets/custom_snackbar.dart';
 import '../presentation/routes/app_routes.dart';
 
-/// Global keys for each screen's scaffold to manage drawer state
-class DrawerKeys {
-  static final GlobalKey<ScaffoldState> dashboardKey = GlobalKey<ScaffoldState>();
-  static final GlobalKey<ScaffoldState> discoverKey = GlobalKey<ScaffoldState>();
-  static final GlobalKey<ScaffoldState> anchorwiseKey = GlobalKey<ScaffoldState>();
-  static final GlobalKey<ScaffoldState> alertsKey = GlobalKey<ScaffoldState>();
-  static final GlobalKey<ScaffoldState> profileKey = GlobalKey<ScaffoldState>();
-  
-  /// Get all drawer keys
-  static List<GlobalKey<ScaffoldState>> get allKeys => [
-        dashboardKey,
-        discoverKey,
-        anchorwiseKey,
-        alertsKey,
-        profileKey,
-      ];
-}
+
 
 /// Navigation indices enum for better type safety
 enum NavigationIndex {
@@ -65,18 +49,10 @@ class NavigationService {
   /// Close the current drawer if it's open
   static void _closeCurrentDrawer(BuildContext context) {
     try {
-      // First try using the main scaffold key
+      // Try using the main scaffold key
       if (mainScaffoldKey.currentState != null && mainScaffoldKey.currentState!.isDrawerOpen) {
         mainScaffoldKey.currentState!.closeDrawer();
         return;
-      }
-      
-      // Then try all individual screen drawer keys
-      for (final drawerKey in DrawerKeys.allKeys) {
-        if (drawerKey.currentState != null && drawerKey.currentState!.isDrawerOpen) {
-          drawerKey.currentState!.closeDrawer();
-          return;
-        }
       }
       
       // Fallback to context-based approach
@@ -92,18 +68,9 @@ class NavigationService {
   /// Force close any open drawer - can be called from anywhere
   static void forceCloseDrawer() {
     try {
-      // First try the main scaffold key
+      // Try the main scaffold key
       if (mainScaffoldKey.currentState != null && mainScaffoldKey.currentState!.isDrawerOpen) {
         mainScaffoldKey.currentState!.closeDrawer();
-        return;
-      }
-      
-      // Then try all individual screen drawer keys
-      for (final drawerKey in DrawerKeys.allKeys) {
-        if (drawerKey.currentState != null && drawerKey.currentState!.isDrawerOpen) {
-          drawerKey.currentState!.closeDrawer();
-          return;
-        }
       }
     } catch (e) {
       print('Debug: Could not force close drawer - $e');
@@ -238,15 +205,8 @@ class NavigationService {
       // Close current drawer
       _closeCurrentDrawer(context);
       
-      // Trigger logout directly
+      // Trigger logout - the navigation to login screen will indicate success
       authBloc.add(const AuthenticationLogoutRequested());
-      
-      // Show success message using custom snackbar
-      SnackBarHelper.showSuccess(
-        context,
-        'Logged out successfully',
-        duration: const Duration(seconds: 2),
-      );
     }
   }
 

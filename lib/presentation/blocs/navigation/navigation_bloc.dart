@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'navigation_event.dart';
 import 'navigation_state.dart';
 
 /// BLoC to manage navigation state across the app with intelligent stack management
+@injectable
 class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
   NavigationBloc() : super(const NavigationPageSelected(
     currentIndex: 0, 

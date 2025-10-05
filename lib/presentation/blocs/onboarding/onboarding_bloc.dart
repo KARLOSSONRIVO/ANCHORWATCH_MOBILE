@@ -1,9 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'onboarding_event.dart';
 import 'onboarding_state.dart';
 
 /// BLoC for managing onboarding flow
+@injectable
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   static const String _onboardingKey = 'onboarding_completed';
 

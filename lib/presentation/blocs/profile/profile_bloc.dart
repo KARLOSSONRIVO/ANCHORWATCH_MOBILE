@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
 /// BLoC for managing profile state
+@injectable
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc() : super(const ProfileState()) {
     on<ProfileLoadRequested>(_onProfileLoadRequested);

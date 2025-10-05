@@ -5,8 +5,18 @@ import 'presentation/routes/routes.dart';
 import 'presentation/screens/onboarding_screen.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 import 'presentation/screens/login_screen.dart';
+import 'injection_container.dart';
+import 'services/storage_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize services
+  await StorageService.init();
+  
+  // Initialize dependency injection with Injectable
+  await configureDependencies();
+  
   runApp(const MyApp());
 }
 
@@ -18,27 +28,32 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => OnboardingBloc()
+          create: (context) => getIt<OnboardingBloc>()
             ..add(const OnboardingStatusRequested()),
         ),
         BlocProvider(
-          create: (context) => AuthenticationBloc()
+          create: (context) => getIt<AuthenticationBloc>()
             ..add(const AuthenticationStatusRequested()),
         ),
         BlocProvider(
-          create: (context) => NavigationBloc(),
+          create: (context) => getIt<NavigationBloc>(),
         ),
         BlocProvider(
-          create: (context) => ProfileBloc()
+          create: (context) => getIt<ProfileBloc>()
             ..add(const ProfileLoadRequested()),
         ),
         BlocProvider(
-          create: (context) => AlertsBloc()
+          create: (context) => getIt<AlertsBloc>()
             ..add(const AlertsLoadRequested()),
         ),
         BlocProvider(
-          create: (context) => AnchorWiseBloc()
-            ..add(const AnchorWiseLoadHistory()),
+          create: (context) => getIt<AnchorWiseBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => getIt<ContactBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => getIt<FaqBloc>(),
         ),
       ],
       child: MaterialApp(
@@ -58,6 +73,7 @@ class MyApp extends StatelessWidget {
             return BlocBuilder<AuthenticationBloc, AuthenticationState>(
               builder: (context, authState) {
                 print('🏗️ Building app - Onboarding: ${onboardingState.status}, Auth: ${authState.status}');
+                print('🔍 AuthState details: ${authState.toString()}');
                 
                 // Check onboarding first - only show splash on initial load
                 if (onboardingState.status == OnboardingStatus.loading) {
@@ -72,8 +88,10 @@ class MyApp extends StatelessWidget {
                 // Onboarding completed, check authentication
                 switch (authState.status) {
                   case AuthenticationStatus.authenticated:
+                    print('🔐 Navigating to MainNavigationScreen (authenticated)');
                     return const MainNavigationScreen();
                   case AuthenticationStatus.unauthenticated:
+                    print('🚪 Navigating to LoginScreen (unauthenticated)');
                     return const LoginScreen();
                   case AuthenticationStatus.loading:
                     return const LoginScreen(); // Stay on login during loading

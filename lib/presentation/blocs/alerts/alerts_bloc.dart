@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'alerts_event.dart';
 import 'alerts_state.dart';
 
 /// BLoC for managing alerts state
+@injectable
 class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
   AlertsBloc() : super(const AlertsState()) {
     on<AlertsLoadRequested>(_onAlertsLoadRequested);

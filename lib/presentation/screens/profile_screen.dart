@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../widgets/widgets.dart';
 import '../blocs/profile/profile.dart';
-import '../../services/navigation_service.dart';
 
 /// Profile page content with dark theme using BLoC architecture
 class ProfileScreen extends StatelessWidget {
@@ -22,29 +20,9 @@ class _ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: DrawerKeys.profileKey,
-      backgroundColor: const Color(0xFF000000),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF000000),
-        foregroundColor: Colors.white,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        elevation: 0,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-      ),
-      drawer: const NavigationDrawerWidget(),
-      body: BlocConsumer<ProfileBloc, ProfileState>(
+    return Container(
+      color: const Color(0xFF000000),
+      child: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           // Handle navigation based on state
           if (state.status == ProfileStatus.navigatingToEditAccount) {

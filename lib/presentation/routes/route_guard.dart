@@ -108,24 +108,6 @@ class NavigationHelper {
   static Future<void> handleLogout(BuildContext context) async {
     throw UnimplementedError('This method is deprecated. Use NavigationService._handleLogout instead.');
   }
-  
-  /// Show loading dialog
-  static void showLoading(BuildContext context, {String? message}) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        content: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(width: 16),
-            Text(message ?? 'Loading...'),
-          ],
-        ),
-      ),
-    );
-  }
 
   /// Show logout loading dialog with specific styling
   static void showLogoutLoading(BuildContext context) {

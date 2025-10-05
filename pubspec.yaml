@@ -39,12 +39,23 @@ dependencies:
   flutter_bloc: ^8.1.6
   equatable: ^2.0.5
   
+  # HTTP Client
+  dio: ^5.4.0
+  
+  # Dependency Injection
+  get_it: ^7.6.4
+  injectable: ^2.3.2
+  
   # Local Storage for onboarding status
   shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # Injectable code generation
+  injectable_generator: ^2.4.1
+  build_runner: ^2.4.7
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

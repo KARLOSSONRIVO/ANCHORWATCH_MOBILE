@@ -43,42 +43,9 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
         }
       },
       builder: (context, state) {
-        return Scaffold(
-          backgroundColor: const Color(0xFF000000),
-          appBar: AppBar(
-            backgroundColor: const Color(0xFF000000),
-            foregroundColor: Colors.white,
-            title: const Text(
-              'AnchorWise',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            elevation: 0,
-            leading: Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  _showHistoryDialog(context);
-                },
-                icon: const Icon(Icons.history, color: Colors.white),
-              ),
-              IconButton(
-                onPressed: () {
-                  _showClearDialog(context);
-                },
-                icon: const Icon(Icons.clear_all, color: Colors.white),
-              ),
-            ],
-          ),
-          drawer: const NavigationDrawerWidget(),
-          body: Column(
+        return Container(
+          color: const Color(0xFF000000),
+          child: Column(
             children: [
               Expanded(
                 child: _buildChatArea(context, state),
@@ -476,79 +443,5 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
     } else {
       return 'now';
     }
-  }
-
-  void _showHistoryDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey.shade900,
-        title: const Text(
-          'Conversation History',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'Inter',
-          ),
-        ),
-        content: const Text(
-          'Conversation history feature coming soon! Your chat will be saved automatically.',
-          style: TextStyle(
-            color: Colors.grey,
-            fontFamily: 'Inter',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'OK',
-              style: TextStyle(color: Color(0xFF00D4AA)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showClearDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey.shade900,
-        title: const Text(
-          'Clear Conversation',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'Inter',
-          ),
-        ),
-        content: const Text(
-          'Are you sure you want to clear the entire conversation?',
-          style: TextStyle(
-            color: Colors.grey,
-            fontFamily: 'Inter',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<AnchorWiseBloc>().add(const AnchorWiseClearConversation());
-              Navigator.pop(context);
-            },
-            child: const Text(
-              'Clear',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

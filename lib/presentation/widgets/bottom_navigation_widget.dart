@@ -16,7 +16,7 @@ class BottomNavigationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF2D2D2D), // Dark background matching the design
+        color: Colors.black, // Dark background matching the design
         border: Border(
           top: BorderSide(
             color: Color(0xFF404040),

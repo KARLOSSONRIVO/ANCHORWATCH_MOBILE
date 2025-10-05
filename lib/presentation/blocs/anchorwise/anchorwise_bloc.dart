@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'anchorwise_event.dart';
 import 'anchorwise_state.dart';
 
 /// BLoC for managing AnchorWise chat functionality
+@injectable
 class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
   AnchorWiseBloc() : super(const AnchorWiseState()) {
     on<AnchorWiseSendMessage>(_onSendMessage);
