@@ -9,3 +9,4 @@ export 'alerts/alerts.dart';
 export 'anchorwise/anchorwise.dart';
 export 'contact/contact.dart';
 export 'faq/faq.dart';
+export 'dashboard/dashboard.dart';

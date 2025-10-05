@@ -1,0 +1,55 @@
+import '../../domain/entities/macro_trends.dart';
+
+class InflationRateModel {
+  final int year;
+  final double? inflationRate;
+
+  InflationRateModel({
+    required this.year,
+    this.inflationRate,
+  });
+
+  factory InflationRateModel.fromJson(Map<String, dynamic> json) {
+    return InflationRateModel(
+      year: json['year'] as int,
+      inflationRate: json['inflation_rate'] != null 
+          ? (json['inflation_rate'] as num).toDouble() 
+          : null,
+    );
+  }
+
+  InflationRateData toEntity() {
+    return InflationRateData(
+      year: year,
+      inflationRate: inflationRate,
+    );
+  }
+}
+
+class MacroTrendsModel {
+  final List<InflationRateModel> annualInflationRates;
+
+  MacroTrendsModel({
+    required this.annualInflationRates,
+  });
+
+  factory MacroTrendsModel.fromJson(Map<String, dynamic> json) {
+    // Handle the API response wrapper - data is nested under 'data' key
+    final data = json['data'] as Map<String, dynamic>;
+    
+    return MacroTrendsModel(
+      annualInflationRates: (data['annual_inflation_rates'] as List<dynamic>)
+          .map((item) => InflationRateModel.fromJson(item as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  MacroTrendsData toEntity() {
+    return MacroTrendsData(
+      annualInflationRates: annualInflationRates.map((e) => e.toEntity()).toList(),
+      inflationVsSupplyGrowth: [], // Empty for now - your API doesn't provide this
+      inflationTimeline: annualInflationRates.map((e) => e.toEntity()).toList(), // Use same data
+      correlationTable: [], // Empty for now - your API doesn't provide this
+    );
+  }
+}
