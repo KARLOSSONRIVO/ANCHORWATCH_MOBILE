@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../../domain/usecases/dashboard/fetch_dashboard_metrics_usecase.dart';
@@ -105,10 +106,10 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   ) {
     final now = DateTime.now();
     
-    // Process stablecoin data
+    // Process stablecoin data using correct API structure
     final stablecoinData = metrics.stablecoinData;
     
-    // Process supply data points
+    // Process supply data points from totalSupplyOverTime
     for (final point in stablecoinData.totalSupplyOverTime) {
       if (_shouldIncludeDataPoint(point.date, now, timePeriod)) {
         supplies.add(YearlySupplyPoint(
@@ -119,7 +120,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       }
     }
 
-    // Process mint burn activity
+    // Process mint burn activity from mintBurnActivity
     for (final activity in stablecoinData.mintBurnActivity) {
       if (_shouldIncludeDataPoint(activity.date, now, timePeriod)) {
         mintBurn.add(YearlyMintBurn(
@@ -133,35 +134,88 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       }
     }
 
-    // Process macro trends data
+    // Process macro trends data using correct API structure
     final macroData = metrics.macroTrendsData;
     
-    // Process annual inflation rates
+    // Process annual inflation rates from annualInflationRates
     for (final inflation in macroData.annualInflationRates) {
       macros.add(YearlyMacro(
         inflation.year, 
-        inflation.inflationRate ?? 0.0, 
+        inflation.inflationRate ?? 0.0, // Use actual inflation rate from API (2025 should be 0%)
         0.0,
         month: 1 // Macro data is typically yearly
       ));
     }
 
-    // Add some mock price data based on supply data for visualization
-    for (final supply in supplies) {
-      // Calculate mock market cap based on supply (simplified)
-      final mockMarketCap = supply.supply * 1.0; // Assume $1 per token
-      prices.add(YearlyPricePoint(supply.year, mockMarketCap, month: supply.month));
+    // Calculate realistic price data from correlation table if available, else use market cap from mint/burn events
+    if (macroData.correlationTable.isNotEmpty) {
+      // Use price data from correlation table
+      for (final corr in macroData.correlationTable) {
+        if (corr.price > 0) {
+          // Find corresponding year from the variable field or use current year
+          int year = DateTime.now().year;
+          try {
+            // Try to extract year from variable if it contains year info
+            final yearMatch = RegExp(r'\d{4}').firstMatch(corr.variable);
+            if (yearMatch != null) {
+              year = int.parse(yearMatch.group(0)!);
+            }
+          } catch (e) {
+            // Use current year as fallback
+          }
+          
+          prices.add(YearlyPricePoint(
+            year, 
+            corr.price, 
+            month: timePeriod.toLowerCase() == 'monthly' ? DateTime.now().month : 1
+          ));
+        }
+      }
+    } else {
+      // Fallback: Calculate estimated price from largest mint/burn events
+      for (final event in stablecoinData.largestMintBurnEvents) {
+        if (event.marketCap > 0 && _shouldIncludeDataPoint(event.date, now, timePeriod)) {
+          // Estimate price as marketCap / totalSupply (simplified)
+          final correspondingSupply = supplies.firstWhere(
+            (s) => s.year == event.date.year,
+            orElse: () => supplies.isNotEmpty ? supplies.first : YearlySupplyPoint(event.date.year, 1.0)
+          );
+          final estimatedPrice = correspondingSupply.supply > 0 ? event.marketCap / correspondingSupply.supply : 1.0;
+          
+          prices.add(YearlyPricePoint(
+            event.date.year, 
+            estimatedPrice, 
+            month: timePeriod.toLowerCase() == 'monthly' ? event.date.month : 1
+          ));
+        }
+      }
+    }
+    
+    // If no price data was found from API sources, use a reasonable default
+    // This prevents showing $0 which is misleading for stablecoins
+    if (prices.isEmpty) {
+      // Add a default price point for current year - stablecoins typically trade around $1
+      prices.add(YearlyPricePoint(
+        DateTime.now().year, 
+        1.0, // Reasonable default for stablecoin price
+        month: timePeriod.toLowerCase() == 'monthly' ? DateTime.now().month : 1
+      ));
+      debugPrint('DashboardBloc: Using default price data as no API price data was available');
     }
   }
 
   bool _shouldIncludeDataPoint(DateTime dataDate, DateTime now, String timePeriod) {
     switch (timePeriod.toLowerCase()) {
       case 'monthly':
-        // Past 12 months
+        // Past 12 months but not future months
+        if (dataDate.isAfter(now)) return false;
+        // Also exclude current month if it's ahead of current date
+        if (dataDate.year == now.year && dataDate.month > now.month) return false;
         return now.difference(dataDate).inDays <= 365;
       case 'yearly':
       default:
-        // All data (10 year window)
+        // All data (10 year window) but not future years
+        if (dataDate.year > now.year) return false;
         final yearDiff = now.year - dataDate.year;
         if (yearDiff > 10) return false;
         if (yearDiff == 10 && now.month < dataDate.month) return false;
@@ -182,10 +236,10 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     ];
     
     if (timePeriod.toLowerCase() == 'monthly') {
-      // For monthly view, group data by actual month numbers
+      // For monthly view, group data by actual month numbers (same as viewmodel)
       final monthData = <int, List<YearlyMintBurn>>{}; // Group by month number
       
-      // Parse mintBurn data to extract months
+      // Parse mintBurn data to extract months from the month field
       for (int i = 0; i < mintBurn.length; i++) {
         final mb = mintBurn[i];
         final monthNum = mb.month;
@@ -198,8 +252,12 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       // Build unified rows only for months that have actual data
       final unified = <UnifiedRow>[];
       
-      // Only process months that have actual mint/burn data
-      final availableMonths = monthData.keys.toList()..sort();
+      // Filter out future months - only process months up to current month
+      final now = DateTime.now();
+      final availableMonths = monthData.keys.where((monthNum) {
+        // Don't include future months (months ahead of current month)
+        return monthNum <= now.month;
+      }).toList()..sort();
       
       for (final monthNum in availableMonths) {
         final monthName = monthNames[monthNum - 1];
@@ -216,13 +274,17 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         netChange = totalMint - totalBurn;
         
         // Find price, supply and inflation data that corresponds to this month
-        double price = 1.0;
+        double price = 1.0; // Reasonable default for stablecoin price
         double supply = 0.0;
         double inflation = double.nan;
         
-        // For monthly view, use the most recent available price across all data
+        // For monthly view, use the most recent available REAL price data
         if (prices.isNotEmpty) {
           price = prices.last.price;
+          // Preserve full decimal precision from API
+        } else {
+          // If no real price data available, use reasonable stablecoin default
+          price = 1.0;
         }
         
         // Find month-specific supply data for more accurate supply values
@@ -230,24 +292,26 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         if (matchingSupplies.isNotEmpty) {
           supply = matchingSupplies.last.supply;
         } else if (supplies.isNotEmpty) {
+          // Fallback to any available supply data
           supply = supplies.last.supply;
         }
         
-        final matchingMacros = macros.where((m) => m.month == monthNum);
-        if (matchingMacros.isNotEmpty) {
-          inflation = matchingMacros.last.inflation;
-        } else if (macros.isNotEmpty) {
-          inflation = macros.last.inflation;
-        }
+        int inflationYear = now.year; // Use current year dynamically
+        
+        final yearlyInflation = macros.firstWhere(
+          (m) => m.year == inflationYear, 
+          orElse: () => YearlyMacro(inflationYear, 0.0, double.nan) // Use 0% if current year not found
+        );
+        inflation = yearlyInflation.inflation;
         
         unified.add(UnifiedRow(
           timeId: monthName,
-          year: DateTime.now().year, // Use current year for backward compatibility
+          year: inflationYear, // Use 2025 for monthly data display
           price: price,
           supply: supply,
           marketCap: price * supply,
           netChange: netChange,
-          inflation: inflation.isNaN ? 0.0 : inflation,
+          inflation: inflation.isNaN ? 0.0 : inflation, // Handle NaN inflation like yearly view
         ));
       }
       
@@ -295,47 +359,45 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     final rollingCorrSeries = <LinePoint>[];
     final heatCells = <HeatCell>[];
 
-    // Build basic series
+    // Build basic series (same logic as viewmodel)
+    // Market cap = price * supply
     for (final row in unified) {
       priceSeries.add(LinePoint(row.timeId, row.price));
-      marketCapSeries.add(LinePoint(row.timeId, row.marketCap / 1e6)); // Convert to millions
-      supplySeries.add(LinePoint(row.timeId, row.supply / 1e6)); // Convert to millions
-      inflationSeries.add(LinePoint(row.timeId, row.inflation));
+      supplySeries.add(LinePoint(row.timeId, row.supply / 1e6)); // scale
+      marketCapSeries.add(LinePoint(row.timeId, row.price * row.supply / 1e6));
+      inflationSeries.add(LinePoint(row.timeId, row.inflation.isNaN ? 0 : row.inflation));
     }
 
-    // Build scatter points (price change vs supply change)
-    for (int i = 1; i < unified.length; i++) {
-      final curr = unified[i];
-      final prev = unified[i - 1];
-      
-      if (prev.price > 0 && prev.supply > 0) {
-        final priceChange = ((curr.price - prev.price) / prev.price) * 100;
-        final supplyChange = ((curr.supply - prev.supply) / prev.supply) * 100;
-        scatterPoints.add(ScatterPoint(year: curr.year, x: supplyChange, y: priceChange));
+    // Scatter supplyChange% vs priceChange% (same logic as viewmodel)
+    for (var i = 1; i < unified.length; i++) {
+      final prev = unified[i - 1]; 
+      final cur = unified[i];
+      final supplyCh = _pctChange(prev.supply, cur.supply);
+      final priceCh = _pctChange(prev.price, cur.price);
+      scatterPoints.add(ScatterPoint(year: cur.year, x: supplyCh, y: priceCh));
+    }
+
+    // Correlation heatmap (yearly arrays) (same logic as viewmodel)
+    final priceArr = unified.map((e) => e.price).toList();
+    final supplyArr = unified.map((e) => e.supply / 1e6).toList(); // Scale supply consistently
+    final inflArr = unified.map((e) => e.inflation.isNaN ? 0 : e.inflation).toList();
+    final netArr = unified.map((e) => e.netChange / 1e6).toList(); // Scale netChange consistentlyr
+    final vars = [priceArr, supplyArr, inflArr, netArr];
+    
+    for (var i = 0; i < vars.length; i++) {
+      for (var j = 0; j < vars.length; j++) {
+        final a = vars[i].map((e) => e.toDouble()).toList();
+        final b = vars[j].map((e) => e.toDouble()).toList();
+        heatCells.add(HeatCell(row: i, col: j, value: _corr(a, b)));
       }
     }
 
-    // Build rolling correlation (simplified)
-    for (int i = 2; i < unified.length; i++) {
-      final subset = unified.sublist(max(0, i - 2), i + 1);
-      final corr = _calculateCorrelation(
-        subset.map((r) => r.supply).toList(),
-        subset.map((r) => r.marketCap).toList(),
-      );
-      rollingCorrSeries.add(LinePoint(unified[i].year.toString(), corr));
-    }
-
-    // Build correlation heatmap
-    final priceArr = unified.map((e) => e.price).toList();
-    final supplyArr = unified.map((e) => e.supply).toList();
-    final inflArr = unified.map((e) => e.inflation).toList();
-    final netArr = unified.map((e) => e.netChange).toList();
-    final vars = [priceArr, supplyArr, inflArr, netArr];
-
-    for (int i = 0; i < vars.length; i++) {
-      for (int j = 0; j < vars.length; j++) {
-        final corr = _calculateCorrelation(vars[i], vars[j]);
-        heatCells.add(HeatCell(row: i, col: j, value: corr));
+    // Rolling correlation (2-period window) supply vs market cap (same logic as viewmodel)
+    if (unified.length >= 2) {
+      for (var w = 2; w <= unified.length; w++) {
+        final subSupply = unified.sublist(0, w).map((e) => e.supply).toList();
+        final subMc = unified.sublist(0, w).map((e) => e.price * e.supply).toList();
+        rollingCorrSeries.add(LinePoint(unified[w - 1].timeId, _corr(subSupply, subMc)));
       }
     }
 
@@ -350,27 +412,26 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     };
   }
 
-  double _calculateCorrelation(List<double> x, List<double> y) {
-    if (x.length != y.length || x.length < 2) return 0.0;
+  // Helper methods from viewmodel for consistent calculations
+  double _pctChange(double prev, double cur) => prev == 0 ? 0 : ((cur - prev) / prev) * 100;
+  
+  double _corr(List<double> a, List<double> b) {
+    final n = a.length < b.length ? a.length : b.length; 
+    if (n == 0) return 0;
+    if (n == 1) return 1.0; // Single data point correlation is undefined, return 1 for diagonal
     
-    final n = x.length;
-    final meanX = x.reduce((a, b) => a + b) / n;
-    final meanY = y.reduce((a, b) => a + b) / n;
-    
-    double numerator = 0.0;
-    double denomX = 0.0;
-    double denomY = 0.0;
-    
-    for (int i = 0; i < n; i++) {
-      final diffX = x[i] - meanX;
-      final diffY = y[i] - meanY;
-      numerator += diffX * diffY;
-      denomX += diffX * diffX;
-      denomY += diffY * diffY;
+    final ma = a.take(n).reduce((x, y) => x + y) / n; 
+    final mb = b.take(n).reduce((x, y) => x + y) / n;
+    double num = 0, da = 0, db = 0; 
+    for (var i = 0; i < n; i++) { 
+      final xa = a[i] - ma; 
+      final yb = b[i] - mb; 
+      num += xa * yb; 
+      da += xa * xa; 
+      db += yb * yb; 
     }
-    
-    final denominator = sqrt(denomX * denomY);
-    return denominator == 0 ? 0.0 : numerator / denominator;
+    if (da == 0 || db == 0) return identical(a, b) ? 1.0 : 0.0; // If no variance, return 1 for same array, 0 for different
+    return num / sqrt(da * db);
   }
 
   Map<String, List> _buildChartData(dynamic metrics) {
@@ -402,19 +463,24 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         }
       }
     }
-    
-    // Add mock inflation data if no real data is available
-    if (inflationChartData.isEmpty) {
-      inflationChartData.add(ChartData(DateTime(2024), 3.2));
-      inflationChartData.add(ChartData(DateTime(2023), 6.0));
-      inflationChartData.add(ChartData(DateTime(2022), 5.8));
-    }
 
-    // Build mock price data from supply (since we don't have real price data)
-    for (final supplyPoint in supplyChartData) {
-      // Create mock price based on supply changes
-      final mockPrice = supplyPoint.y * 1.0; // Simplified calculation
-      priceChartData.add(ChartData(supplyPoint.x, mockPrice));
+    // Build real price data from correlation table if available
+    if (macroData.correlationTable.isNotEmpty) {
+      for (final corr in macroData.correlationTable) {
+        if (corr.price > 0) {
+          // Extract year from variable field or use data years
+          int year = DateTime.now().year;
+          try {
+            final yearMatch = RegExp(r'\d{4}').firstMatch(corr.variable);
+            if (yearMatch != null) {
+              year = int.parse(yearMatch.group(0)!);
+            }
+          } catch (e) {
+            // Use current year as fallback
+          }
+          priceChartData.add(ChartData(DateTime(year), corr.price));
+        }
+      }
     }
 
     // Build correlation scatter data from available data
@@ -434,13 +500,6 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           ));
         }
       }
-    }
-    
-    // Add mock scatter data if no real data is available
-    if (correlationScatterData.isEmpty) {
-      correlationScatterData.add(ScatterChartData(3.2, 100000, '2024'));
-      correlationScatterData.add(ScatterChartData(6.0, 95000, '2023'));
-      correlationScatterData.add(ScatterChartData(5.8, 90000, '2022'));
     }
 
     return {

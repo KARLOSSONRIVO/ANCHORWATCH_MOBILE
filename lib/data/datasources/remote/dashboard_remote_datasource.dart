@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import '../../../domain/entities/dashboard_metrics.dart';
 import '../../../services/dio_client.dart';
@@ -18,29 +19,29 @@ class LiveDashboardRemoteDataSource implements DashboardRemoteDataSource {
   @override
   Future<DashboardMetrics> getMetrics([String? range]) async {
     try {
-      print('🔄 Starting dashboard metrics fetch...');
+      debugPrint('DashboardRemoteDataSource: Starting dashboard metrics fetch...');
       
       // Fetch unified stablecoin data (contains both stablecoin and inflation data)
-      print('📊 Fetching unified data from: ${DashboardEndpoints.stablecoinData}');
+      debugPrint('DashboardRemoteDataSource: Fetching unified data from: ${DashboardEndpoints.stablecoinData}');
       final response = await _dioClient.get(
         DashboardEndpoints.stablecoinData,
         queryParameters: range != null ? {'aggregation_period': range} : {'aggregation_period': 'yearly'},
       );
-      print('✅ Unified data fetched successfully');
+      debugPrint('DashboardRemoteDataSource: Unified data fetched successfully');
 
       final stablecoinData = StablecoinChartDataModel.fromJson(response.data);
       
       // Extract macro data from the same response (inflation rates are included)
       final macroData = _extractMacroDataFromUnifiedResponse(response.data);
 
-      print('🎯 Creating DashboardMetrics entity...');
+      debugPrint('DashboardRemoteDataSource: Creating DashboardMetrics entity...');
       return DashboardMetrics(
         stablecoinData: stablecoinData.toEntity(),
         macroTrendsData: macroData.toEntity(),
         lastUpdated: DateTime.now(),
       );
     } catch (e) {
-      print('❌ Dashboard metrics fetch failed: $e');
+      debugPrint('DashboardRemoteDataSource: Dashboard metrics fetch failed: $e');
       throw Exception('Failed to fetch dashboard metrics: $e');
     }
   }
