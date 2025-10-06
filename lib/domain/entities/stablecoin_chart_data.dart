@@ -17,10 +17,12 @@ class StablecoinChartData {
 class SupplyDataPoint {
   final DateTime date;
   final double supplyClosing;
+  final double? price; // Price data from API
 
   SupplyDataPoint({
     required this.date,
     required this.supplyClosing,
+    this.price,
   });
 }
 

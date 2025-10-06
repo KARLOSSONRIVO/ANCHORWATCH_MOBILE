@@ -42,14 +42,11 @@ class NumberFormatter {
     } else if (absoluteValue >= 1e3) {
       final scaledValue = absoluteValue / 1e3;
       formattedNumber = '${_formatValue(scaledValue)}K';
-    } else if (absoluteValue >= 1) {
-      formattedNumber = _formatValue(absoluteValue);
     } else {
-      // For values less than 1, show more decimal places for precision
-      formattedNumber = absoluteValue.toStringAsFixed(4);
-      // Remove trailing zeros
-      formattedNumber = formattedNumber.replaceAll(RegExp(r'\.?0*$'), '');
-      if (formattedNumber.isEmpty) formattedNumber = '0';
+      // For currency values, always use consistent decimal formatting
+      // Round to 2 decimal places for cleaner display
+      final rounded = (absoluteValue * 100).round() / 100;
+      formattedNumber = _formatValue(rounded);
     }
 
     final result = isNegative ? '-\$$formattedNumber' : '\$$formattedNumber';
@@ -88,10 +85,12 @@ class NumberFormatter {
     // For decimal values, show up to 2 decimal places
     String result = value.toStringAsFixed(2);
     
-    // Remove trailing zeros
-    result = result.replaceAll(RegExp(r'\.?0*$'), '');
+    // Remove trailing zeros but keep at least one decimal if original had decimals
+    if (result.endsWith('0')) {
+      result = result.replaceAll(RegExp(r'0*$'), '');
+    }
     
-    // If we removed everything after the decimal, it means it was .00
+    // Remove decimal point if it's now at the end (was .00)
     if (result.endsWith('.')) {
       result = result.substring(0, result.length - 1);
     }

@@ -109,9 +109,18 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     // Process stablecoin data using correct API structure
     final stablecoinData = metrics.stablecoinData;
     
-    // Process supply data points from totalSupplyOverTime
+    // Process price data from totalSupplyOverTime (which contains price field)
     for (final point in stablecoinData.totalSupplyOverTime) {
       if (_shouldIncludeDataPoint(point.date, now, timePeriod)) {
+        // Extract actual price from API data
+        if (point.price != null && point.price! > 0) {
+          prices.add(YearlyPricePoint(
+            point.date.year, 
+            point.price!, 
+            month: timePeriod.toLowerCase() == 'monthly' ? point.date.month : 1
+          ));
+        }
+        
         supplies.add(YearlySupplyPoint(
           point.date.year, 
           point.supplyClosing, 
@@ -147,9 +156,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       ));
     }
 
-    // Calculate realistic price data from correlation table if available, else use market cap from mint/burn events
+    // Additional price data from correlation table if available (supplementary)
     if (macroData.correlationTable.isNotEmpty) {
-      // Use price data from correlation table
       for (final corr in macroData.correlationTable) {
         if (corr.price > 0) {
           // Find corresponding year from the variable field or use current year
@@ -164,29 +172,14 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
             // Use current year as fallback
           }
           
-          prices.add(YearlyPricePoint(
-            year, 
-            corr.price, 
-            month: timePeriod.toLowerCase() == 'monthly' ? DateTime.now().month : 1
-          ));
-        }
-      }
-    } else {
-      // Fallback: Calculate estimated price from largest mint/burn events
-      for (final event in stablecoinData.largestMintBurnEvents) {
-        if (event.marketCap > 0 && _shouldIncludeDataPoint(event.date, now, timePeriod)) {
-          // Estimate price as marketCap / totalSupply (simplified)
-          final correspondingSupply = supplies.firstWhere(
-            (s) => s.year == event.date.year,
-            orElse: () => supplies.isNotEmpty ? supplies.first : YearlySupplyPoint(event.date.year, 1.0)
-          );
-          final estimatedPrice = correspondingSupply.supply > 0 ? event.marketCap / correspondingSupply.supply : 1.0;
-          
-          prices.add(YearlyPricePoint(
-            event.date.year, 
-            estimatedPrice, 
-            month: timePeriod.toLowerCase() == 'monthly' ? event.date.month : 1
-          ));
+          // Only add if we don't already have price data for this year
+          if (!prices.any((p) => p.year == year)) {
+            prices.add(YearlyPricePoint(
+              year, 
+              corr.price, 
+              month: timePeriod.toLowerCase() == 'monthly' ? DateTime.now().month : 1
+            ));
+          }
         }
       }
     }

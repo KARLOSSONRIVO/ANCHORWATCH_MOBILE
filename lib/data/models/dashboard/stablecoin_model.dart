@@ -75,6 +75,7 @@ class UnifiedStablecoinDataModel {
     return SupplyDataPoint(
       date: dateTime,
       supplyClosing: supplyClosing,
+      price: price, // Include price data from API
     );
   }
 
