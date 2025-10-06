@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../injection_container.dart';
 import '../blocs/dashboard/dashboard.dart';
 import '../themes/app_theme.dart';
+import '../../utils/number_formatter.dart';
 
 /// Dashboard page content only (no navigation)
 class DashboardScreen extends StatelessWidget {
@@ -342,7 +343,7 @@ class _DashboardView extends StatelessWidget {
                 ),
                 DataCell(
                   Text(
-                    _formatCurrency(row.price),
+                    NumberFormatter.formatCurrency(row.price),
                     style: TextStyle(
                       fontFamily: 'Inter',
                       color: AppTheme.getTextSecondaryColor(context),
@@ -351,7 +352,7 @@ class _DashboardView extends StatelessWidget {
                 ),
                 DataCell(
                   Text(
-                    _formatNumber(row.supply / 1e6),
+                    NumberFormatter.formatSupplyInMillions(row.supply),
                     style: TextStyle(
                       fontFamily: 'Inter',
                       color: AppTheme.getTextSecondaryColor(context),
@@ -360,7 +361,7 @@ class _DashboardView extends StatelessWidget {
                 ),
                 DataCell(
                   Text(
-                    _formatNumber(row.netChange),
+                    NumberFormatter.formatTableValue(row.netChange),
                     style: TextStyle(
                       fontFamily: 'Inter',
                       color: AppTheme.getTextSecondaryColor(context),
@@ -369,7 +370,7 @@ class _DashboardView extends StatelessWidget {
                 ),
                 DataCell(
                   Text(
-                    row.inflation.isNaN ? '-' : _formatPercentage(row.inflation),
+                    NumberFormatter.formatMacroIndicator(row.inflation),
                     style: TextStyle(
                       fontFamily: 'Inter',
                       color: AppTheme.getTextSecondaryColor(context),
@@ -621,25 +622,7 @@ class _DashboardView extends StatelessWidget {
 
 
 
-  String _formatNumber(double number) {
-    if (number >= 1e9) {
-      return '${(number / 1e9).toStringAsFixed(2)}B';
-    } else if (number >= 1e6) {
-      return '${(number / 1e6).toStringAsFixed(2)}M';
-    } else if (number >= 1e3) {
-      return '${(number / 1e3).toStringAsFixed(2)}K';
-    } else {
-      return number.toStringAsFixed(2);
-    }
-  }
 
-  String _formatCurrency(double value) {
-    return '\$${value.toStringAsFixed(4)}';
-  }
-
-  String _formatPercentage(double value) {
-    return '${value.toStringAsFixed(2)}%';
-  }
 
   Widget _buildPriceMarketCapChart(BuildContext context, DashboardLoadedState state) {
     final textColor = AppTheme.getTextSecondaryColor(context);
