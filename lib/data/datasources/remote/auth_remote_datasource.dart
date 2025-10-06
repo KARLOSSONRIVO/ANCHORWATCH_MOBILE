@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 
-import '../../../core/network/api_endpoints/auth_endpoints.dart';
+import '../../endpoints/auth_endpoints.dart';
 import '../../models/auth/login/login_request_model.dart';
 import '../../models/auth/login/login_response_model.dart';
 import '../../models/auth/register/register_request_model.dart';

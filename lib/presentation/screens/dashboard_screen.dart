@@ -4,6 +4,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 import '../../injection_container.dart';
 import '../blocs/dashboard/dashboard.dart';
+import '../themes/app_theme.dart';
 
 /// Dashboard page content only (no navigation)
 class DashboardScreen extends StatelessWidget {
@@ -67,7 +68,7 @@ class _DashboardView extends StatelessWidget {
                   onPressed: () => context.read<DashboardBloc>().add(const DashboardRefreshEvent()),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00D4AA),
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppTheme.getTextPrimaryColor(context),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -82,9 +83,7 @@ class _DashboardView extends StatelessWidget {
 
         if (state is DashboardLoadedState) {
           return Container(
-            color: Theme.of(context).brightness == Brightness.light
-                ? const Color(0xFFF8F8F8)
-                : const Color(0xFF1E1E1E),
+            color: AppTheme.getBackgroundColor(context),
             child: RefreshIndicator(
               color: const Color(0xFF00D4AA),
               onRefresh: () async {
@@ -133,7 +132,7 @@ class _DashboardView extends StatelessWidget {
           );
         }
 
-        return const Center(child: Text('Welcome to AnchorWatch Dashboard'));
+        return Center(child: Text('Welcome to AnchorWatch Dashboard', style: TextStyle(color: AppTheme.getTextPrimaryColor(context))));
       },
     );
   }
@@ -150,7 +149,7 @@ class _DashboardView extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.bold,
               fontFamily: 'Inter',
-              color: Theme.of(context).textTheme.bodyLarge?.color,
+              color: AppTheme.getTextPrimaryColor(context),
             ),
           ),
           Container(
@@ -158,7 +157,7 @@ class _DashboardView extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[600]!, width: 2),
+              border: Border.all(color: AppTheme.getBorderColor(context), width: 2),
             ),
             child: Theme(
               data: Theme.of(context).copyWith(
@@ -173,13 +172,11 @@ class _DashboardView extends StatelessWidget {
                     context.read<DashboardBloc>().add(DashboardTimePeriodChangedEvent(newValue));
                   }
                 },
-                color: Theme.of(context).brightness == Brightness.light
-                    ? const Color(0xFFF5F5F5)
-                    : const Color(0xFF2A2A2A),
+                color: AppTheme.getSurfaceColor(context),
                 elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: Colors.grey[600]!, width: 1),
+                  side: BorderSide(color: AppTheme.getBorderColor(context), width: 1),
                 ),
                 offset: const Offset(0, 35),
                 child: Row(
@@ -187,16 +184,17 @@ class _DashboardView extends StatelessWidget {
                   children: [
                     Text(
                       state.selectedTimePeriod,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Inter',
+                        color: AppTheme.getTextPrimaryColor(context),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Icon(
                       Icons.arrow_drop_down,
-                      color: Theme.of(context).iconTheme.color,
+                      color: AppTheme.getTextPrimaryColor(context),
                       size: 20,
                     ),
                   ],
@@ -219,7 +217,7 @@ class _DashboardView extends StatelessWidget {
                           fontFamily: 'Inter',
                           color: state.selectedTimePeriod == period
                               ? const Color(0xFF00D4AA)
-                              : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                              : AppTheme.getTextSecondaryColor(context),
                           fontWeight: state.selectedTimePeriod == period ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
@@ -240,16 +238,12 @@ class _DashboardView extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFFF5F5F5)
-              : const Color(0xFF232323),
+          color: AppTheme.getCardBackgroundColor(context),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Theme.of(context).dividerColor),
+          border: Border.all(color: AppTheme.getBorderColor(context)),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).brightness == Brightness.light
-                  ? Colors.grey.withOpacity(0.15)
-                  : Colors.black.withOpacity(0.25),
+              color: Colors.grey.withOpacity(0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -264,7 +258,7 @@ class _DashboardView extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter',
-                color: Theme.of(context).textTheme.titleMedium?.color,
+                color: AppTheme.getTextPrimaryColor(context),
               ),
             ),
             const SizedBox(height: 12),
@@ -289,7 +283,7 @@ class _DashboardView extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  color: AppTheme.getTextPrimaryColor(context),
                 ),
               ),
             ),
@@ -299,7 +293,7 @@ class _DashboardView extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  color: AppTheme.getTextPrimaryColor(context),
                 ),
               ),
             ),
@@ -309,7 +303,7 @@ class _DashboardView extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  color: AppTheme.getTextPrimaryColor(context),
                 ),
               ),
             ),
@@ -319,7 +313,7 @@ class _DashboardView extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  color: AppTheme.getTextPrimaryColor(context),
                 ),
               ),
             ),
@@ -329,7 +323,7 @@ class _DashboardView extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  color: AppTheme.getTextPrimaryColor(context),
                 ),
               ),
             ),
@@ -342,7 +336,7 @@ class _DashboardView extends StatelessWidget {
                     row.timeId,
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      color: AppTheme.getTextSecondaryColor(context),
                     ),
                   ),
                 ),
@@ -351,7 +345,7 @@ class _DashboardView extends StatelessWidget {
                     _formatCurrency(row.price),
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      color: AppTheme.getTextSecondaryColor(context),
                     ),
                   ),
                 ),
@@ -360,7 +354,7 @@ class _DashboardView extends StatelessWidget {
                     _formatNumber(row.supply / 1e6),
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      color: AppTheme.getTextSecondaryColor(context),
                     ),
                   ),
                 ),
@@ -369,7 +363,7 @@ class _DashboardView extends StatelessWidget {
                     _formatNumber(row.netChange),
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      color: AppTheme.getTextSecondaryColor(context),
                     ),
                   ),
                 ),
@@ -378,7 +372,7 @@ class _DashboardView extends StatelessWidget {
                     row.inflation.isNaN ? '-' : _formatPercentage(row.inflation),
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      color: AppTheme.getTextSecondaryColor(context),
                     ),
                   ),
                 ),
@@ -400,7 +394,7 @@ class _DashboardView extends StatelessWidget {
           'No correlation data available',
           style: TextStyle(
             fontFamily: 'Inter',
-            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+            color: AppTheme.getTextSecondaryColor(context),
           ),
         ),
       );
@@ -421,7 +415,7 @@ class _DashboardView extends StatelessWidget {
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Inter',
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      color: AppTheme.getTextSecondaryColor(context),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -444,7 +438,7 @@ class _DashboardView extends StatelessWidget {
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Inter',
-                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                            color: AppTheme.getTextSecondaryColor(context),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -456,11 +450,9 @@ class _DashboardView extends StatelessWidget {
                             child: Container(
                               margin: const EdgeInsets.all(1),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).brightness == Brightness.light 
-                                    ? Colors.grey[300] 
-                                    : Colors.grey[800],
+                                color: AppTheme.getChartBackgroundColor(context),
                                 border: Border.all(
-                                  color: Theme.of(context).dividerColor,
+                                  color: Colors.grey.shade600,
                                   width: 0.5,
                                 ),
                               ),
@@ -472,8 +464,8 @@ class _DashboardView extends StatelessWidget {
                         final v = cell.value.clamp(-1.0, 1.0);
                         final frac = v.abs();
                         final color = v >= 0
-                            ? Color.lerp(Theme.of(context).brightness == Brightness.light ? Colors.grey[300] : Colors.grey[800], Colors.greenAccent, frac)!
-                            : Color.lerp(Theme.of(context).brightness == Brightness.light ? Colors.grey[300] : Colors.grey[800], Colors.redAccent, frac)!;
+                            ? Color.lerp(AppTheme.getChartBackgroundColor(context), Colors.greenAccent, frac)!
+                            : Color.lerp(AppTheme.getChartBackgroundColor(context), Colors.redAccent, frac)!;
 
                         return Expanded(
                           child: Container(
@@ -481,7 +473,7 @@ class _DashboardView extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: color,
                               border: Border.all(
-                                color: Theme.of(context).dividerColor,
+                                color: Colors.grey.shade600,
                                 width: 0.5,
                               ),
                             ),
@@ -493,10 +485,8 @@ class _DashboardView extends StatelessWidget {
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'Inter',
                                   color: frac > 0.5 
-                                      ? Colors.white 
-                                      : (Theme.of(context).brightness == Brightness.light 
-                                          ? Colors.black87 
-                                          : Colors.white),
+                                      ? AppTheme.getTextPrimaryColor(context) 
+                                      : AppTheme.getTextPrimaryColor(context),
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -518,12 +508,8 @@ class _DashboardView extends StatelessWidget {
 
 
   Widget _buildMintBurnChart(BuildContext context, DashboardLoadedState state) {
-    final textColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[800]!.withOpacity(0.7)
-        : Colors.grey[300]!.withOpacity(0.7);
-    final labelColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[600]!.withOpacity(0.54)
-        : Colors.grey[400]!.withOpacity(0.54);
+    final textColor = AppTheme.getTextSecondaryColor(context);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
 
     final mintPoints = <Map<String, dynamic>>[];
     final burnPoints = <Map<String, dynamic>>[];
@@ -560,6 +546,7 @@ class _DashboardView extends StatelessWidget {
       child: SizedBox(
         width: mintPoints.length * 60.0 + 100,
         child: SfCartesianChart(
+          backgroundColor: AppTheme.getChartBackgroundColor(context),
           margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
           legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
           primaryXAxis: CategoryAxis(
@@ -595,18 +582,15 @@ class _DashboardView extends StatelessWidget {
   }
 
   Widget _buildCorrelationScatterChart(BuildContext context, DashboardLoadedState state) {
-    final labelColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[600]!.withOpacity(0.54)
-        : Colors.grey[400]!.withOpacity(0.54);
-    final textColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[800]!
-        : Colors.grey[300]!;
+    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
+    final textColor = AppTheme.getTextSecondaryColor(context);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
         width: state.scatterPoints.length * 80.0 + 150,
         child: SfCartesianChart(
+          backgroundColor: AppTheme.getChartBackgroundColor(context),
           primaryXAxis: NumericAxis(
             labelStyle: TextStyle(color: labelColor),
             title: AxisTitle(text: 'Supply Δ% (YoY)', textStyle: TextStyle(color: labelColor)),
@@ -658,14 +642,11 @@ class _DashboardView extends StatelessWidget {
   }
 
   Widget _buildPriceMarketCapChart(BuildContext context, DashboardLoadedState state) {
-    final textColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[800]!.withOpacity(0.7)
-        : Colors.grey[300]!.withOpacity(0.7);
-    final labelColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[600]!.withOpacity(0.54)
-        : Colors.grey[400]!.withOpacity(0.54);
+    final textColor = AppTheme.getTextSecondaryColor(context);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
 
     return SfCartesianChart(
+      backgroundColor: AppTheme.getChartBackgroundColor(context),
       margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
       legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
       primaryXAxis: CategoryAxis(
@@ -710,14 +691,11 @@ class _DashboardView extends StatelessWidget {
   }
 
   Widget _buildSupplyInflationChart(BuildContext context, DashboardLoadedState state) {
-    final textColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[800]!.withOpacity(0.7)
-        : Colors.grey[300]!.withOpacity(0.7);
-    final labelColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[600]!.withOpacity(0.54)
-        : Colors.grey[400]!.withOpacity(0.54);
+    final textColor = AppTheme.getTextSecondaryColor(context);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
 
     return SfCartesianChart(
+      backgroundColor: AppTheme.getChartBackgroundColor(context),
       margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
       legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
       primaryXAxis: CategoryAxis(
@@ -762,15 +740,14 @@ class _DashboardView extends StatelessWidget {
   }
 
   Widget _buildRollingCorrelationChart(BuildContext context, DashboardLoadedState state) {
-    final labelColor = Theme.of(context).brightness == Brightness.light
-        ? Colors.grey[600]!.withOpacity(0.54)
-        : Colors.grey[400]!.withOpacity(0.54);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
         width: state.rollingCorrSeries.length * 70.0 + 120,
         child: SfCartesianChart(
+          backgroundColor: AppTheme.getChartBackgroundColor(context),
           margin: const EdgeInsets.fromLTRB(10, 15, 10, 30),
           primaryXAxis: CategoryAxis(
             labelStyle: TextStyle(color: labelColor),

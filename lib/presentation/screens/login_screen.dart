@@ -5,6 +5,7 @@ import '../blocs/authentication/authentication.dart';
 import '../routes/routes.dart';
 import '../routes/app_routes.dart';
 import '../widgets/widgets.dart';
+import '../themes/app_theme.dart';
 
 /// Login screen that handles user authentication
 class LoginScreen extends StatefulWidget {
@@ -42,16 +43,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     // Set dark theme for status bar
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.light,
+        statusBarIconBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: AppTheme.getBackgroundColor(context),
+        systemNavigationBarIconBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
       ),
     );
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppTheme.getBackgroundColor(context),
       body: SafeArea(
         child: BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) {
@@ -97,12 +98,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 40),
                   
                   // Title
-                  const Text(
+                  Text(
                     'Welcome to AnchorWatch',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: AppTheme.getTextPrimaryColor(context),
                       fontFamily: 'Inter',
                     ),
                     textAlign: TextAlign.center,
@@ -110,11 +111,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
                   
                   // Subtitle
-                  const Text(
+                  Text(
                     'Sign in',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey,
+                      color: AppTheme.getTextSecondaryColor(context),
                       fontFamily: 'Inter',
                     ),
                     textAlign: TextAlign.center,
@@ -124,26 +125,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Username/Email Field
                   TextFormField(
                     controller: _usernameController,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppTheme.getTextPrimaryColor(context)),
                     decoration: InputDecoration(
                       hintText: 'Username or Email',
                       hintStyle: TextStyle(
-                        color: Colors.grey.shade400,
+                        color: AppTheme.getTextSecondaryColor(context),
                         fontFamily: 'Inter',
                       ),
                       filled: true,
                       fillColor: Colors.transparent,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade600),
+                        borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade600),
+                        borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color:const Color(0xFF00BCD4)),
+                        borderSide: const BorderSide(color: AppTheme.primaryColor),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -164,31 +165,31 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppTheme.getTextPrimaryColor(context)),
                     decoration: InputDecoration(
                       hintText: 'Password',
                       hintStyle: TextStyle(
-                        color: Colors.grey.shade400,
+                        color: AppTheme.getTextSecondaryColor(context),
                         fontFamily: 'Inter',
                       ),
                       filled: true,
                       fillColor: Colors.transparent,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade600),
+                        borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade600),
+                        borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: const Color(0xFF00BCD4)),
+                        borderSide: const BorderSide(color: AppTheme.primaryColor),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: Colors.grey.shade400,
+                          color: AppTheme.getTextSecondaryColor(context),
                         ),
                         onPressed: () {
                           setState(() {
@@ -219,10 +220,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         // Handle forgot password
                       },
-                      child: const Text(
+                      child: Text(
                         'Forgot Password',
                         style: TextStyle(
-                          color: Colors.grey,
+                          color: AppTheme.getTextSecondaryColor(context),
                           fontSize: 14,
                           fontFamily: 'Inter',
                         ),
@@ -241,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: ElevatedButton(
                           onPressed: isLoading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00BCD4),
+                            backgroundColor: AppTheme.primaryColor,
                             foregroundColor: Colors.black,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -268,10 +269,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         "Don't have an account? ",
                         style: TextStyle(
-                          color: Colors.grey,
+                          color: AppTheme.getTextSecondaryColor(context),
                           fontFamily: 'Inter',
                         ),
                       ),
@@ -285,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: const Text(
                           'Sign Up',
                           style: TextStyle(
-                            color: const Color(0xFF00BCD4),
+                            color: AppTheme.primaryColor,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Inter',
                           ),
@@ -301,15 +302,15 @@ class _LoginScreenState extends State<LoginScreen> {
           // Loading Overlay
           if (isLoading)
             Container(
-              color: Colors.black.withOpacity(0.7),
+              color: AppTheme.getBackgroundColor(context).withOpacity(0.7),
               child: const Center(
                 child: LoadingWidget(
                   size: 48.0,
-                  color: const Color(0xFF00BCD4),
+                  color: AppTheme.primaryColor,
                   strokeWidth: 3.0,
                   text: 'Signing in...',
                   textStyle: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.primaryColor,
                     fontSize: 16,
                     fontFamily: 'Inter',
                   ),

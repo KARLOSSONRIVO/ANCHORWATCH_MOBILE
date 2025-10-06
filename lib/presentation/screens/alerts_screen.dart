@@ -2,6 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/alerts/alerts.dart';
 import '../widgets/widgets.dart';
+import '../themes/app_theme.dart';
 
 /// Alerts page with BLoC architecture and UI design matching the mockup
 class AlertsScreen extends StatelessWidget {
@@ -24,7 +25,7 @@ class _AlertsView extends StatelessWidget {
     return BlocBuilder<AlertsBloc, AlertsState>(
       builder: (context, state) {
         return Container(
-          color: const Color(0xFF000000),
+          color: AppTheme.getBackgroundColor(context),
           child: _buildBody(context, state),
         );
       },
@@ -51,10 +52,10 @@ class _AlertsView extends StatelessWidget {
           
           Row(
             children: [
-              const Text(
+              Text(
                 'Alert History',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.getTextPrimaryColor(context),
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Inter',
@@ -99,8 +100,8 @@ class _AlertsView extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 state.error ?? 'Failed to load alerts',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: AppTheme.getTextPrimaryColor(context),
                   fontSize: 16,
                   fontFamily: 'Inter',
                 ),
@@ -133,13 +134,13 @@ class _AlertsView extends StatelessWidget {
           itemCount: state.alerts.length,
           itemBuilder: (context, index) {
             final alert = state.alerts[index];
-            return _buildAlertTile(alert, index == state.alerts.length - 1);
+            return _buildAlertTile(context, alert, index == state.alerts.length - 1);
           },
         );
     }
   }
 
-  Widget _buildAlertTile(AlertModel alert, bool isLast) {
+  Widget _buildAlertTile(BuildContext context, AlertModel alert, bool isLast) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -158,8 +159,8 @@ class _AlertsView extends StatelessWidget {
           
           Text(
             alert.title,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: AppTheme.getTextPrimaryColor(context),
               fontSize: 14,
               fontWeight: FontWeight.w400,
               fontFamily: 'Inter',

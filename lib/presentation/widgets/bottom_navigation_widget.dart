@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/navigation_service.dart';
+import '../themes/app_theme.dart';
 
 /// Bottom navigation bar widget with 5 main navigation items
 class BottomNavigationWidget extends StatelessWidget {
@@ -15,11 +16,11 @@ class BottomNavigationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.black, // Dark background matching the design
+      decoration: BoxDecoration(
+        color: AppTheme.getSurfaceColor(context),
         border: Border(
           top: BorderSide(
-            color: Color(0xFF404040),
+            color: AppTheme.getBorderColor(context),
             width: 0.5,
           ),
         ),
@@ -95,8 +96,8 @@ class BottomNavigationWidget extends StatelessWidget {
                 child: Image.asset(
                   iconPath,
                   color: isSelected 
-                    ? const Color(0xFF00BCD4) // Teal color for selected
-                    : Colors.white.withValues(alpha: 0.7), // White with opacity for unselected
+                    ? AppTheme.primaryColor // Primary color for selected
+                    : AppTheme.getTextSecondaryColor(context), // Theme-aware color for unselected
                   fit: BoxFit.contain,
                 ),
               ),
@@ -119,7 +120,7 @@ class BottomNavigationWidget extends StatelessWidget {
       height: 4,
       decoration: BoxDecoration(
         color: isSelected 
-          ? const Color(0xFF00BCD4)
+          ? AppTheme.primaryColor
           : Colors.transparent,
         shape: BoxShape.circle,
       ),

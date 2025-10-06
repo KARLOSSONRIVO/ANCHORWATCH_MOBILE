@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/contact/contact.dart';
+import '../themes/app_theme.dart';
 
 /// Contact screen with BLoC architecture
 class ContactScreen extends StatelessWidget {
@@ -34,10 +35,10 @@ class _ContactViewState extends State<_ContactView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF000000),
+      backgroundColor: AppTheme.getBackgroundColor(context),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF000000),
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.getBackgroundColor(context),
+        foregroundColor: AppTheme.getTextPrimaryColor(context),
         title: const Text(
           'Contact Support',
           style: TextStyle(
@@ -48,7 +49,7 @@ class _ContactViewState extends State<_ContactView> {
         ),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AppTheme.getTextPrimaryColor(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -99,20 +100,20 @@ class _ContactViewState extends State<_ContactView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header section
-                const Text(
+                Text(
                   'Your Questions, Answered.',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.getTextPrimaryColor(context),
                     fontSize: 24,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Your Strategy. Strengthened.',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.getTextPrimaryColor(context),
                     fontSize: 16,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
@@ -121,10 +122,10 @@ class _ContactViewState extends State<_ContactView> {
                 const SizedBox(height: 24),
                 
                 // Description
-                const Text(
+                Text(
                   'Our Help Desk is here to provide clear guidance and practical solutions to dedicated support to empower your financial decisions. Whether you\'re exploring strategic market moves, need help with your account, or want better insights into advanced trading strategies, we\'re here to help, making your AnchorWatch experience intuitive, secure, and precision trading.',
                   style: TextStyle(
-                    color: Color(0xFFB3B3B3),
+                    color: AppTheme.getTextSecondaryColor(context),
                     fontSize: 14,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
@@ -134,10 +135,10 @@ class _ContactViewState extends State<_ContactView> {
                 const SizedBox(height: 32),
                 
                 // How can we help section
-                const Text(
+                Text(
                   'How can we help?',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.getTextPrimaryColor(context),
                     fontSize: 16,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w500,
@@ -149,10 +150,10 @@ class _ContactViewState extends State<_ContactView> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A1A1A),
+                      color: AppTheme.getCardBackgroundColor(context),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: const Color(0xFF333333),
+                        color: AppTheme.getBorderColor(context),
                         width: 1,
                       ),
                     ),
@@ -166,15 +167,15 @@ class _ContactViewState extends State<_ContactView> {
                       maxLines: null,
                       expands: true,
                       textAlignVertical: TextAlignVertical.top,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: AppTheme.getTextPrimaryColor(context),
                         fontFamily: 'Inter',
                         fontSize: 14,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Type your question here...',
                         hintStyle: TextStyle(
-                          color: Color(0xFF666666),
+                          color: AppTheme.getTextSecondaryColor(context),
                           fontFamily: 'Inter',
                           fontSize: 14,
                         ),
@@ -230,8 +231,8 @@ class _ContactViewState extends State<_ContactView> {
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
                               color: state.isFormValid 
-                                  ? Colors.white 
-                                  : const Color(0xFFBBBBBB),
+                                  ? AppTheme.getTextPrimaryColor(context)
+                                  : AppTheme.getTextSecondaryColor(context),
                             ),
                           ),
                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../injection_container.dart';
 import '../blocs/profile/profile.dart';
+import '../themes/app_theme.dart';
 
 /// Profile page content with dark theme using BLoC architecture
 class ProfileScreen extends StatelessWidget {
@@ -22,7 +23,7 @@ class _ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF000000),
+      color: AppTheme.getBackgroundColor(context),
       child: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           // Handle navigation based on state
@@ -39,9 +40,9 @@ class _ProfileView extends StatelessWidget {
         },
         builder: (context, state) {
           if (state.status == ProfileStatus.loading) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.getTextPrimaryColor(context)),
               ),
             );
           }
@@ -87,9 +88,9 @@ class _ProfileView extends StatelessWidget {
                         height: 80,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFF333333),
+                          color: AppTheme.getSurfaceColor(context),
                           border: Border.all(
-                            color: const Color(0xFF666666),
+                            color: AppTheme.getBorderColor(context),
                             width: 2,
                           ),
                         ),
@@ -110,8 +111,8 @@ class _ProfileView extends StatelessWidget {
                       // Name
                       Text(
                         state.name,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: AppTheme.getTextPrimaryColor(context),
                           fontSize: 24,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
@@ -122,8 +123,8 @@ class _ProfileView extends StatelessWidget {
                       // Email
                       Text(
                         state.email,
-                        style: const TextStyle(
-                          color: Color(0xFF999999),
+                        style: TextStyle(
+                          color: AppTheme.getTextSecondaryColor(context),
                           fontSize: 16,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w400,
@@ -135,10 +136,10 @@ class _ProfileView extends StatelessWidget {
                 const SizedBox(height: 40),
                 
                 // Account Section
-                const Text(
+                Text(
                   'Account',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.getTextPrimaryColor(context),
                     fontSize: 18,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
@@ -149,10 +150,10 @@ class _ProfileView extends StatelessWidget {
                 // Menu Items in Single Card
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A),
+                    color: AppTheme.getCardBackgroundColor(context),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF333333),
+                      color: AppTheme.getBorderColor(context),
                       width: 1,
                     ),
                   ),
@@ -202,10 +203,10 @@ class _DefaultAvatar extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: const Color(0xFF666666),
-      child: const Icon(
+      color: AppTheme.getBorderColor(context),
+      child: Icon(
         Icons.person,
-        color: Colors.white,
+        color: AppTheme.getTextPrimaryColor(context),
         size: 40,
       ),
     );
@@ -239,17 +240,17 @@ class _ProfileMenuItemInCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: AppTheme.getTextPrimaryColor(context),
                         fontSize: 16,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward_ios,
-                    color: Color(0xFF666666),
+                    color: AppTheme.getTextSecondaryColor(context),
                     size: 16,
                   ),
                 ],
@@ -260,7 +261,7 @@ class _ProfileMenuItemInCard extends StatelessWidget {
         if (showDivider)
           Container(
             height: 1,
-            color: const Color(0xFF333333),
+            color: AppTheme.getBorderColor(context),
             margin: const EdgeInsets.symmetric(horizontal: 16),
           ),
       ],

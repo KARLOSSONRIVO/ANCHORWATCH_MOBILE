@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/onboarding/onboarding.dart';
+import '../themes/app_theme.dart';
 
 /// Onboarding screen with multiple pages showcasing app features
 class OnboardingScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       title: 'Discover the Pulse of the Digital Economy',
       subtitle: 'AnchorWatch gives you a clear view of global economic trends and stablecoin activities in one intuitive, easy-to-use interface.',
       image: 'assets/images/PAGE1.png',
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.black, // Keep for dark theme consistency
     ),
     OnboardingPage(
       title: 'Real-Time Data at Your Fingertips',
@@ -87,8 +88,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // Show sliding pages after GET STARTED is clicked
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          color: Colors.black, // Full black background to match SlidePageBackground.png
+        decoration: BoxDecoration(
+          color: AppTheme.getBackgroundColor(context),
         ),
         child: Stack(
           children: [
@@ -168,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           decoration: BoxDecoration(
                             color: _currentPage == index
                                 ? Colors.blue
-                                : Colors.white30,
+                                : AppTheme.getTextSecondaryColor(context).withOpacity(0.3),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -186,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             onPressed: _completeOnboarding,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
+                              foregroundColor: AppTheme.getTextPrimaryColor(context),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -210,8 +211,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: OutlinedButton(
                             onPressed: _completeOnboarding,
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(color: Colors.white30),
+                              foregroundColor: AppTheme.getTextPrimaryColor(context),
+                              side: BorderSide(color: AppTheme.getBorderColor(context)),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -268,12 +269,12 @@ class _LandingPageWidget extends StatelessWidget {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     
     return Scaffold(
-      backgroundColor: Colors.black, // Full black background
+      backgroundColor: AppTheme.getBackgroundColor(context),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.black, // Full black background
+        decoration: BoxDecoration(
+          color: AppTheme.getBackgroundColor(context),
           image: DecorationImage(
             image: AssetImage('assets/images/Background_LandingPage_Front.png'), // Back to original
             fit: BoxFit.cover,
@@ -316,7 +317,7 @@ class _LandingPageWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppTheme.getTextPrimaryColor(context),
                       height: 1.2,
                       fontFamily: 'Inter',
                       shadows: [
@@ -338,7 +339,7 @@ class _LandingPageWidget extends StatelessWidget {
                       onPressed: onGetStarted,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppTheme.getTextPrimaryColor(context),
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -426,10 +427,10 @@ class _SlidingPageWidget extends StatelessWidget {
                 // Small title
                 Text(
                   page.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: AppTheme.getTextPrimaryColor(context),
                     height: 1.2,
                     fontFamily: 'Inter',
                   ),
@@ -441,9 +442,9 @@ class _SlidingPageWidget extends StatelessWidget {
                 // Description
                 Text(
                   page.subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: Colors.white70,
+                    color: AppTheme.getTextSecondaryColor(context),
                     height: 1.4,
                     fontFamily: 'Inter',
                   ),

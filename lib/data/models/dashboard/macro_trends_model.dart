@@ -1,4 +1,4 @@
-import '../../domain/entities/macro_trends.dart';
+import '../../../domain/entities/macro_trends.dart';
 
 class InflationRateModel {
   final int year;

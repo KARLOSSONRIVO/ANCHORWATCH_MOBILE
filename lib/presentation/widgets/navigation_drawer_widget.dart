@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../services/navigation_service.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_state.dart';
+import '../themes/app_theme.dart';
 
 /// Reusable navigation drawer widget matching the provided design
 class NavigationDrawerWidget extends StatelessWidget {
@@ -18,7 +19,7 @@ class NavigationDrawerWidget extends StatelessWidget {
         }
 
         return Drawer(
-      backgroundColor: const Color(0xFF2D2D2D), // Dark grey background matching the image
+      backgroundColor: AppTheme.getSurfaceColor(context),
       child: SafeArea(
         child: Column(
           children: [
@@ -36,10 +37,10 @@ class NavigationDrawerWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   // AnchorWatch Text
-                  const Text(
+                  Text(
                     'AnchorWatch',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppTheme.getTextPrimaryColor(context),
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Inter',
@@ -52,7 +53,7 @@ class NavigationDrawerWidget extends StatelessWidget {
             // Divider line
             Container(
               height: 1,
-              color: const Color(0xFF404040),
+              color: AppTheme.getBorderColor(context),
               margin: const EdgeInsets.symmetric(horizontal: 16),
             ),
             
@@ -118,7 +119,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                   // Separator
                   Container(
                     height: 1,
-                    color: const Color(0xFF404040),
+                    color: AppTheme.getBorderColor(context),
                     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   ),
                   
@@ -159,7 +160,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFD32F2F), // Red color matching the image
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppTheme.getTextPrimaryColor(context),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
@@ -222,7 +223,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                 iconPath,
                 width: 28,
                 height: 28,
-                color: isActive ? const Color(0xFF00BCD4) : Colors.white,
+                color: isActive ? const Color(0xFF00BCD4) : AppTheme.getTextPrimaryColor(context),
                 fit: BoxFit.contain,
               ),
               const SizedBox(width: 16),
@@ -230,7 +231,7 @@ class NavigationDrawerWidget extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  color: isActive ? const Color(0xFF00BCD4): Colors.white,
+                  color: isActive ? const Color(0xFF00BCD4): AppTheme.getTextPrimaryColor(context),
                   fontSize: 16,
                   fontFamily: 'Inter',
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,

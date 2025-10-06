@@ -8,6 +8,7 @@ import '../widgets/bottom_navigation_widget.dart';
 import '../widgets/navigation_drawer_widget.dart';
 import '../widgets/custom_snackbar.dart';
 import '../../services/navigation_service.dart';
+import '../themes/app_theme.dart';
 import 'dashboard_screen.dart';
 import 'discover_screen.dart';
 import 'anchorwise_screen.dart';
@@ -40,7 +41,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   String _getPageTitle(int index) {
     switch (index) {
       case 0:
-        return 'Dashboard';
+        return 'AnchorWatch';
       case 1:
         return 'Discover';
       case 2:
@@ -115,10 +116,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           },
           child: Scaffold(
             key: _scaffoldKey,
-            backgroundColor: Colors.blue.shade50,
+            backgroundColor: AppTheme.getBackgroundColor(context),
             appBar: AppBar(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
               title: Text(
                 _getPageTitle(currentIndex),
                 style: const TextStyle(

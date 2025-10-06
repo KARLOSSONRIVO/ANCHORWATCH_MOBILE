@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/anchorwise/anchorwise.dart';
 import '../widgets/widgets.dart';
+import '../themes/app_theme.dart';
 
 /// AnchorWise AI chat screen using AnchorWiseBloc
 class AnchorWiseScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
       },
       builder: (context, state) {
         return Container(
-          color: const Color(0xFF000000),
+          color: AppTheme.getBackgroundColor(context),
           child: Column(
             children: [
               Expanded(
@@ -60,14 +61,14 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
 
   Widget _buildChatArea(BuildContext context, AnchorWiseState state) {
     if (state.status == AnchorWiseStatus.loading) {
-      return const Center(
+      return Center(
         child: LoadingWidget(
           size: 48.0,
           color: Color(0xFF00D4AA),
           strokeWidth: 3.0,
           text: 'Loading conversation...',
           textStyle: TextStyle(
-            color: Colors.white,
+            color: AppTheme.getTextPrimaryColor(context),
             fontSize: 16,
             fontFamily: 'Inter',
           ),
@@ -116,21 +117,21 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.psychology,
                 size: 50,
-                color: Colors.white,
+                color: AppTheme.getTextPrimaryColor(context),
               ),
             ),
             const SizedBox(height: 24),
 
             // Welcome text
-            const Text(
+            Text(
               'Welcome to AnchorWise',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppTheme.getTextPrimaryColor(context),
                 fontFamily: 'Inter',
               ),
               textAlign: TextAlign.center,
@@ -354,9 +355,9 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.grey.shade900,
+        color: AppTheme.getSurfaceColor(context),
         border: Border(
-          top: BorderSide(color: Colors.grey.shade700),
+          top: BorderSide(color: AppTheme.getBorderColor(context)),
         ),
       ),
       child: Row(
@@ -364,18 +365,18 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
           Expanded(
             child: TextField(
               controller: _questionController,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: AppTheme.getTextPrimaryColor(context),
                 fontFamily: 'Inter',
               ),
               decoration: InputDecoration(
                 hintText: 'Ask AnchorWise anything...',
                 hintStyle: TextStyle(
-                  color: Colors.grey.shade500,
+                  color: AppTheme.getTextSecondaryColor(context),
                   fontFamily: 'Inter',
                 ),
                 filled: true,
-                fillColor: Colors.black,
+                fillColor: AppTheme.getCardBackgroundColor(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
@@ -399,17 +400,17 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
             child: IconButton(
               onPressed: isSending ? null : () => _handleSendMessage(_questionController.text),
               icon: isSending
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.black,
+                        color: AppTheme.getTextPrimaryColor(context),
                       ),
                     )
-                  : const Icon(
+                  : Icon(
                       Icons.send,
-                      color: Colors.black,
+                      color: AppTheme.getTextPrimaryColor(context),
                     ),
             ),
           ),

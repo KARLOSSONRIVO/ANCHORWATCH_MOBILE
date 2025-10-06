@@ -1,9 +1,9 @@
 import 'package:injectable/injectable.dart';
 import '../../../domain/entities/dashboard_metrics.dart';
 import '../../../services/dio_client.dart';
-import '../../../core/network/api_endpoints/dashboard_endpoints.dart';
-import '../../models/stablecoin_model.dart';
-import '../../models/macro_trends_model.dart';
+import '../../endpoints/dashboard_endpoints.dart';
+import '../../models/dashboard/stablecoin_model.dart';
+import '../../models/dashboard/macro_trends_model.dart';
 
 abstract interface class DashboardRemoteDataSource {
   Future<DashboardMetrics> getMetrics([String? range]);

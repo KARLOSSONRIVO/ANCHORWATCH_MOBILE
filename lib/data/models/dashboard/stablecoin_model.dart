@@ -1,4 +1,4 @@
-import '../../domain/entities/stablecoin_chart_data.dart';
+import '../../../domain/entities/stablecoin_chart_data.dart';
 
 // API Response wrapper
 class ApiResponse<T> {

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/faq/faq.dart';
 import '../widgets/loading_widget.dart';
 import '../../data/models/faq_models.dart';
+import '../themes/app_theme.dart';
 
 /// FAQ screen with BLoC architecture
 class FaqScreen extends StatelessWidget {
@@ -23,10 +24,10 @@ class _FaqView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF000000),
+      backgroundColor: AppTheme.getBackgroundColor(context),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF000000),
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.getBackgroundColor(context),
+        foregroundColor: AppTheme.getTextPrimaryColor(context),
         title: const Text(
           'FAQS',
           style: TextStyle(
@@ -38,7 +39,7 @@ class _FaqView extends StatelessWidget {
         elevation: 0,
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AppTheme.getTextPrimaryColor(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -103,7 +104,7 @@ class _FaqView extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: AppTheme.getCardBackgroundColor(context),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -121,8 +122,8 @@ class _FaqView extends StatelessWidget {
                   Expanded(
                     child: Text(
                       category.title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: AppTheme.getTextPrimaryColor(context),
                         fontFamily: 'Inter',
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -131,7 +132,7 @@ class _FaqView extends StatelessWidget {
                   ),
                   Icon(
                     category.isExpanded ? Icons.remove : Icons.add,
-                    color: Colors.white,
+                    color: AppTheme.getTextPrimaryColor(context),
                     size: 20,
                   ),
                 ],
@@ -140,8 +141,8 @@ class _FaqView extends StatelessWidget {
           ),
           // Category Content
           if (category.isExpanded) ...[
-            const Divider(
-              color: Color(0xFF2D2D2D),
+            Divider(
+              color: AppTheme.getBorderColor(context),
               height: 1,
               thickness: 1,
             ),
@@ -154,8 +155,8 @@ class _FaqView extends StatelessWidget {
 
   Widget _buildFaqItem(BuildContext context, String categoryId, FaqItem item) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1E),
+      decoration: BoxDecoration(
+        color: AppTheme.getCardBackgroundColor(context),
       ),
       child: Column(
         children: [
@@ -171,8 +172,8 @@ class _FaqView extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item.question,
-                      style: const TextStyle(
-                        color: Color(0xFFB0B0B0),
+                      style: TextStyle(
+                        color: AppTheme.getTextSecondaryColor(context),
                         fontFamily: 'Inter',
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
@@ -181,7 +182,7 @@ class _FaqView extends StatelessWidget {
                   ),
                   Icon(
                     item.isExpanded ? Icons.remove : Icons.add,
-                    color: const Color(0xFFB0B0B0),
+                    color: AppTheme.getTextSecondaryColor(context),
                     size: 18,
                   ),
                 ],
@@ -195,8 +196,8 @@ class _FaqView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(
                 item.answer,
-                style: const TextStyle(
-                  color: Color(0xFF909090),
+                style: TextStyle(
+                  color: AppTheme.getTextSecondaryColor(context),
                   fontFamily: 'Inter',
                   fontSize: 13,
                   fontWeight: FontWeight.w400,

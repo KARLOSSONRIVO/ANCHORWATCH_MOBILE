@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import '../domain/entities/auth_result.dart';
 import '../domain/entities/user.dart';
 import '../data/models/auth/user_model.dart';
-import '../core/network/api_endpoints/auth_endpoints.dart';
+import '../data/endpoints/auth_endpoints.dart';
 import 'token_storage_service.dart';
 import 'storage_service.dart';
 import 'dio_client.dart';

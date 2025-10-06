@@ -5,6 +5,7 @@ import 'presentation/routes/routes.dart';
 import 'presentation/screens/onboarding_screen.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 import 'presentation/screens/login_screen.dart';
+import 'presentation/themes/app_theme.dart';
 import 'injection_container.dart';
 import 'services/storage_service.dart';
 
@@ -59,14 +60,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'AnchorWatch',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-          fontFamily: 'Inter',
-          textTheme: const TextTheme().apply(
-            fontFamily: 'Inter',
-          ),
-        ),
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system, // Automatically follows system theme
         onGenerateRoute: AppRouter.generateRoute,
         home: BlocBuilder<OnboardingBloc, OnboardingState>(
           builder: (context, onboardingState) {
@@ -121,12 +117,12 @@ class _SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade700,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.anchor,
               size: 120,
               color: Colors.white,

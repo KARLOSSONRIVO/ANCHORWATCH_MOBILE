@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
 import '../widgets/widgets.dart';
+import '../themes/app_theme.dart';
 
 /// Sign up screen for new user registration using AuthenticationBloc
 class SignUpScreen extends StatefulWidget {
@@ -44,13 +45,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Set dark theme for status bar
+    // Set theme-aware system UI overlay
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.light,
+        statusBarIconBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: AppTheme.getBackgroundColor(context),
+        systemNavigationBarIconBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
       ),
     );
 
@@ -67,7 +68,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         final isLoading = state.isLoading;
 
         return Scaffold(
-          backgroundColor: Colors.black,
+          backgroundColor: AppTheme.getBackgroundColor(context),
           body: SafeArea(
             child: Stack(
               children: [
@@ -84,9 +85,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           alignment: Alignment.centerLeft,
                           child: IconButton(
                             onPressed: () => Navigator.pop(context),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_back,
-                              color: Colors.white,
+                              color: AppTheme.getTextPrimaryColor(context),
                               size: 24,
                             ),
                           ),
@@ -104,12 +105,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         const SizedBox(height: 40),
                         
                         // Title
-                        const Text(
+                        Text(
                           'Welcome to AnchorWatch',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: AppTheme.getTextPrimaryColor(context),
                             fontFamily: 'Inter',
                           ),
                           textAlign: TextAlign.center,
@@ -117,11 +118,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         const SizedBox(height: 8),
                         
                         // Subtitle
-                        const Text(
+                        Text(
                           'Sign up',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Colors.grey,
+                            color: AppTheme.getTextSecondaryColor(context),
                             fontFamily: 'Inter',
                           ),
                           textAlign: TextAlign.center,
@@ -131,23 +132,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         // Username Field
                         TextFormField(
                           controller: _usernameController,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppTheme.getTextPrimaryColor(context),
                             fontFamily: 'Inter',
                           ),
                           decoration: InputDecoration(
                             labelText: 'Username',
-                            labelStyle: const TextStyle(
-                              color: Colors.grey,
+                            labelStyle: TextStyle(
+                              color: AppTheme.getTextSecondaryColor(context),
                               fontFamily: 'Inter',
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: Colors.grey),
+                              borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: const Color(0xFF00BCD4)),
+                              borderSide: const BorderSide(color: AppTheme.primaryColor),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -157,7 +158,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(color: Colors.red),
                             ),
-                            prefixIcon: const Icon(Icons.person, color: Colors.grey),
+                            prefixIcon: Icon(Icons.person, color: AppTheme.getTextSecondaryColor(context)),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -336,7 +337,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: ElevatedButton(
                             onPressed: isLoading ? null : _handleSignUp,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00BCD4),
+                              backgroundColor: AppTheme.primaryColor,
                               foregroundColor: Colors.black,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
