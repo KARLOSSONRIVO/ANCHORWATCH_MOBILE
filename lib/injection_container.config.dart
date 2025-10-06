@@ -19,8 +19,11 @@ import 'data/repositories/auth_repository_impl.dart' as _i145;
 import 'data/repositories/dashboard_repository_impl.dart' as _i855;
 import 'domain/repositories/auth_repository.dart' as _i716;
 import 'domain/repositories/dashboard_repository.dart' as _i564;
+import 'domain/usecases/auth/forgot_password_usecase.dart' as _i512;
 import 'domain/usecases/auth/login_usecase.dart' as _i289;
 import 'domain/usecases/auth/register_usecase.dart' as _i339;
+import 'domain/usecases/auth/reset_password_usecase.dart' as _i461;
+import 'domain/usecases/auth/verify_otp_usecase.dart' as _i33;
 import 'domain/usecases/dashboard/fetch_dashboard_metrics_usecase.dart'
     as _i711;
 import 'presentation/blocs/alerts/alerts_bloc.dart' as _i9;
@@ -31,6 +34,7 @@ import 'presentation/blocs/dashboard/dashboard_bloc.dart' as _i37;
 import 'presentation/blocs/faq/faq_bloc.dart' as _i855;
 import 'presentation/blocs/navigation/navigation_bloc.dart' as _i62;
 import 'presentation/blocs/onboarding/onboarding_bloc.dart' as _i131;
+import 'presentation/blocs/password_reset/password_reset_bloc.dart' as _i580;
 import 'presentation/blocs/profile/profile_bloc.dart' as _i226;
 import 'services/authentication_service.dart' as _i460;
 import 'services/dio_client.dart' as _i332;
@@ -77,11 +81,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i711.FetchDashboardMetricsUseCase>(
       () => _i711.FetchDashboardMetricsUseCase(gh<_i564.DashboardRepository>()),
     );
+    gh.factory<_i512.ForgotPasswordUseCase>(
+      () => _i512.ForgotPasswordUseCase(gh<_i716.AuthRepository>()),
+    );
     gh.factory<_i289.LoginUseCase>(
       () => _i289.LoginUseCase(gh<_i716.AuthRepository>()),
     );
     gh.factory<_i339.RegisterUseCase>(
       () => _i339.RegisterUseCase(gh<_i716.AuthRepository>()),
+    );
+    gh.factory<_i461.ResetPasswordUseCase>(
+      () => _i461.ResetPasswordUseCase(gh<_i716.AuthRepository>()),
+    );
+    gh.factory<_i33.VerifyOtpUseCase>(
+      () => _i33.VerifyOtpUseCase(gh<_i716.AuthRepository>()),
     );
     gh.factory<_i226.ProfileBloc>(
       () => _i226.ProfileBloc(gh<_i460.AuthenticationService>()),
@@ -94,6 +107,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i289.LoginUseCase>(),
         gh<_i339.RegisterUseCase>(),
         gh<_i460.AuthenticationService>(),
+      ),
+    );
+    gh.factory<_i580.PasswordResetBloc>(
+      () => _i580.PasswordResetBloc(
+        gh<_i512.ForgotPasswordUseCase>(),
+        gh<_i33.VerifyOtpUseCase>(),
+        gh<_i461.ResetPasswordUseCase>(),
       ),
     );
     return this;

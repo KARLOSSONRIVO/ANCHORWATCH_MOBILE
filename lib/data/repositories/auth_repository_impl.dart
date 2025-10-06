@@ -3,10 +3,14 @@ import 'package:injectable/injectable.dart';
 import '../../domain/entities/auth_result.dart';
 import '../../domain/entities/auth_tokens.dart';
 import '../../domain/entities/user.dart';
+import '../../domain/entities/password_reset/forgot_password_result.dart';
+import '../../domain/entities/password_reset/verify_otp_result.dart';
+import '../../domain/entities/password_reset/reset_password_result.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/remote/auth_remote_datasource.dart';
 import '../models/auth/login/login_request_model.dart';
 import '../models/auth/register/register_request_model.dart';
+import '../models/auth/password_reset/password_reset_models.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -75,6 +79,56 @@ class AuthRepositoryImpl implements AuthRepository {
     return AuthResult(
       user: user,
       tokens: tokens,
+    );
+  }
+
+  @override
+  Future<ForgotPasswordResult> forgotPassword({
+    required String email,
+  }) async {
+    final request = ForgotPasswordRequestModel(
+      email: email,
+    );
+
+    final response = await _remoteDataSource.forgotPassword(request);
+
+    return ForgotPasswordResult(
+      message: response.message,
+    );
+  }
+
+  @override
+  Future<VerifyOtpResult> verifyOtp({
+    required String otp,
+  }) async {
+    final request = VerifyOtpRequestModel(
+      otp: otp,
+    );
+
+    final response = await _remoteDataSource.verifyOtp(request);
+
+    return VerifyOtpResult(
+      message: response.message,
+      email: response.email,
+    );
+  }
+
+  @override
+  Future<ResetPasswordResult> resetPassword({
+    required String email,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final request = ResetPasswordRequestModel(
+      email: email,
+      newPassword: newPassword,
+      confirmPassword: confirmPassword,
+    );
+
+    final response = await _remoteDataSource.resetPassword(request);
+
+    return ResetPasswordResult(
+      message: response.message,
     );
   }
 }

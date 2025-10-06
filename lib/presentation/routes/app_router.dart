@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
+import '../blocs/password_reset/password_reset.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
 import '../screens/main_navigation_screen.dart';
 import '../screens/contact_screen.dart';
 import '../screens/faq_screen.dart';
+import '../screens/password_reset/reset_password_email_screen.dart';
+import '../screens/password_reset/reset_password_otp_screen.dart';
+import '../screens/password_reset/reset_password_confirm_screen.dart';
+import '../../injection_container.dart';
 import 'app_routes.dart';
 
 /// Main app router that handles navigation and route generation
 class AppRouter {
+  static PasswordResetBloc? _passwordResetBloc;
+  
+  /// Get shared password reset BLoC instance
+  static PasswordResetBloc _getPasswordResetBloc() {
+    _passwordResetBloc ??= getIt<PasswordResetBloc>();
+    return _passwordResetBloc!;
+  }
+  
+  /// Clear password reset BLoC when flow is complete
+  static void clearPasswordResetBloc() {
+    _passwordResetBloc?.close();
+    _passwordResetBloc = null;
+  }
+  
   /// Generate routes based on settings and authentication state
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -58,6 +77,34 @@ class AppRouter {
       case AppRoutes.faq:
         return MaterialPageRoute(
           builder: (_) => const FaqScreen(),
+          settings: settings,
+        );
+        
+      case AppRoutes.resetPasswordEmail:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: _getPasswordResetBloc(),
+            child: const ResetPasswordEmailScreen(),
+          ),
+          settings: settings,
+        );
+        
+      case AppRoutes.resetPasswordOtp:
+        final email = settings.arguments as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: _getPasswordResetBloc(),
+            child: ResetPasswordOtpScreen(email: email),
+          ),
+          settings: settings,
+        );
+        
+      case AppRoutes.resetPasswordConfirm:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: _getPasswordResetBloc(),
+            child: const ResetPasswordConfirmScreen(),
+          ),
           settings: settings,
         );
         

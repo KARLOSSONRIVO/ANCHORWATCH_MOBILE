@@ -6,6 +6,11 @@ class AppRoutes {
   static const String login = '/login';
   static const String signup = '/signup';
   
+  // Password reset routes
+  static const String resetPasswordEmail = '/reset-password/email';
+  static const String resetPasswordOtp = '/reset-password/otp';
+  static const String resetPasswordConfirm = '/reset-password/confirm';
+  
   // Main app routes
   static const String home = '/home';
   static const String dashboard = '/dashboard';
@@ -28,6 +33,9 @@ class AppRoutes {
     onboarding,
     login,
     signup,
+    resetPasswordEmail,
+    resetPasswordOtp,
+    resetPasswordConfirm,
     home,
     dashboard,
     discover,
@@ -58,5 +66,8 @@ class AppRoutes {
     onboarding,
     login,
     signup,
+    resetPasswordEmail,
+    resetPasswordOtp,
+    resetPasswordConfirm,
   ];
 }

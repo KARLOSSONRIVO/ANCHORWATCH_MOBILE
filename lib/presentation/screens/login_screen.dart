@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
 import '../routes/routes.dart';
-import '../routes/app_routes.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
 
@@ -218,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // Handle forgot password
+                        Navigator.pushNamed(context, AppRoutes.resetPasswordEmail);
                       },
                       child: Text(
                         'Forgot Password',

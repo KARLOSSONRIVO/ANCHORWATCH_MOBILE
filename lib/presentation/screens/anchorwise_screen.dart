@@ -443,6 +443,6 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
       return '${difference.inMinutes}m ago';
     } else {
       return 'now';
-    }
+   }
   }
 }
