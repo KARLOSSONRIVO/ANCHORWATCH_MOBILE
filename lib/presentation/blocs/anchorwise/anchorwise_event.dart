@@ -42,3 +42,8 @@ class AnchorWiseToggleTyping extends AnchorWiseEvent {
 class AnchorWiseCancelRequest extends AnchorWiseEvent {
   const AnchorWiseCancelRequest();
 }
+
+/// Event to create a new conversation
+class AnchorWiseCreateNewConversation extends AnchorWiseEvent {
+  const AnchorWiseCreateNewConversation();
+}

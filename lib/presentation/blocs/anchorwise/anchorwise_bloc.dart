@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../../domain/usecases/anchorwise/send_chat_message_usecase.dart';
+import '../../../domain/usecases/anchorwise/create_new_conversation_usecase.dart';
 import 'anchorwise_event.dart';
 import 'anchorwise_state.dart';
 
@@ -8,14 +9,19 @@ import 'anchorwise_state.dart';
 @injectable
 class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
   final SendChatMessageUseCase _sendChatMessageUseCase;
+  final CreateNewConversationUseCase _createNewConversationUseCase;
   String? _currentConversationId;
 
-  AnchorWiseBloc(this._sendChatMessageUseCase) : super(const AnchorWiseState()) {
+  AnchorWiseBloc(
+    this._sendChatMessageUseCase, 
+    this._createNewConversationUseCase,
+  ) : super(const AnchorWiseState()) {
     on<AnchorWiseSendMessage>(_onSendMessage);
     on<AnchorWiseLoadHistory>(_onLoadHistory);
     on<AnchorWiseClearConversation>(_onClearConversation);
     on<AnchorWiseToggleTyping>(_onToggleTyping);
     on<AnchorWiseCancelRequest>(_onCancelRequest);
+    on<AnchorWiseCreateNewConversation>(_onCreateNewConversation);
   }
 
   /// Send message and get AI response
@@ -141,6 +147,35 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
       isTyping: false,
       error: null,
     ));
+  }
+
+  /// Create new conversation
+  void _onCreateNewConversation(
+    AnchorWiseCreateNewConversation event,
+    Emitter<AnchorWiseState> emit,
+  ) async {
+    emit(state.copyWith(status: AnchorWiseStatus.loading));
+
+    try {
+      // Create new conversation and get conversation ID
+      final conversationId = await _createNewConversationUseCase.execute();
+      
+      // Store the new conversation ID
+      _currentConversationId = conversationId;
+      
+      // Clear messages and reset to empty state with new conversation
+      emit(state.copyWith(
+        status: AnchorWiseStatus.idle,
+        messages: const [],
+        error: null,
+        isTyping: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: AnchorWiseStatus.error,
+        error: 'Failed to create new conversation: $e',
+      ));
+    }
   }
 
 }

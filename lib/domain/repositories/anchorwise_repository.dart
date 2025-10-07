@@ -7,4 +7,7 @@ abstract class AnchorWiseRepository {
     required String query,
     String? conversationId,
   });
+  
+  /// Create a new conversation and get conversation data
+  Future<NewConversationResponseModel> createNewConversation();
 }

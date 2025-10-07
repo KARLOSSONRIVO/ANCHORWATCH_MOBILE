@@ -23,4 +23,13 @@ class AnchorWiseRepositoryImpl implements AnchorWiseRepository {
       throw Exception('Failed to send chat message: $e');
     }
   }
+
+  @override
+  Future<NewConversationResponseModel> createNewConversation() async {
+    try {
+      return await _remoteDataSource.createNewConversation();
+    } catch (e) {
+      throw Exception('Failed to create new conversation: $e');
+    }
+  }
 }

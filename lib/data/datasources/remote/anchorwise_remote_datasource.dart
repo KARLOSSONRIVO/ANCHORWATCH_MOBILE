@@ -11,6 +11,9 @@ abstract class AnchorWiseRemoteDataSource {
     required String query,
     String? conversationId,
   });
+  
+  /// Create a new conversation and get conversation ID
+  Future<NewConversationResponseModel> createNewConversation();
 }
 
 @Injectable(as: AnchorWiseRemoteDataSource)
@@ -42,6 +45,25 @@ class AnchorWiseRemoteDataSourceImpl implements AnchorWiseRemoteDataSource {
       throw _handleDioError(e);
     } catch (e) {
       throw Exception('Failed to send chat message: $e');
+    }
+  }
+
+  @override
+  Future<NewConversationResponseModel> createNewConversation() async {
+    try {
+      final response = await _dioClient.post(
+        AnchorWiseEndpoints.conversations,
+        options: Options(
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 15),
+        ),
+      );
+
+      return NewConversationResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw Exception('Failed to create new conversation: $e');
     }
   }
 

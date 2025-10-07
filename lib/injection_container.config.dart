@@ -22,6 +22,8 @@ import 'data/repositories/dashboard_repository_impl.dart' as _i855;
 import 'domain/repositories/anchorwise_repository.dart' as _i135;
 import 'domain/repositories/auth_repository.dart' as _i716;
 import 'domain/repositories/dashboard_repository.dart' as _i564;
+import 'domain/usecases/anchorwise/create_new_conversation_usecase.dart'
+    as _i625;
 import 'domain/usecases/anchorwise/send_chat_message_usecase.dart' as _i1011;
 import 'domain/usecases/auth/forgot_password_usecase.dart' as _i512;
 import 'domain/usecases/auth/login_usecase.dart' as _i289;
@@ -95,6 +97,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1011.SendChatMessageUseCase>(
       () => _i1011.SendChatMessageUseCase(gh<_i135.AnchorWiseRepository>()),
     );
+    gh.factory<_i625.CreateNewConversationUseCase>(
+      () =>
+          _i625.CreateNewConversationUseCase(gh<_i135.AnchorWiseRepository>()),
+    );
     gh.factory<_i512.ForgotPasswordUseCase>(
       () => _i512.ForgotPasswordUseCase(gh<_i716.AuthRepository>()),
     );
@@ -109,9 +115,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i33.VerifyOtpUseCase>(
       () => _i33.VerifyOtpUseCase(gh<_i716.AuthRepository>()),
-    );
-    gh.factory<_i320.AnchorWiseBloc>(
-      () => _i320.AnchorWiseBloc(gh<_i1011.SendChatMessageUseCase>()),
     );
     gh.factory<_i226.ProfileBloc>(
       () => _i226.ProfileBloc(gh<_i460.AuthenticationService>()),
@@ -131,6 +134,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i512.ForgotPasswordUseCase>(),
         gh<_i33.VerifyOtpUseCase>(),
         gh<_i461.ResetPasswordUseCase>(),
+      ),
+    );
+    gh.factory<_i320.AnchorWiseBloc>(
+      () => _i320.AnchorWiseBloc(
+        gh<_i1011.SendChatMessageUseCase>(),
+        gh<_i625.CreateNewConversationUseCase>(),
       ),
     );
     return this;

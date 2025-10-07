@@ -10,4 +10,7 @@ class AnchorWiseEndpoints {
     }
     return '$_llm/chat/';
   }
+  
+  // New conversation endpoint
+  static String get conversations => '$_llm/conversations/';
 }

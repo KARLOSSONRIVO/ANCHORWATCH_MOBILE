@@ -30,3 +30,24 @@ class ChatResponseModel {
     );
   }
 }
+
+/// Response model for new conversation API
+class NewConversationResponseModel {
+  final bool success;
+  final String message;
+  final String conversationId;
+
+  NewConversationResponseModel({
+    required this.success,
+    required this.message,
+    required this.conversationId,
+  });
+
+  factory NewConversationResponseModel.fromJson(Map<String, dynamic> json) {
+    return NewConversationResponseModel(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      conversationId: json['conversation_id'] ?? '',
+    );
+  }
+}

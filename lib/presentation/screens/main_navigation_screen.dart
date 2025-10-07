@@ -87,9 +87,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
           IconButton(
             onPressed: () {
-              // Access AnchorWise BLoC to clear conversation
+              // Create new conversation using AnchorWise BLoC
               final anchorWiseBloc = BlocProvider.of<AnchorWiseBloc>(context);
-              anchorWiseBloc.add(const AnchorWiseClearConversation());
+              anchorWiseBloc.add(const AnchorWiseCreateNewConversation());
             },
             icon: const Icon(Icons.add_comment_outlined),
             tooltip: 'New Chat',
