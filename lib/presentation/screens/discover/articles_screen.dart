@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../injection_container.dart';
 import '../../../domain/entities/article.dart';
+import '../../../utils/tag_colors.dart';
 import '../../themes/app_theme.dart';
 import '../../blocs/discover/articles/articles.dart';
 
@@ -269,14 +272,30 @@ class _ArticlesView extends StatelessWidget {
       color: AppTheme.getCardBackgroundColor(context),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          // TODO: Implement article opening
+        onTap: () async {
+          // Show loading indicator
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Opening: ${article.title}'),
+              content: const Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Text('Opening article...'),
+                ],
+              ),
               backgroundColor: AppTheme.primaryColor,
+              duration: const Duration(seconds: 1),
             ),
           );
+          
+          await _openArticleUrl(context, article.url, article.title);
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -326,29 +345,37 @@ class _ArticlesView extends StatelessWidget {
                   ),
                 ),
               ],
-              // Key Topics - using correct property name
+              // Key Topics - using TagColors for dynamic coloring
               if (article.keyTopics.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: article.keyTopics.map((topic) {
+                    final tagColor = TagColors.getTagColor(topic);
+                    final textColor = TagColors.getTextColorForBg(tagColor);
+                    
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppTheme.primaryColor.withOpacity(0.3),
-                        ),
+                        color: tagColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: tagColor.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Text(
-                        topic,
+                        topic.toUpperCase(),
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.w500,
+                          color: textColor,
+                          fontWeight: FontWeight.w700,
                           fontFamily: 'Inter',
+                          letterSpacing: 0.6,
                         ),
                       ),
                     );
@@ -376,6 +403,52 @@ class _ArticlesView extends StatelessWidget {
       return '${difference.inMinutes}m ago';
     } else {
       return 'Just now';
+    }
+  }
+
+  /// Opens article URL in external browser
+  Future<void> _openArticleUrl(BuildContext context, String url, String title) async {
+    try {
+      final Uri uri = Uri.parse(url);
+      
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Could not open article: $title'),
+              backgroundColor: Colors.red,
+              action: SnackBarAction(
+                label: 'Copy URL',
+                textColor: Colors.white,
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: url));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('URL copied to clipboard'),
+                      backgroundColor: Color(0xFF00D4AA),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening article: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }
