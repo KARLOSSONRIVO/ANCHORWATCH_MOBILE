@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../../injection_container.dart';
 import '../../blocs/discover/macro_trends/macro_trends.dart';
 import '../../../utils/number_formatter.dart';
+import '../../../domain/entities/macro_trends.dart';
 
 class MacroTrendsView extends StatelessWidget {
   const MacroTrendsView({super.key});
@@ -10,7 +12,7 @@ class MacroTrendsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MacroTrendsBloc()..add(const MacroTrendsLoadRequested()),
+      create: (context) => getIt<MacroTrendsBloc>()..add(const MacroTrendsLoadRequested()),
       child: const _MacroTrendsView(),
     );
   }
@@ -150,7 +152,7 @@ class _MacroTrendsView extends StatelessWidget {
 
   // Annual Inflation Rates Timeline Chart
   Widget _inflationTimelineChart(MacroTrendsState state) {
-    final data = state.macroTrendsData?['inflationTimeline'] ?? [];
+    final data = state.macroTrendsData?.inflationTimeline ?? [];
 
     if (data.isEmpty) {
       return const Center(
@@ -165,7 +167,7 @@ class _MacroTrendsView extends StatelessWidget {
     }
 
     // Filter out null inflation rates
-    final validData = data.where((item) => item['inflationRate'] != null).toList();
+    final validData = data.where((item) => item.inflationRate != null).toList();
 
     if (validData.isEmpty) {
       return const Center(
@@ -202,10 +204,10 @@ class _MacroTrendsView extends StatelessWidget {
             title: AxisTitle(text: 'Inflation Rate (%)', textStyle: TextStyle(color: titleColor, fontSize: 12)),
           ),
           series: <CartesianSeries>[
-            LineSeries<Map<String, dynamic>, int>(
+            LineSeries<InflationRateData, int>(
               dataSource: validData,
-              xValueMapper: (Map<String, dynamic> data, _) => data['year'],
-              yValueMapper: (Map<String, dynamic> data, _) => data['inflationRate'],
+              xValueMapper: (InflationRateData data, _) => data.year,
+              yValueMapper: (InflationRateData data, _) => data.inflationRate,
               color: const Color(0xFF00D4AA),
               width: 3,
               markerSettings: const MarkerSettings(
@@ -225,7 +227,7 @@ class _MacroTrendsView extends StatelessWidget {
 
   // Inflation vs Supply Growth Dual Axis Chart
   Widget _inflationVsSupplyChart(MacroTrendsState state) {
-    final data = state.macroTrendsData?['inflationVsSupplyGrowth'] ?? [];
+    final data = state.macroTrendsData?.inflationVsSupplyGrowth ?? [];
 
     if (data.isEmpty) {
       return const Center(
@@ -240,8 +242,8 @@ class _MacroTrendsView extends StatelessWidget {
     }
 
     // Filter out null values for inflation rate and supply growth
-    final validInflationData = data.where((item) => item['inflationRate'] != null).toList();
-    final validSupplyData = data.where((item) => item['supplyGrowthPct'] != null).toList();
+    final validInflationData = data.where((item) => item.inflationRate != null).toList();
+    final validSupplyData = data.where((item) => item.supplyGrowthPct != null).toList();
 
     return Builder(
       builder: (context) {
@@ -280,20 +282,20 @@ class _MacroTrendsView extends StatelessWidget {
             ),
           ],
           series: <CartesianSeries>[
-            LineSeries<Map<String, dynamic>, int>(
+            LineSeries<InflationSupplyData, int>(
               name: 'Inflation Rate',
               dataSource: validInflationData,
-              xValueMapper: (Map<String, dynamic> data, _) => data['year'],
-              yValueMapper: (Map<String, dynamic> data, _) => data['inflationRate'],
+              xValueMapper: (InflationSupplyData data, _) => data.year,
+              yValueMapper: (InflationSupplyData data, _) => data.inflationRate,
               color: const Color(0xFF00D4AA),
               width: 2,
               markerSettings: const MarkerSettings(isVisible: true),
             ),
-            ColumnSeries<Map<String, dynamic>, int>(
+            ColumnSeries<InflationSupplyData, int>(
               name: 'Supply Growth',
               dataSource: validSupplyData,
-              xValueMapper: (Map<String, dynamic> data, _) => data['year'],
-              yValueMapper: (Map<String, dynamic> data, _) => data['supplyGrowthPct'],
+              xValueMapper: (InflationSupplyData data, _) => data.year,
+              yValueMapper: (InflationSupplyData data, _) => data.supplyGrowthPct,
               yAxisName: 'secondaryY',
               color: const Color(0xFFFF6B9D).withOpacity(0.7),
             ),
@@ -305,7 +307,7 @@ class _MacroTrendsView extends StatelessWidget {
 
   // Enhanced Correlation Matrix Heatmap
   Widget _correlationHeatmap(MacroTrendsState state) {
-    final correlationData = state.macroTrendsData?['correlationTable'] ?? [];
+    final correlationData = state.macroTrendsData?.correlationTable ?? [];
 
     if (correlationData.isEmpty) {
       return const Center(
@@ -326,11 +328,11 @@ class _MacroTrendsView extends StatelessWidget {
     // Build correlation matrix from API data
     for (final data in correlationData) {
       correlationMatrix.add([
-        data['inflationRate'].toDouble(),
-        data['price'].toDouble(),
-        data['marketCap'].toDouble(),
-        data['supplyClosing'].toDouble(),
-        data['netChangeUsd'].toDouble(),
+        data.inflationRate,
+        data.price,
+        data.marketCap,
+        data.supplyClosing,
+        data.netChangeUsd,
       ]);
     }
 

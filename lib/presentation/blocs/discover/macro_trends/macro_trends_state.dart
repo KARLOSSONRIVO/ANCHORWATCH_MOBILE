@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../../domain/entities/macro_trends.dart';
 
 /// Status enumeration for MacroTrends state
 enum MacroTrendsStatus {
@@ -11,7 +12,7 @@ enum MacroTrendsStatus {
 /// State for the MacroTrends BLoC
 class MacroTrendsState extends Equatable {
   final MacroTrendsStatus status;
-  final dynamic macroTrendsData; // Replace with actual data model
+  final MacroTrendsData? macroTrendsData;
   final String? errorMessage;
 
   const MacroTrendsState({
@@ -23,7 +24,7 @@ class MacroTrendsState extends Equatable {
   /// Create a copy of the current state with optional changes
   MacroTrendsState copyWith({
     MacroTrendsStatus? status,
-    dynamic macroTrendsData,
+    MacroTrendsData? macroTrendsData,
     String? errorMessage,
   }) {
     return MacroTrendsState(
