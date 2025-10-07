@@ -14,7 +14,7 @@ class StablecoinRemoteDataSource {
   }) async {
     try {
       final response = await _dioClient.get(
-        DashboardEndpoints.stablecoinChartData,
+        DashboardEndpoints.stablecoinsPage,
         queryParameters: {
           'aggregation_period': aggregationPeriod,
         },
