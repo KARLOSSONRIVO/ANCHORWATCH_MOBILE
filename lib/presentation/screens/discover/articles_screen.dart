@@ -240,13 +240,20 @@ class _ArticlesView extends StatelessWidget {
       );
     }
 
-    return ListView.separated(
-      itemCount: articles.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        final article = articles[index];
-        return _buildArticleCard(context, article);
+    return RefreshIndicator(
+      color: const Color(0xFF00D4AA),
+      onRefresh: () async {
+        context.read<ArticlesBloc>().add(const ArticlesRefreshRequested());
       },
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: articles.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final article = articles[index];
+          return _buildArticleCard(context, article);
+        },
+      ),
     );
   }
 

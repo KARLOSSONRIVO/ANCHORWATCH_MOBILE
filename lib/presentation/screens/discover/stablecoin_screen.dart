@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
+import '../../../injection_container.dart';
 import '../../blocs/discover/stablecoin/stablecoin.dart';
 
 class StablecoinView extends StatelessWidget {
@@ -10,7 +11,7 @@ class StablecoinView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => StablecoinBloc()..add(const StablecoinInitializeRequested()),
+      create: (context) => getIt<StablecoinBloc>()..add(const StablecoinInitializeRequested()),
       child: const _StablecoinView(),
     );
   }
@@ -315,12 +316,21 @@ class _StablecoinView extends StatelessWidget {
                 numberFormat: NumberFormat.compact(),
               ),
               series: <CartesianSeries>[
-                LineSeries<Map<String, dynamic>, DateTime>(
+                AreaSeries<Map<String, dynamic>, DateTime>(
                   dataSource: state.chartData ?? [],
                   xValueMapper: (Map<String, dynamic> data, _) => DateTime.parse(data['date']),
                   yValueMapper: (Map<String, dynamic> data, _) => data['totalSupply'],
-                  color: const Color(0xFF00D4AA),
-                  width: 3,
+                  color: const Color(0xFF00D4AA).withOpacity(0.3),
+                  borderColor: const Color(0xFF00D4AA),
+                  borderWidth: 2,
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF00D4AA).withOpacity(0.4),
+                      const Color(0xFF00D4AA).withOpacity(0.1),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ],
             ),
@@ -376,13 +386,17 @@ class _StablecoinView extends StatelessWidget {
                   xValueMapper: (Map<String, dynamic> data, _) => DateTime.parse(data['date']),
                   yValueMapper: (Map<String, dynamic> data, _) => data['mintAmount'] ?? 0,
                   color: const Color(0xFF00D4AA),
+                  borderRadius: BorderRadius.circular(4),
+                  width: 0.8,
                 ),
                 ColumnSeries<Map<String, dynamic>, DateTime>(
                   name: 'Burn',
                   dataSource: state.chartData ?? [],
                   xValueMapper: (Map<String, dynamic> data, _) => DateTime.parse(data['date']),
-                  yValueMapper: (Map<String, dynamic> data, _) => -(data['burnAmount'] ?? 0),
-                  color: const Color(0xFFFF6B9D),
+                  yValueMapper: (Map<String, dynamic> data, _) => data['burnAmount'] ?? 0,
+                  color: const Color(0xFFE91E63),
+                  borderRadius: BorderRadius.circular(4),
+                  width: 0.8,
                 ),
               ],
             ),
@@ -398,9 +412,6 @@ class _StablecoinView extends StatelessWidget {
       builder: (context) {
         final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.54) ?? Colors.white54;
         final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70;
-        final borderColor = Theme.of(context).brightness == Brightness.light
-            ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-            : const Color(0xFF1E1E1E); // Softer dark gray for dark mode
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -430,16 +441,21 @@ class _StablecoinView extends StatelessWidget {
                 numberFormat: NumberFormat.compact(),
               ),
               series: <CartesianSeries>[
-                ColumnSeries<Map<String, dynamic>, DateTime>(
+                LineSeries<Map<String, dynamic>, DateTime>(
                   dataSource: state.chartData ?? [],
                   xValueMapper: (Map<String, dynamic> data, _) => DateTime.parse(data['date']),
                   yValueMapper: (Map<String, dynamic> data, _) => (data['mintAmount'] ?? 0) - (data['burnAmount'] ?? 0),
-                  pointColorMapper: (Map<String, dynamic> data, _) {
-                    final netChange = (data['mintAmount'] ?? 0) - (data['burnAmount'] ?? 0);
-                    return netChange >= 0 ? const Color(0xFF00D4AA) : const Color(0xFFFF6B9D);
-                  },
-                  borderColor: borderColor,
-                  borderWidth: 1,
+                  color: const Color(0xFF00D4AA),
+                  width: 3,
+                  markerSettings: const MarkerSettings(
+                    isVisible: true,
+                    shape: DataMarkerType.circle,
+                    borderColor: Color(0xFF00D4AA),
+                    color: Color(0xFF00D4AA),
+                    borderWidth: 2,
+                    width: 6,
+                    height: 6,
+                  ),
                 ),
               ],
             ),
@@ -490,20 +506,38 @@ class _StablecoinView extends StatelessWidget {
               ),
               series: <CartesianSeries>[
                 LineSeries<Map<String, dynamic>, DateTime>(
-                  name: '7-Day Average',
+                  name: 'Short Term Avg',
                   dataSource: state.chartData ?? [],
                   xValueMapper: (Map<String, dynamic> data, _) => DateTime.parse(data['date']),
                   yValueMapper: (Map<String, dynamic> data, _) => data['rollingAverage7'] ?? 0,
                   color: const Color(0xFF00D4AA),
-                  width: 2,
+                  width: 3,
+                  markerSettings: const MarkerSettings(
+                    isVisible: true,
+                    shape: DataMarkerType.circle,
+                    borderColor: Color(0xFF00D4AA),
+                    color: Color(0xFF00D4AA),
+                    borderWidth: 2,
+                    width: 6,
+                    height: 6,
+                  ),
                 ),
                 LineSeries<Map<String, dynamic>, DateTime>(
-                  name: '30-Day Average',
+                  name: 'Long Term Avg',
                   dataSource: state.chartData ?? [],
                   xValueMapper: (Map<String, dynamic> data, _) => DateTime.parse(data['date']),
                   yValueMapper: (Map<String, dynamic> data, _) => data['rollingAverage30'] ?? 0,
-                  color: const Color(0xFFFF6B9D),
-                  width: 2,
+                  color: const Color(0xFFE91E63),
+                  width: 3,
+                  markerSettings: const MarkerSettings(
+                    isVisible: true,
+                    shape: DataMarkerType.circle,
+                    borderColor: Color(0xFFE91E63),
+                    color: Color(0xFFE91E63),
+                    borderWidth: 2,
+                    width: 6,
+                    height: 6,
+                  ),
                 ),
               ],
             ),

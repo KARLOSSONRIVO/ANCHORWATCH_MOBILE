@@ -1,12 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../domain/usecases/stablecoin/get_stablecoin_chart_data_usecase.dart';
+import '../../../../domain/entities/stablecoin_chart_data.dart';
 import 'stablecoin_event.dart';
 import 'stablecoin_state.dart';
 
 /// BLoC for managing stablecoin state
 @injectable
 class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
-  StablecoinBloc() : super(const StablecoinState()) {
+  final GetStablecoinChartDataUseCase _getStablecoinChartDataUseCase;
+
+  StablecoinBloc(this._getStablecoinChartDataUseCase) : super(const StablecoinState()) {
     on<StablecoinInitializeRequested>(_onStablecoinInitializeRequested);
     on<StablecoinRefreshRequested>(_onStablecoinRefreshRequested);
     on<StablecoinAggregationPeriodChanged>(_onAggregationPeriodChanged);
@@ -20,15 +24,16 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
     emit(state.copyWith(status: StablecoinStatus.loading));
 
     try {
-      // TODO: Replace with actual data loading logic
-      await Future.delayed(const Duration(seconds: 2));
+      final chartData = await _getStablecoinChartDataUseCase.execute(
+        aggregationPeriod: state.selectedPeriod,
+      );
       
-      // Mock data - replace with actual API call
-      final mockData = _generateMockData(state.selectedPeriod);
+      // Convert domain entities to display format
+      final chartDisplayData = _convertToDisplayData(chartData);
       
       emit(state.copyWith(
         status: StablecoinStatus.loaded,
-        chartData: mockData,
+        chartData: chartDisplayData,
       ));
     } catch (error) {
       emit(state.copyWith(
@@ -44,15 +49,16 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
     Emitter<StablecoinState> emit,
   ) async {
     try {
-      // TODO: Replace with actual data loading logic
-      await Future.delayed(const Duration(seconds: 1));
+      final chartData = await _getStablecoinChartDataUseCase.execute(
+        aggregationPeriod: state.selectedPeriod,
+      );
       
-      // Mock data - replace with actual API call
-      final mockData = _generateMockData(state.selectedPeriod);
+      // Convert domain entities to display format
+      final chartDisplayData = _convertToDisplayData(chartData);
       
       emit(state.copyWith(
         status: StablecoinStatus.loaded,
-        chartData: mockData,
+        chartData: chartDisplayData,
       ));
     } catch (error) {
       emit(state.copyWith(
@@ -73,15 +79,16 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
     ));
 
     try {
-      // TODO: Replace with actual data loading logic
-      await Future.delayed(const Duration(milliseconds: 500));
+      final chartData = await _getStablecoinChartDataUseCase.execute(
+        aggregationPeriod: event.period,
+      );
       
-      // Mock data - replace with actual API call
-      final mockData = _generateMockData(event.period);
+      // Convert domain entities to display format
+      final chartDisplayData = _convertToDisplayData(chartData);
       
       emit(state.copyWith(
         status: StablecoinStatus.loaded,
-        chartData: mockData,
+        chartData: chartDisplayData,
       ));
     } catch (error) {
       emit(state.copyWith(
@@ -91,95 +98,40 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
     }
   }
 
-  /// Generate mock data - replace with actual data models
-  List<Map<String, dynamic>> _generateMockData(String period) {
-    if (period == 'yearly') {
-      return [
-        {
-          'date': '2020-01-01',
-          'totalSupply': 8500000000.0,
-          'mintAmount': 2000000000.0,
-          'burnAmount': 500000000.0,
-          'rollingAverage7': 1500000000.0,
-          'rollingAverage30': 1750000000.0,
-        },
-        {
-          'date': '2021-01-01',
-          'totalSupply': 12500000000.0,
-          'mintAmount': 4500000000.0,
-          'burnAmount': 500000000.0,
-          'rollingAverage7': 4000000000.0,
-          'rollingAverage30': 3750000000.0,
-        },
-        {
-          'date': '2022-01-01',
-          'totalSupply': 18200000000.0,
-          'mintAmount': 6200000000.0,
-          'burnAmount': 500000000.0,
-          'rollingAverage7': 5700000000.0,
-          'rollingAverage30': 5450000000.0,
-        },
-        {
-          'date': '2023-01-01',
-          'totalSupply': 22800000000.0,
-          'mintAmount': 5100000000.0,
-          'burnAmount': 500000000.0,
-          'rollingAverage7': 4600000000.0,
-          'rollingAverage30': 4350000000.0,
-        },
-        {
-          'date': '2024-01-01',
-          'totalSupply': 28500000000.0,
-          'mintAmount': 6200000000.0,
-          'burnAmount': 500000000.0,
-          'rollingAverage7': 5700000000.0,
-          'rollingAverage30': 5450000000.0,
-        },
-      ];
-    } else {
-      // Monthly data
-      return [
-        {
-          'date': '2024-01-01',
-          'totalSupply': 28500000000.0,
-          'mintAmount': 500000000.0,
-          'burnAmount': 100000000.0,
-          'rollingAverage7': 400000000.0,
-          'rollingAverage30': 380000000.0,
-        },
-        {
-          'date': '2024-02-01',
-          'totalSupply': 28900000000.0,
-          'mintAmount': 450000000.0,
-          'burnAmount': 50000000.0,
-          'rollingAverage7': 400000000.0,
-          'rollingAverage30': 375000000.0,
-        },
-        {
-          'date': '2024-03-01',
-          'totalSupply': 29300000000.0,
-          'mintAmount': 480000000.0,
-          'burnAmount': 80000000.0,
-          'rollingAverage7': 400000000.0,
-          'rollingAverage30': 390000000.0,
-        },
-        {
-          'date': '2024-04-01',
-          'totalSupply': 29600000000.0,
-          'mintAmount': 350000000.0,
-          'burnAmount': 50000000.0,
-          'rollingAverage7': 300000000.0,
-          'rollingAverage30': 320000000.0,
-        },
-        {
-          'date': '2024-05-01',
-          'totalSupply': 29900000000.0,
-          'mintAmount': 400000000.0,
-          'burnAmount': 100000000.0,
-          'rollingAverage7': 300000000.0,
-          'rollingAverage30': 310000000.0,
-        },
-      ];
-    }
+  /// Convert domain entities to display format for charts
+  List<Map<String, dynamic>> _convertToDisplayData(StablecoinChartData chartData) {
+    final allDates = <DateTime>{};
+    
+    // Collect all unique dates from different data sources
+    allDates.addAll(chartData.totalSupplyOverTime.map((d) => d.date));
+    allDates.addAll(chartData.mintBurnActivity.map((d) => d.date));
+    allDates.addAll(chartData.netChangeInSupply.map((d) => d.date));
+    allDates.addAll(chartData.rollingAverageSupplyChanges.map((d) => d.date));
+    
+    final sortedDates = allDates.toList()..sort();
+    
+    return sortedDates.map((date) {
+      // Find corresponding data for this date
+      final supplyData = chartData.totalSupplyOverTime
+          .where((d) => d.date.isAtSameMomentAs(date))
+          .firstOrNull;
+      
+      final mintBurnData = chartData.mintBurnActivity
+          .where((d) => d.date.isAtSameMomentAs(date))
+          .firstOrNull;
+      
+      final rollingAvgData = chartData.rollingAverageSupplyChanges
+          .where((d) => d.date.isAtSameMomentAs(date))
+          .firstOrNull;
+      
+      return {
+        'date': date.toIso8601String(),
+        'totalSupply': supplyData?.supplyClosing ?? 0.0,
+        'mintAmount': mintBurnData?.mintUsd ?? 0.0,
+        'burnAmount': mintBurnData?.burnUsd ?? 0.0,
+        'rollingAverage7': rollingAvgData?.shortTermAvg ?? 0.0,
+        'rollingAverage30': rollingAvgData?.longTermAvg ?? 0.0,
+      };
+    }).toList();
   }
 }

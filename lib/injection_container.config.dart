@@ -15,10 +15,13 @@ import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import 'data/datasources/remote/auth_remote_datasource.dart' as _i86;
 import 'data/datasources/remote/dashboard_remote_datasource.dart' as _i807;
+import 'data/datasources/remote/stablecoin_remote_data_source.dart' as _i196;
 import 'data/repositories/auth_repository_impl.dart' as _i145;
 import 'data/repositories/dashboard_repository_impl.dart' as _i855;
+import 'data/repositories/stablecoin_repository_impl.dart' as _i658;
 import 'domain/repositories/auth_repository.dart' as _i716;
 import 'domain/repositories/dashboard_repository.dart' as _i564;
+import 'domain/repositories/stablecoin_repository.dart' as _i58;
 import 'domain/usecases/auth/forgot_password_usecase.dart' as _i512;
 import 'domain/usecases/auth/login_usecase.dart' as _i289;
 import 'domain/usecases/auth/register_usecase.dart' as _i339;
@@ -26,11 +29,17 @@ import 'domain/usecases/auth/reset_password_usecase.dart' as _i461;
 import 'domain/usecases/auth/verify_otp_usecase.dart' as _i33;
 import 'domain/usecases/dashboard/fetch_dashboard_metrics_usecase.dart'
     as _i711;
+import 'domain/usecases/stablecoin/get_stablecoin_chart_data_usecase.dart'
+    as _i711;
 import 'presentation/blocs/alerts/alerts_bloc.dart' as _i9;
 import 'presentation/blocs/anchorwise/anchorwise_bloc.dart' as _i320;
 import 'presentation/blocs/authentication/authentication_bloc.dart' as _i259;
 import 'presentation/blocs/contact/contact_bloc.dart' as _i945;
 import 'presentation/blocs/dashboard/dashboard_bloc.dart' as _i37;
+import 'presentation/blocs/discover/articles/articles_bloc.dart' as _i100;
+import 'presentation/blocs/discover/macro_trends/macro_trends_bloc.dart'
+    as _i221;
+import 'presentation/blocs/discover/stablecoin/stablecoin_bloc.dart' as _i379;
 import 'presentation/blocs/faq/faq_bloc.dart' as _i855;
 import 'presentation/blocs/navigation/navigation_bloc.dart' as _i62;
 import 'presentation/blocs/onboarding/onboarding_bloc.dart' as _i131;
@@ -50,6 +59,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
     gh.factory<_i320.AnchorWiseBloc>(() => _i320.AnchorWiseBloc());
     gh.factory<_i945.ContactBloc>(() => _i945.ContactBloc());
+    gh.factory<_i100.ArticlesBloc>(() => _i100.ArticlesBloc());
+    gh.factory<_i221.MacroTrendsBloc>(() => _i221.MacroTrendsBloc());
     gh.factory<_i855.FaqBloc>(() => _i855.FaqBloc());
     gh.factory<_i62.NavigationBloc>(() => _i62.NavigationBloc());
     gh.factory<_i131.OnboardingBloc>(() => _i131.OnboardingBloc());
@@ -60,8 +71,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i646.TokenStorageService>(
       () => _i646.TokenStorageService(gh<_i460.SharedPreferences>()),
     );
+    gh.factory<_i196.StablecoinRemoteDataSource>(
+      () => _i196.StablecoinRemoteDataSource(gh<_i332.DioClient>()),
+    );
     gh.lazySingleton<_i86.AuthRemoteDataSource>(
       () => _i86.AuthRemoteDataSourceImpl(dioClient: gh<_i332.DioClient>()),
+    );
+    gh.factory<_i58.StablecoinRepository>(
+      () => _i658.StablecoinRepositoryImpl(
+        gh<_i196.StablecoinRemoteDataSource>(),
+      ),
     );
     gh.lazySingleton<_i564.DashboardRepository>(
       () =>
@@ -80,6 +99,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i711.FetchDashboardMetricsUseCase>(
       () => _i711.FetchDashboardMetricsUseCase(gh<_i564.DashboardRepository>()),
+    );
+    gh.factory<_i711.GetStablecoinChartDataUseCase>(
+      () =>
+          _i711.GetStablecoinChartDataUseCase(gh<_i58.StablecoinRepository>()),
+    );
+    gh.factory<_i379.StablecoinBloc>(
+      () => _i379.StablecoinBloc(gh<_i711.GetStablecoinChartDataUseCase>()),
     );
     gh.factory<_i512.ForgotPasswordUseCase>(
       () => _i512.ForgotPasswordUseCase(gh<_i716.AuthRepository>()),

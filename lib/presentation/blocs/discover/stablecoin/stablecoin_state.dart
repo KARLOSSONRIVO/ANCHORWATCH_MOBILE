@@ -18,7 +18,7 @@ class StablecoinState extends Equatable {
   const StablecoinState({
     this.status = StablecoinStatus.initial,
     this.chartData,
-    this.selectedPeriod = 'monthly',
+    this.selectedPeriod = 'yearly',
     this.errorMessage,
   });
 
