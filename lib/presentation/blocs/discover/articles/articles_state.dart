@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../../domain/entities/article.dart';
 
 /// Status enumeration for Articles state
 enum ArticlesStatus {
@@ -6,32 +7,6 @@ enum ArticlesStatus {
   loading,
   loaded,
   error,
-}
-
-/// Article model
-class Article extends Equatable {
-  final String id;
-  final String title;
-  final String source;
-  final String date;
-  final String summary;
-  final List<String> topics;
-  final String? url;
-  final DateTime publishedAt;
-
-  const Article({
-    required this.id,
-    required this.title,
-    required this.source,
-    required this.date,
-    required this.summary,
-    required this.topics,
-    this.url,
-    required this.publishedAt,
-  });
-
-  @override
-  List<Object?> get props => [id, title, source, date, summary, topics, url, publishedAt];
 }
 
 /// State for the Articles BLoC

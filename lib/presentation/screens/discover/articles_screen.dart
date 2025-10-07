@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import '../../../injection_container.dart';
+import '../../../domain/entities/article.dart';
 import '../../themes/app_theme.dart';
 import '../../blocs/discover/articles/articles.dart';
 
@@ -9,7 +12,7 @@ class ArticlesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ArticlesBloc()..add(const ArticlesLoadRequested()),
+      create: (context) => getIt<ArticlesBloc>()..add(const ArticlesLoadRequested()),
       child: const _ArticlesView(),
     );
   }
@@ -299,7 +302,7 @@ class _ArticlesView extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${article.source} • ${article.date}',
+                          '${article.source} • ${_formatDate(article.publishedAt)}',
                           style: TextStyle(
                             fontSize: 13,
                             color: AppTheme.getTextSecondaryColor(context),
@@ -323,13 +326,13 @@ class _ArticlesView extends StatelessWidget {
                   ),
                 ),
               ],
-              // Topics
-              if (article.topics.isNotEmpty) ...[
+              // Key Topics - using correct property name
+              if (article.keyTopics.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 6,
                   runSpacing: 4,
-                  children: article.topics.map((topic) {
+                  children: article.keyTopics.map((topic) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
@@ -359,5 +362,20 @@ class _ArticlesView extends StatelessWidget {
     );
   }
 
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
 
+    if (difference.inDays > 7) {
+      return DateFormat('MMM d, yyyy').format(date);
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
 }

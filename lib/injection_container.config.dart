@@ -13,14 +13,17 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import 'data/datasources/remote/articles_remote_data_source.dart' as _i235;
 import 'data/datasources/remote/auth_remote_datasource.dart' as _i86;
 import 'data/datasources/remote/dashboard_remote_datasource.dart' as _i807;
 import 'data/datasources/remote/macro_trends_remote_data_source.dart' as _i743;
 import 'data/datasources/remote/stablecoin_remote_data_source.dart' as _i196;
+import 'data/repositories/articles_repository_impl.dart' as _i998;
 import 'data/repositories/auth_repository_impl.dart' as _i145;
 import 'data/repositories/dashboard_repository_impl.dart' as _i855;
 import 'data/repositories/macro_trends_repository_impl.dart' as _i461;
 import 'data/repositories/stablecoin_repository_impl.dart' as _i658;
+import 'domain/repositories/articles_repository.dart' as _i976;
 import 'domain/repositories/auth_repository.dart' as _i716;
 import 'domain/repositories/dashboard_repository.dart' as _i564;
 import 'domain/repositories/macro_trends_repository.dart' as _i893;
@@ -32,6 +35,7 @@ import 'domain/usecases/auth/reset_password_usecase.dart' as _i461;
 import 'domain/usecases/auth/verify_otp_usecase.dart' as _i33;
 import 'domain/usecases/dashboard/fetch_dashboard_metrics_usecase.dart'
     as _i711;
+import 'domain/usecases/get_articles_usecase.dart' as _i913;
 import 'domain/usecases/get_macro_trends_usecase.dart' as _i40;
 import 'domain/usecases/stablecoin/get_stablecoin_chart_data_usecase.dart'
     as _i711;
@@ -63,7 +67,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
     gh.factory<_i320.AnchorWiseBloc>(() => _i320.AnchorWiseBloc());
     gh.factory<_i945.ContactBloc>(() => _i945.ContactBloc());
-    gh.factory<_i100.ArticlesBloc>(() => _i100.ArticlesBloc());
     gh.factory<_i855.FaqBloc>(() => _i855.FaqBloc());
     gh.factory<_i62.NavigationBloc>(() => _i62.NavigationBloc());
     gh.factory<_i131.OnboardingBloc>(() => _i131.OnboardingBloc());
@@ -79,6 +82,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i743.MacroTrendsRemoteDataSource>(
       () => _i743.MacroTrendsRemoteDataSource(gh<_i332.DioClient>()),
+    );
+    gh.factory<_i235.ArticlesRemoteDataSource>(
+      () => _i235.ArticlesRemoteDataSource(gh<_i332.DioClient>()),
     );
     gh.lazySingleton<_i86.AuthRemoteDataSource>(
       () => _i86.AuthRemoteDataSourceImpl(dioClient: gh<_i332.DioClient>()),
@@ -110,6 +116,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i711.FetchDashboardMetricsUseCase>(
       () => _i711.FetchDashboardMetricsUseCase(gh<_i564.DashboardRepository>()),
+    );
+    gh.factory<_i976.ArticlesRepository>(
+      () => _i998.ArticlesRepositoryImpl(gh<_i235.ArticlesRemoteDataSource>()),
     );
     gh.factory<_i711.GetStablecoinChartDataUseCase>(
       () =>
@@ -145,6 +154,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i221.MacroTrendsBloc>(
       () => _i221.MacroTrendsBloc(gh<_i40.GetMacroTrendsUseCase>()),
     );
+    gh.factory<_i913.GetArticlesUseCase>(
+      () => _i913.GetArticlesUseCase(gh<_i976.ArticlesRepository>()),
+    );
     gh.factory<_i259.AuthenticationBloc>(
       () => _i259.AuthenticationBloc(
         gh<_i289.LoginUseCase>(),
@@ -158,6 +170,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i33.VerifyOtpUseCase>(),
         gh<_i461.ResetPasswordUseCase>(),
       ),
+    );
+    gh.factory<_i100.ArticlesBloc>(
+      () => _i100.ArticlesBloc(gh<_i913.GetArticlesUseCase>()),
     );
     return this;
   }

@@ -9,6 +9,9 @@ class DashboardEndpoints {
   static const String macroTrendsPage = '$_analytics/macro-trends-page/';
   static const String chartSummary = '$_analytics/chart-summary/';
   
+  // News endpoints
+  static const String articles = '/news/api/articles/';
+  
   // Legacy endpoint mappings for backward compatibility
   static const String stablecoinData = unifiedStablecoinData;
   static const String macroTrends = macroTrendsPage;
