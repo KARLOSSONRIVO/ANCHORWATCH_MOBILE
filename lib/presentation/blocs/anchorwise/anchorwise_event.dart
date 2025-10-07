@@ -37,3 +37,8 @@ class AnchorWiseToggleTyping extends AnchorWiseEvent {
   @override
   List<Object> get props => [isTyping];
 }
+
+/// Event to cancel current request
+class AnchorWiseCancelRequest extends AnchorWiseEvent {
+  const AnchorWiseCancelRequest();
+}

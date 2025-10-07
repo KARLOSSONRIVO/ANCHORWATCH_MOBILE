@@ -13,12 +13,16 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import 'data/datasources/remote/anchorwise_remote_datasource.dart' as _i465;
 import 'data/datasources/remote/auth_remote_datasource.dart' as _i86;
 import 'data/datasources/remote/dashboard_remote_datasource.dart' as _i807;
+import 'data/repositories/anchorwise_repository_impl.dart' as _i348;
 import 'data/repositories/auth_repository_impl.dart' as _i145;
 import 'data/repositories/dashboard_repository_impl.dart' as _i855;
+import 'domain/repositories/anchorwise_repository.dart' as _i135;
 import 'domain/repositories/auth_repository.dart' as _i716;
 import 'domain/repositories/dashboard_repository.dart' as _i564;
+import 'domain/usecases/anchorwise/send_chat_message_usecase.dart' as _i1011;
 import 'domain/usecases/auth/forgot_password_usecase.dart' as _i512;
 import 'domain/usecases/auth/login_usecase.dart' as _i289;
 import 'domain/usecases/auth/register_usecase.dart' as _i339;
@@ -48,7 +52,6 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
-    gh.factory<_i320.AnchorWiseBloc>(() => _i320.AnchorWiseBloc());
     gh.factory<_i945.ContactBloc>(() => _i945.ContactBloc());
     gh.factory<_i855.FaqBloc>(() => _i855.FaqBloc());
     gh.factory<_i62.NavigationBloc>(() => _i62.NavigationBloc());
@@ -63,9 +66,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i86.AuthRemoteDataSource>(
       () => _i86.AuthRemoteDataSourceImpl(dioClient: gh<_i332.DioClient>()),
     );
+    gh.factory<_i465.AnchorWiseRemoteDataSource>(
+      () => _i465.AnchorWiseRemoteDataSourceImpl(gh<_i332.DioClient>()),
+    );
     gh.lazySingleton<_i564.DashboardRepository>(
       () =>
           _i855.DashboardRepositoryImpl(gh<_i807.DashboardRemoteDataSource>()),
+    );
+    gh.factory<_i135.AnchorWiseRepository>(
+      () => _i348.AnchorWiseRepositoryImpl(
+        gh<_i465.AnchorWiseRemoteDataSource>(),
+      ),
     );
     gh.lazySingleton<_i460.AuthenticationService>(
       () => _i460.AuthenticationService(
@@ -81,6 +92,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i711.FetchDashboardMetricsUseCase>(
       () => _i711.FetchDashboardMetricsUseCase(gh<_i564.DashboardRepository>()),
     );
+    gh.factory<_i1011.SendChatMessageUseCase>(
+      () => _i1011.SendChatMessageUseCase(gh<_i135.AnchorWiseRepository>()),
+    );
     gh.factory<_i512.ForgotPasswordUseCase>(
       () => _i512.ForgotPasswordUseCase(gh<_i716.AuthRepository>()),
     );
@@ -95,6 +109,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i33.VerifyOtpUseCase>(
       () => _i33.VerifyOtpUseCase(gh<_i716.AuthRepository>()),
+    );
+    gh.factory<_i320.AnchorWiseBloc>(
+      () => _i320.AnchorWiseBloc(gh<_i1011.SendChatMessageUseCase>()),
     );
     gh.factory<_i226.ProfileBloc>(
       () => _i226.ProfileBloc(gh<_i460.AuthenticationService>()),

@@ -4,6 +4,7 @@ import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_state.dart';
 import '../blocs/authentication/authentication_bloc.dart';
 import '../blocs/authentication/authentication_state.dart';
+import '../blocs/anchorwise/anchorwise.dart';
 import '../widgets/bottom_navigation_widget.dart';
 import '../widgets/navigation_drawer_widget.dart';
 import '../widgets/custom_snackbar.dart';
@@ -55,15 +56,43 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     }
   }
 
+  Widget _buildAnchorWiseTitle() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+    
+        const Text(
+          'AnchorWise',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w600
+          ),
+        ),
+      ],
+    );
+  }
+
   List<Widget> _getAppBarActions(BuildContext context, int index) {
     switch (index) {
       case 2: // AnchorWise screen
         return [
           IconButton(
             onPressed: () {
-              // TODO: Implement history dialog
+              // TODO: Implement history feature
+              print('History button pressed');
             },
             icon: const Icon(Icons.history),
+            tooltip: 'History',
+          ),
+          IconButton(
+            onPressed: () {
+              // Access AnchorWise BLoC to clear conversation
+              final anchorWiseBloc = BlocProvider.of<AnchorWiseBloc>(context);
+              anchorWiseBloc.add(const AnchorWiseClearConversation());
+            },
+            icon: const Icon(Icons.add_comment_outlined),
+            tooltip: 'New Chat',
           ),
         ];
       default: // All other screens
@@ -118,7 +147,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             key: _scaffoldKey,
             backgroundColor: AppTheme.getBackgroundColor(context),
             appBar: AppBar(
-              title: Text(
+              title: currentIndex == 2 ? _buildAnchorWiseTitle() : Text(
                 _getPageTitle(currentIndex),
                 style: const TextStyle(
                   fontFamily: 'Inter',

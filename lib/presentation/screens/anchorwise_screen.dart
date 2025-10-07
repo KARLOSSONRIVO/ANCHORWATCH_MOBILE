@@ -64,7 +64,7 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
       return Center(
         child: LoadingWidget(
           size: 48.0,
-          color: Color(0xFF00D4AA),
+          color: AppTheme.primaryColor,
           strokeWidth: 3.0,
           text: 'Loading conversation...',
           textStyle: TextStyle(
@@ -102,113 +102,57 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // AI Avatar
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF00D4AA),
-                    const Color(0xFF00D4AA).withOpacity(0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Icon(
-                Icons.psychology,
-                size: 50,
-                color: AppTheme.getTextPrimaryColor(context),
-              ),
+            // Large Logo
+            Image.asset(
+              'assets/images/LOGOnoBG.png',
+              width: 200,
+              height: 200,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: const Icon(
+                    Icons.anchor,
+                    color: Colors.white,
+                    size: 100,
+                  ),
+                );
+              },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
 
-            // Welcome text
+            // Main title
             Text(
-              'Welcome to AnchorWise',
+              'Your AI companion for\nstablecoin\nand macroeconomic\ninsights.',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.getTextPrimaryColor(context),
                 fontFamily: 'Inter',
+                height: 1.3,
               ),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-
-            const Text(
-              'Your AI-powered financial assistant',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-                fontFamily: 'Inter',
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-
-            // Quick action buttons
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _buildQuickActionChip(
-                  'Market Analysis',
-                  Icons.trending_up,
-                  () => _sendQuickMessage('Can you provide a market analysis?'),
-                ),
-                _buildQuickActionChip(
-                  'DeFi Insights',
-                  Icons.account_balance,
-                  () => _sendQuickMessage('Tell me about current DeFi opportunities'),
-                ),
-                _buildQuickActionChip(
-                  'Risk Assessment',
-                  Icons.security,
-                  () => _sendQuickMessage('Help me assess portfolio risks'),
-                ),
-              ],
             ),
             const SizedBox(height: 24),
 
-            const Text(
-              'Ask me anything about crypto markets, DeFi, traditional finance, or investment strategies.',
+            // Subtitle
+            Text(
+              'Ask questions, explore trends, and get\ninstant summaries powered by intelligent\nfinancial analysis.',
               style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+                fontSize: 16,
+                color: AppTheme.getTextSecondaryColor(context),
                 fontFamily: 'Inter',
+                height: 1.4,
               ),
               textAlign: TextAlign.center,
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildQuickActionChip(String label, IconData icon, VoidCallback onTap) {
-    return ActionChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: Colors.white),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontFamily: 'Inter',
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-      backgroundColor: const Color(0xFF00D4AA).withOpacity(0.2),
-      side: const BorderSide(color: Color(0xFF00D4AA)),
-      onPressed: onTap,
     );
   }
 
@@ -222,14 +166,12 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
+            
             CircleAvatar(
               radius: 16,
-              backgroundColor: const Color(0xFF00D4AA),
-              child: const Icon(
-                Icons.psychology,
-                size: 16,
-                color: Colors.white,
-              ),
+              backgroundColor: AppTheme.getCardBackgroundColor(context),
+              backgroundImage: const AssetImage('assets/images/LOGO.png'),
+              
             ),
             const SizedBox(width: 8),
           ],
@@ -239,7 +181,7 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
                 color: isUser 
-                    ? const Color(0xFF00D4AA)
+                    ? AppTheme.primaryColor
                     : Colors.grey.shade800,
                 borderRadius: BorderRadius.circular(16).copyWith(
                   bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(4),
@@ -297,12 +239,8 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
         children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: const Color(0xFF00D4AA),
-            child: const Icon(
-              Icons.psychology,
-              size: 16,
-              color: Colors.white,
-            ),
+            backgroundColor: AppTheme.getCardBackgroundColor(context),
+            backgroundImage: const AssetImage('assets/images/LOGO.png'),
           ),
           const SizedBox(width: 8),
           Container(
@@ -331,7 +269,7 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
                               width: 4,
                               height: 4,
                               decoration: const BoxDecoration(
-                                color: Color(0xFF00D4AA),
+                                color: AppTheme.primaryColor,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -392,28 +330,38 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF00D4AA),
-              shape: BoxShape.circle,
+          if (isSending)
+            // Cancel button when sending
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.red.shade600,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                onPressed: _handleCancelRequest,
+                icon: Icon(
+                  Icons.close,
+                  color: Colors.white,
+                ),
+                tooltip: 'Cancel request',
+              ),
+            )
+          else
+            // Send button when not sending
+            Container(
+              decoration: const BoxDecoration(
+                color: AppTheme.primaryColor,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                onPressed: () => _handleSendMessage(_questionController.text),
+                icon: Icon(
+                  Icons.send,
+                  color: AppTheme.getTextPrimaryColor(context),
+                ),
+                tooltip: 'Send message',
+              ),
             ),
-            child: IconButton(
-              onPressed: isSending ? null : () => _handleSendMessage(_questionController.text),
-              icon: isSending
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppTheme.getTextPrimaryColor(context),
-                      ),
-                    )
-                  : Icon(
-                      Icons.send,
-                      color: AppTheme.getTextPrimaryColor(context),
-                    ),
-            ),
-          ),
         ],
       ),
     );
@@ -426,9 +374,8 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
     }
   }
 
-  void _sendQuickMessage(String message) {
-    _questionController.text = message;
-    _handleSendMessage(message);
+  void _handleCancelRequest() {
+    context.read<AnchorWiseBloc>().add(const AnchorWiseCancelRequest());
   }
 
   String _formatTime(DateTime timestamp) {
