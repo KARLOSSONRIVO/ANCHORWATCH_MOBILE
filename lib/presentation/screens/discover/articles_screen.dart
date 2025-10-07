@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../injection_container.dart';
 import '../../../domain/entities/article.dart';
 import '../../../utils/tag_colors.dart';
+import '../../../utils/date_formatter.dart';
 import '../../themes/app_theme.dart';
 import '../../blocs/discover/articles/articles.dart';
 
@@ -321,7 +321,7 @@ class _ArticlesView extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${article.source} • ${_formatDate(article.publishedAt)}',
+                          '${article.source} • ${DateFormatter.formatRelativeDate(article.publishedAt)}',
                           style: TextStyle(
                             fontSize: 13,
                             color: AppTheme.getTextSecondaryColor(context),
@@ -389,22 +389,7 @@ class _ArticlesView extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
 
-    if (difference.inDays > 7) {
-      return DateFormat('MMM d, yyyy').format(date);
-    } else if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
-    } else {
-      return 'Just now';
-    }
-  }
 
   /// Opens article URL in external browser
   Future<void> _openArticleUrl(BuildContext context, String url, String title) async {

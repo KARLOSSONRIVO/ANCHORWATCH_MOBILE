@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../injection_container.dart';
+import '../../domain/entities/article.dart';
+import '../../utils/tag_colors.dart';
+import '../../utils/date_formatter.dart';
 import '../blocs/dashboard/dashboard.dart';
+import '../blocs/discover/articles/articles.dart';
 import '../themes/app_theme.dart';
 import '../../utils/number_formatter.dart';
 
@@ -13,8 +20,15 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<DashboardBloc>()..add(const DashboardInitialLoadEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => getIt<DashboardBloc>()..add(const DashboardInitialLoadEvent()),
+        ),
+        BlocProvider(
+          create: (context) => getIt<ArticlesBloc>()..add(const ArticlesLoadRequested()),
+        ),
+      ],
       child: const _DashboardView(),
     );
   }
@@ -95,6 +109,7 @@ class _DashboardView extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 children: [
                   _buildHeader(context, state),
+                  _buildRecentArticlesCard(context),
                   _buildCard(
                     title: 'Unified Table (${state.selectedTimePeriod})',
                     child: _buildDataTable(context, state),
@@ -757,4 +772,273 @@ class _DashboardView extends StatelessWidget {
       ),
     );
   }
+
+  /// Build Recent Articles card for dashboard
+  Widget _buildRecentArticlesCard(BuildContext context) {
+    return BlocBuilder<ArticlesBloc, ArticlesState>(
+      builder: (context, state) {
+        return _buildCard(
+          title: 'Recent Articles',
+          child: _buildRecentArticlesList(context, state),
+          height: 320, // Fixed height to accommodate the horizontal view
+        );
+      },
+    );
+  }
+
+  /// Build the recent articles list
+  Widget _buildRecentArticlesList(BuildContext context, ArticlesState state) {
+    if (state.status == ArticlesStatus.loading) {
+      return const SizedBox(
+        height: 200,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF00D4AA),
+          ),
+        ),
+      );
+    }
+
+    if (state.status == ArticlesStatus.error) {
+      return SizedBox(
+        height: 200,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: AppTheme.getTextSecondaryColor(context),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Error loading articles',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.getTextSecondaryColor(context),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  context.read<ArticlesBloc>().add(const ArticlesRefreshRequested());
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00D4AA),
+                ),
+                child: const Text('Retry', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Get up to 10 recent articles for horizontal scrolling
+    final recentArticles = state.filteredArticles.take(10).toList();
+
+    if (recentArticles.isEmpty) {
+      return SizedBox(
+        height: 200,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.article_outlined,
+                size: 48,
+                color: AppTheme.getTextSecondaryColor(context),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'No articles available',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.getTextSecondaryColor(context),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return _buildHorizontalArticlesView(context, recentArticles);
+  }
+
+  /// Build horizontal articles view with page indicators
+  Widget _buildHorizontalArticlesView(BuildContext context, List<Article> articles) {
+    final brightness = Theme.of(context).brightness;
+    final pageController = PageController(viewportFraction: 0.85);
+    final articleCount = articles.length;
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 300,
+          child: PageView.builder(
+            controller: pageController,
+            scrollDirection: Axis.horizontal,
+            physics: const ClampingScrollPhysics(),
+            itemCount: articleCount,
+            itemBuilder: (context, i) {
+              final article = articles[i];
+              final dateStr = DateFormatter.formatRelativeDate(article.publishedAt.toLocal());
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () async {
+                    final uri = Uri.tryParse(article.url);
+                    if (uri != null && await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    } else {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Could not open the link.'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: brightness == Brightness.light
+                          ? Colors.white
+                          : const Color(0xFF2A2A2A),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Theme.of(context).dividerColor),
+                      boxShadow: [
+                        BoxShadow(
+                          color: brightness == Brightness.light
+                              ? Colors.grey.withOpacity(0.1)
+                              : Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          article.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.getTextPrimaryColor(context),
+                            fontFamily: 'Inter',
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${article.source} • $dateStr',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: brightness == Brightness.light 
+                                ? Colors.grey[600] 
+                                : const Color(0xFF9CA3AF),
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                        if (article.summary.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                article.summary,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: brightness == Brightness.light 
+                                      ? Colors.grey[800] 
+                                      : const Color(0xFFE5E7EB),
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (article.keyTopics.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Topics:',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: brightness == Brightness.light 
+                                  ? Colors.grey[800] 
+                                  : const Color(0xFFE5E7EB),
+                              fontFamily: 'Inter',
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: article.keyTopics.map((topic) {
+                              final bg = TagColors.getTagColor(topic);
+                              final labelColor = TagColors.getTextColorForBg(bg);
+                              return Chip(
+                                label: Text(
+                                  topic,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: labelColor,
+                                    fontFamily: 'Inter',
+                                  ),
+                                ),
+                                backgroundColor: bg,
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide.none,
+                                ),
+                                elevation: 2,
+                                shadowColor: brightness == Brightness.light
+                                    ? Colors.grey.withOpacity(0.3)
+                                    : Colors.black.withOpacity(0.4),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        if (articleCount > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: SmoothPageIndicator(
+              controller: pageController,
+              count: articleCount,
+              effect: WormEffect(
+                dotHeight: 8,
+                dotWidth: 8,
+                activeDotColor: const Color(0xFF00D4AA),
+                dotColor: brightness == Brightness.light 
+                    ? Colors.grey[400]! 
+                    : Colors.grey[600]!,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+
+
+
 }

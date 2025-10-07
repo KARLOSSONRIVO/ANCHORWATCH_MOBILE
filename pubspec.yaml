@@ -55,6 +55,9 @@ dependencies:
   # For visiting links
   url_launcher: ^6.2.5
   
+  # Page indicators
+  smooth_page_indicator: ^1.2.0
+  
   # Charts
   syncfusion_flutter_charts: ^27.1.48
   intl: ^0.19.0
