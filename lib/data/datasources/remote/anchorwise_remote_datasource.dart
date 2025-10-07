@@ -14,6 +14,12 @@ abstract class AnchorWiseRemoteDataSource {
   
   /// Create a new conversation and get conversation ID
   Future<NewConversationResponseModel> createNewConversation();
+  
+  /// Get all conversations for the user
+  Future<ConversationsListResponseModel> getConversations();
+  
+  /// Get specific conversation by ID
+  Future<ConversationDetailsResponseModel> getConversationById(String conversationId);
 }
 
 @Injectable(as: AnchorWiseRemoteDataSource)
@@ -64,6 +70,44 @@ class AnchorWiseRemoteDataSourceImpl implements AnchorWiseRemoteDataSource {
       throw _handleDioError(e);
     } catch (e) {
       throw Exception('Failed to create new conversation: $e');
+    }
+  }
+
+  @override
+  Future<ConversationsListResponseModel> getConversations() async {
+    try {
+      final response = await _dioClient.get(
+        AnchorWiseEndpoints.conversations,
+        options: Options(
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 15),
+        ),
+      );
+
+      return ConversationsListResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw Exception('Failed to fetch conversations: $e');
+    }
+  }
+
+  @override
+  Future<ConversationDetailsResponseModel> getConversationById(String conversationId) async {
+    try {
+      final response = await _dioClient.get(
+        AnchorWiseEndpoints.conversationById(conversationId),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 15),
+        ),
+      );
+
+      return ConversationDetailsResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw Exception('Failed to fetch conversation: $e');
     }
   }
 

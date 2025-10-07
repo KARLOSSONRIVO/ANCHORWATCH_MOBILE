@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../../domain/usecases/anchorwise/send_chat_message_usecase.dart';
 import '../../../domain/usecases/anchorwise/create_new_conversation_usecase.dart';
+import '../../../domain/usecases/anchorwise/get_conversations_usecase.dart';
+import '../../../domain/usecases/anchorwise/get_conversation_by_id_usecase.dart';
 import 'anchorwise_event.dart';
 import 'anchorwise_state.dart';
 
@@ -10,11 +12,15 @@ import 'anchorwise_state.dart';
 class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
   final SendChatMessageUseCase _sendChatMessageUseCase;
   final CreateNewConversationUseCase _createNewConversationUseCase;
+  final GetConversationsUseCase _getConversationsUseCase;
+  final GetConversationByIdUseCase _getConversationByIdUseCase;
   String? _currentConversationId;
 
   AnchorWiseBloc(
     this._sendChatMessageUseCase, 
     this._createNewConversationUseCase,
+    this._getConversationsUseCase,
+    this._getConversationByIdUseCase,
   ) : super(const AnchorWiseState()) {
     on<AnchorWiseSendMessage>(_onSendMessage);
     on<AnchorWiseLoadHistory>(_onLoadHistory);
@@ -22,6 +28,8 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
     on<AnchorWiseToggleTyping>(_onToggleTyping);
     on<AnchorWiseCancelRequest>(_onCancelRequest);
     on<AnchorWiseCreateNewConversation>(_onCreateNewConversation);
+    on<AnchorWiseLoadConversations>(_onLoadConversations);
+    on<AnchorWiseSelectConversation>(_onSelectConversation);
   }
 
   /// Send message and get AI response
@@ -169,11 +177,73 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
         messages: const [],
         error: null,
         isTyping: false,
+        currentConversationId: _currentConversationId,
       ));
     } catch (e) {
       emit(state.copyWith(
         status: AnchorWiseStatus.error,
         error: 'Failed to create new conversation: $e',
+      ));
+    }
+  }
+
+  /// Load conversations list
+  void _onLoadConversations(
+    AnchorWiseLoadConversations event,
+    Emitter<AnchorWiseState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingConversations: true));
+
+    try {
+      final response = await _getConversationsUseCase.execute();
+      
+      emit(state.copyWith(
+        conversations: response.conversations,
+        isLoadingConversations: false,
+        error: null,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoadingConversations: false,
+        error: 'Failed to load conversations: $e',
+      ));
+    }
+  }
+
+  /// Select a conversation from history
+  void _onSelectConversation(
+    AnchorWiseSelectConversation event,
+    Emitter<AnchorWiseState> emit,
+  ) async {
+    emit(state.copyWith(status: AnchorWiseStatus.loading));
+
+    try {
+      final response = await _getConversationByIdUseCase.execute(event.conversationId);
+      
+      // Update current conversation ID
+      _currentConversationId = event.conversationId;
+      
+      // Convert API messages to ChatMessage format
+      final chatMessages = response.conversation.messages.map((msg) {
+        return ChatMessage(
+          id: msg.id,
+          content: msg.content,
+          sender: msg.role == 'user' ? MessageSender.user : MessageSender.ai,
+          timestamp: DateTime.parse(msg.timestamp),
+        );
+      }).toList();
+      
+      emit(state.copyWith(
+        status: AnchorWiseStatus.idle,
+        messages: chatMessages,
+        currentConversationId: event.conversationId,
+        error: null,
+        isTyping: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: AnchorWiseStatus.error,
+        error: 'Failed to load conversation: $e',
       ));
     }
   }

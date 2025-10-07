@@ -47,3 +47,18 @@ class AnchorWiseCancelRequest extends AnchorWiseEvent {
 class AnchorWiseCreateNewConversation extends AnchorWiseEvent {
   const AnchorWiseCreateNewConversation();
 }
+
+/// Event to load conversations list
+class AnchorWiseLoadConversations extends AnchorWiseEvent {
+  const AnchorWiseLoadConversations();
+}
+
+/// Event to select a conversation from history
+class AnchorWiseSelectConversation extends AnchorWiseEvent {
+  final String conversationId;
+
+  const AnchorWiseSelectConversation(this.conversationId);
+
+  @override
+  List<Object> get props => [conversationId];
+}

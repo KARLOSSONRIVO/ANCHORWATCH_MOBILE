@@ -13,4 +13,8 @@ class AnchorWiseEndpoints {
   
   // New conversation endpoint
   static String get conversations => '$_llm/conversations/';
+  
+  // Get specific conversation by ID
+  static String conversationById(String conversationId) => 
+      '$_llm/conversations/?conversation_id=$conversationId';
 }

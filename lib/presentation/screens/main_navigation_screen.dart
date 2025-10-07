@@ -8,6 +8,7 @@ import '../blocs/anchorwise/anchorwise.dart';
 import '../widgets/bottom_navigation_widget.dart';
 import '../widgets/navigation_drawer_widget.dart';
 import '../widgets/custom_snackbar.dart';
+import '../widgets/conversation_history_dialog.dart';
 import '../../services/navigation_service.dart';
 import '../themes/app_theme.dart';
 import 'dashboard_screen.dart';
@@ -79,8 +80,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         return [
           IconButton(
             onPressed: () {
-              // TODO: Implement history feature
-              print('History button pressed');
+              // Load conversations and show history dialog
+              final anchorWiseBloc = BlocProvider.of<AnchorWiseBloc>(context);
+              anchorWiseBloc.add(const AnchorWiseLoadConversations());
+              
+              // Show conversation history dialog
+              showDialog(
+                context: context,
+                builder: (dialogContext) => BlocProvider.value(
+                  value: anchorWiseBloc,
+                  child: const ConversationHistoryDialog(),
+                ),
+              );
             },
             icon: const Icon(Icons.history),
             tooltip: 'History',

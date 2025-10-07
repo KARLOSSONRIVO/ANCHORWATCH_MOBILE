@@ -10,4 +10,10 @@ abstract class AnchorWiseRepository {
   
   /// Create a new conversation and get conversation data
   Future<NewConversationResponseModel> createNewConversation();
+  
+  /// Get all conversations for the user
+  Future<ConversationsListResponseModel> getConversations();
+  
+  /// Get specific conversation by ID
+  Future<ConversationDetailsResponseModel> getConversationById(String conversationId);
 }

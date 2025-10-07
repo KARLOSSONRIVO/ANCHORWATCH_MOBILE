@@ -32,4 +32,22 @@ class AnchorWiseRepositoryImpl implements AnchorWiseRepository {
       throw Exception('Failed to create new conversation: $e');
     }
   }
+
+  @override
+  Future<ConversationsListResponseModel> getConversations() async {
+    try {
+      return await _remoteDataSource.getConversations();
+    } catch (e) {
+      throw Exception('Failed to get conversations: $e');
+    }
+  }
+
+  @override
+  Future<ConversationDetailsResponseModel> getConversationById(String conversationId) async {
+    try {
+      return await _remoteDataSource.getConversationById(conversationId);
+    } catch (e) {
+      throw Exception('Failed to get conversation: $e');
+    }
+  }
 }
