@@ -23,6 +23,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     on<AuthenticationLoginRequested>(_onAuthenticationLoginRequested);
     on<AuthenticationLogoutRequested>(_onAuthenticationLogoutRequested);
     on<AuthenticationSignUpRequested>(_onAuthenticationSignUpRequested);
+    on<AuthenticationUsernameUpdated>(_onAuthenticationUsernameUpdated);
   }
 
   /// Check authentication status on app start
@@ -34,10 +35,16 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       final isAuthenticated = await _authenticationService.isAuthenticated();
       
       if (isAuthenticated) {
-        // Could get user info from stored data here
+        // Update DioClient with the stored auth token
+        _authenticationService.updateDioClientToken();
+        
+        // Get actual user info from stored data or fetch from server
+        final userProfile = await _authenticationService.fetchUserProfile();
+        final username = userProfile?.username ?? _authenticationService.getUserName() ?? 'Current User';
+        
         emit(state.copyWith(
           status: AuthenticationStatus.authenticated,
-          user: 'Current User', // You might want to get actual user info
+          user: username,
           error: null,
         ));
       } else {
@@ -193,6 +200,26 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
         isLoading: false,
         error: errorMessage,
       ));
+    }
+  }
+
+  /// Handle username update
+  void _onAuthenticationUsernameUpdated(
+    AuthenticationUsernameUpdated event,
+    Emitter<AuthenticationState> emit,
+  ) async {
+    try {
+      // Update the stored username
+      await _authenticationService.updateUserProfile(name: event.newUsername);
+      
+      // Update the authentication state with new username
+      emit(state.copyWith(
+        user: event.newUsername,
+        error: null,
+      ));
+    } catch (e) {
+      // If update fails, log error but don't change state
+      print('Failed to update stored username: $e');
     }
   }
 }

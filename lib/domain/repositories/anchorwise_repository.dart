@@ -16,4 +16,7 @@ abstract class AnchorWiseRepository {
   
   /// Get specific conversation by ID
   Future<ConversationDetailsResponseModel> getConversationById(String conversationId);
+  
+  /// Delete a conversation by ID
+  Future<DeleteConversationResponseModel> deleteConversation(String conversationId);
 }

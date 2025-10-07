@@ -15,7 +15,7 @@ import 'dashboard_screen.dart';
 import 'discover_screen.dart';
 import 'anchorwise_screen.dart';
 import 'alerts_screen.dart';
-import 'profile_screen.dart';
+import 'profile/profile_screen.dart';
 
 /// Main navigation screen that manages individual screen files using NavigationBloc with stack support
 class MainNavigationScreen extends StatefulWidget {

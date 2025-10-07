@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../injection_container.dart';
-import '../blocs/profile/profile.dart';
-import '../themes/app_theme.dart';
+import '../../../injection_container.dart';
+import '../../blocs/profile/profile.dart';
+import '../../routes/app_routes.dart';
+import '../../themes/app_theme.dart';
 
 /// Profile page content with dark theme using BLoC architecture
 class ProfileScreen extends StatelessWidget {
@@ -159,13 +160,7 @@ class _ProfileView extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _ProfileMenuItemInCard(
-                        title: 'Edit Account',
-                        onTap: () {
-                          context.read<ProfileBloc>().add(const ProfileNavigateToEditAccount());
-                        },
-                        showDivider: true,
-                      ),
+                      _EditAccountDropdownItem(),
                       _ProfileMenuItemInCard(
                         title: 'Contact Support',
                         onTap: () {
@@ -263,6 +258,213 @@ class _ProfileMenuItemInCard extends StatelessWidget {
             height: 1,
             color: AppTheme.getBorderColor(context),
             margin: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+      ],
+    );
+  }
+}
+
+/// Edit Account dropdown menu item
+class _EditAccountDropdownItem extends StatefulWidget {
+  @override
+  _EditAccountDropdownItemState createState() => _EditAccountDropdownItemState();
+}
+
+class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Main Edit Account item
+        InkWell(
+          onTap: () {
+            setState(() {
+              _isExpanded = !_isExpanded;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Edit Account',
+                    style: TextStyle(
+                      color: AppTheme.getTextPrimaryColor(context),
+                      fontFamily: 'Inter',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                AnimatedRotation(
+                  duration: const Duration(milliseconds: 200),
+                  turns: _isExpanded ? 0.25 : 0.0,
+                  child: Icon(
+                    Icons.chevron_right,
+                    color: AppTheme.getTextSecondaryColor(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Dropdown options
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 200),
+          crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          firstChild: const SizedBox.shrink(),
+          secondChild: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 1,
+                color: AppTheme.getBorderColor(context),
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+              _DropdownOption(
+                title: 'Change Username',
+                onTap: () async {
+                  setState(() {
+                    _isExpanded = false;
+                  });
+                  final result = await Navigator.pushNamed(
+                    context,
+                    AppRoutes.changeUsername,
+                  );
+                  
+                  // If username was successfully changed, refresh the profile
+                  if (result != null && result is String && result.isNotEmpty) {
+                    // Refresh profile data to show updated username
+                    context.read<ProfileBloc>().add(const ProfileLoadRequested());
+                  }
+                },
+              ),
+              _DropdownOption(
+                title: 'Change Password',
+                onTap: () {
+                  setState(() {
+                    _isExpanded = false;
+                  });
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.changePassword,
+                  );
+                },
+              ),
+              _DropdownOption(
+                title: 'Change Email',
+                onTap: () {
+                  setState(() {
+                    _isExpanded = false;
+                  });
+                  _showChangeDialog(context, 'Change Email', 'Enter new email');
+                },
+                showDivider: false,
+              ),
+            ],
+          ),
+        ),
+        // Bottom divider (always show)
+        Container(
+          height: 1,
+          color: AppTheme.getBorderColor(context),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+        ),
+      ],
+    );
+  }
+
+  void _showChangeDialog(BuildContext context, String title, String hint) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        final TextEditingController controller = TextEditingController();
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: hint,
+              border: const OutlineInputBorder(),
+            ),
+            obscureText: title.contains('Password'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle the change here
+                String newValue = controller.text.trim();
+                if (newValue.isNotEmpty) {
+                  // TODO: Implement the actual change logic
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('$title: $newValue')),
+                  );
+                }
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Individual dropdown option widget
+class _DropdownOption extends StatelessWidget {
+  final String title;
+  final VoidCallback onTap;
+  final bool showDivider;
+
+  const _DropdownOption({
+    required this.title,
+    required this.onTap,
+    this.showDivider = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: AppTheme.getTextSecondaryColor(context),
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: AppTheme.getTextSecondaryColor(context),
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (showDivider)
+          Container(
+            height: 1,
+            color: AppTheme.getBorderColor(context),
+            margin: const EdgeInsets.symmetric(horizontal: 32),
           ),
       ],
     );

@@ -54,6 +54,9 @@ class AuthenticationService {
         await StorageService.setString(StorageKeys.userId, authResult.user.id);
         await StorageService.setString(StorageKeys.userEmail, authResult.user.email);
         await StorageService.setString(StorageKeys.userName, authResult.user.username);
+        
+        // Update DioClient with the new auth token
+        updateDioClientToken();
       }
       
       return tokensStored;
@@ -96,6 +99,9 @@ class AuthenticationService {
       await StorageService.remove(StorageKeys.userEmail);
       await StorageService.remove(StorageKeys.userName);
       await StorageService.remove(StorageKeys.userToken);
+      
+      // Clear DioClient auth token
+      _dioClient.clearAuthToken();
       
       debugPrint('AuthenticationService: Logout completed - authentication data cleared');
       return tokensCleared;
@@ -204,8 +210,9 @@ class AuthenticationService {
   void updateDioClientToken() {
     final token = getAccessToken();
     if (token != null) {
-      // This will be called to update Dio's auth header
-      // The DioClient will need to be updated to use this
+      _dioClient.setAuthToken(token);
+    } else {
+      _dioClient.clearAuthToken();
     }
   }
 }

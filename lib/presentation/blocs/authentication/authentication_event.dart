@@ -47,3 +47,15 @@ class AuthenticationSignUpRequested extends AuthenticationEvent {
   @override
   List<Object> get props => [username, email, password];
 }
+
+/// Event to update the current user's username
+class AuthenticationUsernameUpdated extends AuthenticationEvent {
+  const AuthenticationUsernameUpdated({
+    required this.newUsername,
+  });
+
+  final String newUsername;
+
+  @override
+  List<Object> get props => [newUsername];
+}

@@ -20,6 +20,9 @@ abstract class AnchorWiseRemoteDataSource {
   
   /// Get specific conversation by ID
   Future<ConversationDetailsResponseModel> getConversationById(String conversationId);
+  
+  /// Delete a conversation by ID
+  Future<DeleteConversationResponseModel> deleteConversation(String conversationId);
 }
 
 @Injectable(as: AnchorWiseRemoteDataSource)
@@ -108,6 +111,25 @@ class AnchorWiseRemoteDataSourceImpl implements AnchorWiseRemoteDataSource {
       throw _handleDioError(e);
     } catch (e) {
       throw Exception('Failed to fetch conversation: $e');
+    }
+  }
+
+  @override
+  Future<DeleteConversationResponseModel> deleteConversation(String conversationId) async {
+    try {
+      final response = await _dioClient.delete(
+        AnchorWiseEndpoints.deleteConversation(conversationId),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 15),
+        ),
+      );
+
+      return DeleteConversationResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw Exception('Failed to delete conversation: $e');
     }
   }
 

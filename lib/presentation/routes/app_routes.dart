@@ -23,6 +23,10 @@ class AppRoutes {
   static const String contact = '/contact';
   static const String faq = '/faq';
   
+  // Profile management routes
+  static const String changePassword = '/change-password';
+  static const String changeUsername = '/change-username';
+  
   // AnchorWatch specific routes (for future features)
   static const String anchorHistory = '/anchor-history';
 
@@ -44,6 +48,8 @@ class AppRoutes {
     profile,
     contact,
     faq,
+    changePassword,
+    changeUsername,
     anchorHistory,
   ];
   
@@ -57,6 +63,8 @@ class AppRoutes {
     profile,
     contact,
     faq,
+    changePassword,
+    changeUsername,
     anchorHistory
   ];
   

@@ -11,6 +11,8 @@ import '../screens/faq_screen.dart';
 import '../screens/password_reset/reset_password_email_screen.dart';
 import '../screens/password_reset/reset_password_otp_screen.dart';
 import '../screens/password_reset/reset_password_confirm_screen.dart';
+import '../screens/profile/change_password_screen.dart';
+import '../screens/profile/change_username_screen.dart';
 import '../../injection_container.dart';
 import 'app_routes.dart';
 
@@ -105,6 +107,18 @@ class AppRouter {
             value: _getPasswordResetBloc(),
             child: const ResetPasswordConfirmScreen(),
           ),
+          settings: settings,
+        );
+        
+      case AppRoutes.changePassword:
+        return MaterialPageRoute(
+          builder: (_) => const ChangePasswordScreen(),
+          settings: settings,
+        );
+        
+      case AppRoutes.changeUsername:
+        return MaterialPageRoute(
+          builder: (_) => const ChangeUsernameScreen(),
           settings: settings,
         );
         

@@ -62,3 +62,13 @@ class AnchorWiseSelectConversation extends AnchorWiseEvent {
   @override
   List<Object> get props => [conversationId];
 }
+
+/// Event to delete a conversation
+class AnchorWiseDeleteConversation extends AnchorWiseEvent {
+  final String conversationId;
+
+  const AnchorWiseDeleteConversation(this.conversationId);
+
+  @override
+  List<Object> get props => [conversationId];
+}

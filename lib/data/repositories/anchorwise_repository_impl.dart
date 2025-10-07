@@ -50,4 +50,13 @@ class AnchorWiseRepositoryImpl implements AnchorWiseRepository {
       throw Exception('Failed to get conversation: $e');
     }
   }
+
+  @override
+  Future<DeleteConversationResponseModel> deleteConversation(String conversationId) async {
+    try {
+      return await _remoteDataSource.deleteConversation(conversationId);
+    } catch (e) {
+      throw Exception('Failed to delete conversation: $e');
+    }
+  }
 }

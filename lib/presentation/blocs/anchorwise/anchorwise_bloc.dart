@@ -4,6 +4,7 @@ import '../../../domain/usecases/anchorwise/send_chat_message_usecase.dart';
 import '../../../domain/usecases/anchorwise/create_new_conversation_usecase.dart';
 import '../../../domain/usecases/anchorwise/get_conversations_usecase.dart';
 import '../../../domain/usecases/anchorwise/get_conversation_by_id_usecase.dart';
+import '../../../domain/usecases/anchorwise/delete_conversation_usecase.dart';
 import 'anchorwise_event.dart';
 import 'anchorwise_state.dart';
 
@@ -14,6 +15,7 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
   final CreateNewConversationUseCase _createNewConversationUseCase;
   final GetConversationsUseCase _getConversationsUseCase;
   final GetConversationByIdUseCase _getConversationByIdUseCase;
+  final DeleteConversationUseCase _deleteConversationUseCase;
   String? _currentConversationId;
 
   AnchorWiseBloc(
@@ -21,6 +23,7 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
     this._createNewConversationUseCase,
     this._getConversationsUseCase,
     this._getConversationByIdUseCase,
+    this._deleteConversationUseCase,
   ) : super(const AnchorWiseState()) {
     on<AnchorWiseSendMessage>(_onSendMessage);
     on<AnchorWiseLoadHistory>(_onLoadHistory);
@@ -30,6 +33,7 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
     on<AnchorWiseCreateNewConversation>(_onCreateNewConversation);
     on<AnchorWiseLoadConversations>(_onLoadConversations);
     on<AnchorWiseSelectConversation>(_onSelectConversation);
+    on<AnchorWiseDeleteConversation>(_onDeleteConversation);
   }
 
   /// Send message and get AI response
@@ -244,6 +248,36 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
       emit(state.copyWith(
         status: AnchorWiseStatus.error,
         error: 'Failed to load conversation: $e',
+      ));
+    }
+  }
+
+  /// Delete a conversation
+  void _onDeleteConversation(
+    AnchorWiseDeleteConversation event,
+    Emitter<AnchorWiseState> emit,
+  ) async {
+    try {
+      // Delete the conversation
+      await _deleteConversationUseCase.execute(event.conversationId);
+      
+      // Remove the deleted conversation from the current list
+      final updatedConversations = state.conversations
+          .where((conv) => conv.conversationId != event.conversationId)
+          .toList();
+      
+      // If the deleted conversation was the current one, clear the messages
+      bool shouldClearMessages = state.currentConversationId == event.conversationId;
+      
+      emit(state.copyWith(
+        conversations: updatedConversations,
+        messages: shouldClearMessages ? const [] : state.messages,
+        currentConversationId: shouldClearMessages ? null : state.currentConversationId,
+        error: null,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        error: 'Failed to delete conversation: $e',
       ));
     }
   }

@@ -390,7 +390,8 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
     } else if (difference.inMinutes > 0) {
       return '${difference.inMinutes}m ago';
     } else {
-      return 'now';
-   }
+      // Format as HH:mm for recent messages
+      return '${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}';
+    }
   }
 }

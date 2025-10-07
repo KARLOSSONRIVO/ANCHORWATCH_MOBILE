@@ -196,3 +196,21 @@ class ConversationDetailsResponseModel {
     );
   }
 }
+
+/// Response model for delete conversation API
+class DeleteConversationResponseModel {
+  final bool success;
+  final String message;
+
+  DeleteConversationResponseModel({
+    required this.success,
+    required this.message,
+  });
+
+  factory DeleteConversationResponseModel.fromJson(Map<String, dynamic> json) {
+    return DeleteConversationResponseModel(
+      success: json['success'] ?? false,
+      message: json['message'] ?? 'Conversation deleted',
+    );
+  }
+}
