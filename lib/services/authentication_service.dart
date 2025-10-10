@@ -28,6 +28,15 @@ class AuthenticationService {
       await StorageService.remove(StorageKeys.userId);
       await StorageService.remove(StorageKeys.userEmail);
       await StorageService.remove(StorageKeys.userName);
+      // Clear auth token from DioClient
+      _dioClient.clearAuthToken();
+    } else {
+      // If tokens are valid, set the auth token in DioClient
+      final accessToken = getAccessToken();
+      if (accessToken != null) {
+        _dioClient.setAuthToken(accessToken);
+        debugPrint('AuthenticationService: Auth token restored in DioClient');
+      }
     }
     
     return hasValidTokens;
@@ -54,9 +63,13 @@ class AuthenticationService {
         await StorageService.setString(StorageKeys.userId, authResult.user.id);
         await StorageService.setString(StorageKeys.userEmail, authResult.user.email);
         await StorageService.setString(StorageKeys.userName, authResult.user.username);
-        
+
         // Update DioClient with the new auth token
         updateDioClientToken();
+
+        // Set the auth token in DioClient for authenticated API requests
+        _dioClient.setAuthToken(authResult.tokens.accessToken);
+        debugPrint('AuthenticationService: Auth token set in DioClient');
       }
       
       return tokensStored;
@@ -102,7 +115,7 @@ class AuthenticationService {
       
       // Clear DioClient auth token
       _dioClient.clearAuthToken();
-      
+
       debugPrint('AuthenticationService: Logout completed - authentication data cleared');
       return tokensCleared;
     } catch (e) {
@@ -210,9 +223,8 @@ class AuthenticationService {
   void updateDioClientToken() {
     final token = getAccessToken();
     if (token != null) {
-      _dioClient.setAuthToken(token);
-    } else {
-      _dioClient.clearAuthToken();
+      // This will be called to update Dio's auth header
+      // The DioClient will need to be updated to use this
     }
   }
 }
