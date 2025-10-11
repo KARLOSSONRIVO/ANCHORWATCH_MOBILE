@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/contact/contact.dart';
 import '../themes/app_theme.dart';
+import '../widgets/loading_widget.dart';
+import '../widgets/custom_snackbar.dart';
 
 /// Contact screen with BLoC architecture
 class ContactScreen extends StatelessWidget {
@@ -60,33 +62,17 @@ class _ContactViewState extends State<_ContactView> {
             _questionController.clear();
             
             // Show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Your question has been submitted successfully!',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Colors.white,
-                  ),
-                ),
-                backgroundColor: Colors.green,
-                duration: Duration(seconds: 3),
-              ),
+            SnackBarHelper.showSuccess(
+              context,
+              'Your question has been submitted successfully!',
+              duration: const Duration(seconds: 3),
             );
           } else if (state.status == ContactStatus.failure) {
             // Show error message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.errorMessage,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    color: Colors.white,
-                  ),
-                ),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 3),
-              ),
+            SnackBarHelper.showError(
+              context,
+              state.errorMessage,
+              duration: const Duration(seconds: 3),
             );
           } else if (state.status == ContactStatus.navigatingToFaq) {
             // Navigate to FAQ and replace current screen in stack
@@ -216,13 +202,10 @@ class _ContactViewState extends State<_ContactView> {
                       elevation: 0,
                     ),
                     child: state.status == ContactStatus.submitting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
+                        ? const SimpleLoadingWidget(
+                            size: 20,
+                            color: Colors.white,
+                            strokeWidth: 2,
                           )
                         : Text(
                             'Send',

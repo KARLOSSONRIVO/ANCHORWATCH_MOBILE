@@ -8,6 +8,8 @@ import '../../../utils/tag_colors.dart';
 import '../../../utils/date_formatter.dart';
 import '../../themes/app_theme.dart';
 import '../../blocs/discover/articles/articles.dart';
+import '../../widgets/loading_widget.dart';
+import '../../widgets/custom_snackbar.dart';
 
 class ArticlesView extends StatelessWidget {
   const ArticlesView({super.key});
@@ -164,8 +166,10 @@ class _ArticlesView extends StatelessWidget {
   Widget _buildArticlesList(BuildContext context, ArticlesState state) {
     if (state.status == ArticlesStatus.loading) {
       return const Center(
-        child: CircularProgressIndicator(
+        child: LoadingWidget(
+          size: 48.0,
           color: Color(0xFF00D4AA),
+          text: 'Loading Articles...',
         ),
       );
     }
@@ -274,25 +278,10 @@ class _ArticlesView extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: () async {
           // Show loading indicator
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Row(
-                children: [
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Text('Opening article...'),
-                ],
-              ),
-              backgroundColor: AppTheme.primaryColor,
-              duration: const Duration(seconds: 1),
-            ),
+          SnackBarHelper.showInfo(
+            context, 
+            'Opening article...',
+            duration: const Duration(seconds: 1),
           );
           
           await _openArticleUrl(context, article.url, article.title);
@@ -403,35 +392,26 @@ class _ArticlesView extends StatelessWidget {
         );
       } else {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Could not open article: $title'),
-              backgroundColor: Colors.red,
-              action: SnackBarAction(
-                label: 'Copy URL',
-                textColor: Colors.white,
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: url));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('URL copied to clipboard'),
-                      backgroundColor: Color(0xFF00D4AA),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-              ),
-            ),
+          SnackBarHelper.showError(
+            context,
+            'Could not open article: $title',
+            actionLabel: 'Copy URL',
+            onActionPressed: () async {
+              await Clipboard.setData(ClipboardData(text: url));
+              SnackBarHelper.showSuccess(
+                context,
+                'URL copied to clipboard',
+                duration: const Duration(seconds: 2),
+              );
+            },
           );
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error opening article: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        SnackBarHelper.showError(
+          context,
+          'Error opening article: ${e.toString()}',
         );
       }
     }

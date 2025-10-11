@@ -177,23 +177,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppTheme.getTextPrimaryColor(context),
                             fontFamily: 'Inter',
                           ),
                           decoration: InputDecoration(
                             labelText: 'Email',
-                            labelStyle: const TextStyle(
-                              color: Colors.grey,
+                            labelStyle: TextStyle(
+                              color: AppTheme.getTextSecondaryColor(context),
                               fontFamily: 'Inter',
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: Colors.grey),
+                              borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: const Color(0xFF00BCD4)),
+                              borderSide: const BorderSide(color: AppTheme.primaryColor),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -203,7 +203,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(color: Colors.red),
                             ),
-                            prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                            prefixIcon: Icon(Icons.email, color: AppTheme.getTextSecondaryColor(context)),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -222,23 +222,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppTheme.getTextPrimaryColor(context),
                             fontFamily: 'Inter',
                           ),
                           decoration: InputDecoration(
                             labelText: 'Password',
-                            labelStyle: const TextStyle(
-                              color: Colors.grey,
+                            labelStyle: TextStyle(
+                              color: AppTheme.getTextSecondaryColor(context),
                               fontFamily: 'Inter',
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: Colors.grey),
+                              borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: const Color(0xFF00BCD4)),
+                              borderSide: const BorderSide(color: AppTheme.primaryColor),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -248,11 +248,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(color: Colors.red),
                             ),
-                            prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                            prefixIcon: Icon(Icons.lock, color: AppTheme.getTextSecondaryColor(context)),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                                color: Colors.grey,
+                                color: AppTheme.getTextSecondaryColor(context),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -278,23 +278,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirmPassword,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppTheme.getTextPrimaryColor(context),
                             fontFamily: 'Inter',
                           ),
                           decoration: InputDecoration(
                             labelText: 'Confirm Password',
-                            labelStyle: const TextStyle(
-                              color: Colors.grey,
+                            labelStyle: TextStyle(
+                              color: AppTheme.getTextSecondaryColor(context),
                               fontFamily: 'Inter',
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: Colors.grey),
+                              borderSide: BorderSide(color: AppTheme.getBorderColor(context)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: const Color(0xFF00BCD4)),
+                              borderSide: const BorderSide(color: AppTheme.primaryColor),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -304,11 +304,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(color: Colors.red),
                             ),
-                            prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                            prefixIcon: Icon(Icons.lock, color: AppTheme.getTextSecondaryColor(context)),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
-                                color: Colors.grey,
+                                color: AppTheme.getTextSecondaryColor(context),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -335,7 +335,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: isLoading ? null : _handleSignUp,
+                            onPressed: _handleSignUp,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryColor,
                               foregroundColor: Colors.black,
@@ -345,23 +345,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               elevation: 0,
                             ),
-                            child: isLoading
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.black,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Create Account',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: 'Inter',
-                                    ),
-                                  ),
+                            child: const Text(
+                              'Create Account',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Inter',
+                                color: Colors.black,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -370,10 +362,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
+                            Text(
                               'Already have an account? ',
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: AppTheme.getTextSecondaryColor(context),
                                 fontFamily: 'Inter',
                               ),
                             ),
@@ -382,7 +374,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               child: const Text(
                                 'Log in',
                                 style: TextStyle(
-                                  color: const Color(0xFF00BCD4),
+                                  color: AppTheme.primaryColor,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'Inter',
                                 ),
@@ -400,15 +392,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 // Loading Overlay
                 if (isLoading)
                   Container(
-                    color: Colors.black.withOpacity(0.7),
+                    color: AppTheme.getBackgroundColor(context).withOpacity(0.7),
                     child: const Center(
                       child: LoadingWidget(
                         size: 48.0,
-                        color: const Color(0xFF00BCD4),
+                        color: AppTheme.primaryColor,
                         strokeWidth: 3.0,
                         text: 'Creating Account...',
                         textStyle: TextStyle(
-                          color: const Color(0xFF00BCD4),
+                          color: AppTheme.primaryColor,
                           fontSize: 16,
                           fontFamily: 'Inter',
                         ),

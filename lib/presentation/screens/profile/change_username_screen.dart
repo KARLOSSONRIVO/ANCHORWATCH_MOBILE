@@ -8,6 +8,7 @@ import '../../blocs/authentication/authentication.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../themes/app_theme.dart';
 import '../../../injection_container.dart';
+import '../../widgets/loading_widget.dart';
 
 class ChangeUsernameScreen extends StatelessWidget {
   const ChangeUsernameScreen({Key? key}) : super(key: key);
@@ -240,13 +241,10 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                           ),
                         ),
                         child: state is ChangeUsernameLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
+                            ? const SimpleLoadingWidget(
+                                size: 20,
+                                color: Colors.white,
+                                strokeWidth: 2,
                               )
                             : Text(
                                 'Change Username',

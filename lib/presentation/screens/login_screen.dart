@@ -5,6 +5,7 @@ import '../blocs/authentication/authentication.dart';
 import '../routes/routes.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
+import '../widgets/custom_snackbar.dart';
 
 /// Login screen that handles user authentication
 class LoginScreen extends StatefulWidget {
@@ -62,13 +63,13 @@ class _LoginScreenState extends State<LoginScreen> {
             // Show success message and navigate on successful authentication
             else if (state.status == AuthenticationStatus.authenticated) {
               ScaffoldMessenger.of(context).clearSnackBars();
-              NavigationHelper.showMessage(context, 'Welcome back, ${state.user}!');
+              SnackBarHelper.showSuccess(context, 'Welcome back, ${state.user}!');
               // Navigate to main app after successful login
               Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
             }
             // Show error message only when authentication fails
             else if (state.status == AuthenticationStatus.unauthenticated && state.error != null) {
-              NavigationHelper.showMessage(context, state.error!, isError: true);
+              SnackBarHelper.showError(context, state.error!);
             }
           },
           child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
@@ -232,35 +233,29 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 24),
                   
                   // Sign In Button
-                  BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                    builder: (context, state) {
-                      final isLoading = state.status == AuthenticationStatus.loading || state.isLoading;
-                      
-                      return SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _handleLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor,
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Text(
-                            'Sign in',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Inter',
-                              color: Colors.black,
-                            ),
-                          ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _handleLogin,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      );
-                    },
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Sign in',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Inter',
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
                   ),
                   const Spacer(),
                   

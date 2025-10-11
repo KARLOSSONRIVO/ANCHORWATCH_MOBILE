@@ -4,6 +4,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 import '../../../injection_container.dart';
 import '../../blocs/discover/stablecoin/stablecoin.dart';
+import '../../widgets/loading_widget.dart';
 
 class StablecoinView extends StatelessWidget {
   const StablecoinView({super.key});
@@ -26,8 +27,10 @@ class _StablecoinView extends StatelessWidget {
       builder: (context, state) {
         if (state.status == StablecoinStatus.loading && state.chartData == null) {
           return const Center(
-            child: CircularProgressIndicator(
+            child: LoadingWidget(
+              size: 48.0,
               color: Color(0xFF00D4AA),
+              text: 'Loading Stablecoin Data...',
             ),
           );
         }

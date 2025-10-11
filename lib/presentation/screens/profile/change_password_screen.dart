@@ -5,6 +5,7 @@ import '../../blocs/change_password/change_password_bloc.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../themes/app_theme.dart';
 import '../../../injection_container.dart';
+import '../../widgets/loading_widget.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   const ChangePasswordScreen({Key? key}) : super(key: key);
@@ -217,13 +218,10 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                             ),
                           ),
                           child: state is ChangePasswordLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
+                              ? const SimpleLoadingWidget(
+                                  size: 20,
+                                  color: Colors.white,
+                                  strokeWidth: 2,
                                 )
                               : Text(
                                   'Change Password',

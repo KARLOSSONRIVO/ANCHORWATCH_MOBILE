@@ -4,6 +4,8 @@ import '../../../injection_container.dart';
 import '../../blocs/profile/profile.dart';
 import '../../routes/app_routes.dart';
 import '../../themes/app_theme.dart';
+import '../../widgets/loading_widget.dart';
+import '../../widgets/custom_snackbar.dart';
 
 /// Profile page content with dark theme using BLoC architecture
 class ProfileScreen extends StatelessWidget {
@@ -42,8 +44,10 @@ class _ProfileView extends StatelessWidget {
         builder: (context, state) {
           if (state.status == ProfileStatus.loading) {
             return Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.getTextPrimaryColor(context)),
+              child: LoadingWidget(
+                size: 48.0,
+                color: AppTheme.getTextPrimaryColor(context),
+                text: 'Loading Profile...',
               ),
             );
           }
@@ -403,9 +407,7 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
                 String newValue = controller.text.trim();
                 if (newValue.isNotEmpty) {
                   // TODO: Implement the actual change logic
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('$title: $newValue')),
-                  );
+                  SnackBarHelper.showInfo(context, '$title: $newValue');
                 }
                 Navigator.of(dialogContext).pop();
               },

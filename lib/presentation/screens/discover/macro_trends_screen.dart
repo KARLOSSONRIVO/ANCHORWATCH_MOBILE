@@ -5,6 +5,7 @@ import '../../../injection_container.dart';
 import '../../blocs/discover/macro_trends/macro_trends.dart';
 import '../../../utils/number_formatter.dart';
 import '../../../domain/entities/macro_trends.dart';
+import '../../widgets/loading_widget.dart';
 
 class MacroTrendsView extends StatelessWidget {
   const MacroTrendsView({super.key});
@@ -27,8 +28,10 @@ class _MacroTrendsView extends StatelessWidget {
       builder: (context, state) {
         if (state.status == MacroTrendsStatus.loading) {
           return const Center(
-            child: CircularProgressIndicator(
+            child: LoadingWidget(
+              size: 48.0,
               color: Color(0xFF00D4AA),
+              text: 'Loading Macro Trends...',
             ),
           );
         }

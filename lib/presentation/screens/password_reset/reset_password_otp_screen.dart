@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/password_reset/password_reset.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/custom_snackbar.dart';
+import '../../widgets/loading_widget.dart';
 
 /// Screen for verifying OTP sent to email
 class ResetPasswordOtpScreen extends StatefulWidget {
@@ -314,15 +315,10 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                         elevation: 0,
                       ),
                       child: state.isLoading
-                          ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppTheme.getTextPrimaryColor(context),
-                                ),
-                              ),
+                          ? SimpleLoadingWidget(
+                              size: 20,
+                              color: AppTheme.getTextPrimaryColor(context),
+                              strokeWidth: 2,
                             )
                           : const Text(
                               'Verify OTP',

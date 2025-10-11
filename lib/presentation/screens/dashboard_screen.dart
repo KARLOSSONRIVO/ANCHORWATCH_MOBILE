@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../widgets/loading_widget.dart';
+import '../widgets/custom_snackbar.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../injection_container.dart';
 import '../../domain/entities/article.dart';
@@ -43,8 +45,11 @@ class _DashboardView extends StatelessWidget {
       builder: (context, state) {
         if (state is DashboardLoadingState) {
           return const Center(
-            child: CircularProgressIndicator(
+            child: LoadingWidget(
+              size: 48.0,
               color: Color(0xFF00D4AA),
+              strokeWidth: 3.0,
+              text: 'Loading Dashboard...',
             ),
           );
         }
@@ -792,8 +797,10 @@ class _DashboardView extends StatelessWidget {
       return const SizedBox(
         height: 200,
         child: Center(
-          child: CircularProgressIndicator(
+          child: LoadingWidget(
+            size: 32.0,
             color: Color(0xFF00D4AA),
+            text: 'Loading Articles...',
           ),
         ),
       );
@@ -897,12 +904,7 @@ class _DashboardView extends StatelessWidget {
                       await launchUrl(uri, mode: LaunchMode.externalApplication);
                     } else {
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('Could not open the link.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
+                        SnackBarHelper.showError(context, 'Could not open the link.');
                       }
                     }
                   },
