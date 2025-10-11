@@ -17,6 +17,7 @@ import 'data/datasources/remote/anchorwise_remote_datasource.dart' as _i465;
 import 'data/datasources/remote/articles_remote_data_source.dart' as _i235;
 import 'data/datasources/remote/auth_remote_datasource.dart' as _i86;
 import 'data/datasources/remote/chart_summary_remote_data_source.dart' as _i694;
+import 'data/datasources/remote/contact_remote_datasource.dart' as _i850;
 import 'data/datasources/remote/dashboard_remote_datasource.dart' as _i807;
 import 'data/datasources/remote/macro_trends_remote_data_source.dart' as _i743;
 import 'data/datasources/remote/profile_remote_datasource.dart' as _i671;
@@ -25,6 +26,7 @@ import 'data/repositories/anchorwise_repository_impl.dart' as _i348;
 import 'data/repositories/articles_repository_impl.dart' as _i998;
 import 'data/repositories/auth_repository_impl.dart' as _i145;
 import 'data/repositories/chart_summary_repository_impl.dart' as _i651;
+import 'data/repositories/contact_repository_impl.dart' as _i95;
 import 'data/repositories/dashboard_repository_impl.dart' as _i855;
 import 'data/repositories/macro_trends_repository_impl.dart' as _i461;
 import 'data/repositories/profile_repository_impl.dart' as _i1059;
@@ -33,6 +35,7 @@ import 'domain/repositories/anchorwise_repository.dart' as _i135;
 import 'domain/repositories/articles_repository.dart' as _i976;
 import 'domain/repositories/auth_repository.dart' as _i716;
 import 'domain/repositories/chart_summary_repository.dart' as _i427;
+import 'domain/repositories/contact_repository.dart' as _i654;
 import 'domain/repositories/dashboard_repository.dart' as _i564;
 import 'domain/repositories/macro_trends_repository.dart' as _i893;
 import 'domain/repositories/profile_repository.dart' as _i172;
@@ -51,20 +54,25 @@ import 'domain/usecases/auth/register_usecase.dart' as _i339;
 import 'domain/usecases/auth/reset_password_usecase.dart' as _i461;
 import 'domain/usecases/auth/verify_otp_usecase.dart' as _i33;
 import 'domain/usecases/chart_summary/get_chart_summary_usecase.dart' as _i209;
+import 'domain/usecases/contact/contact_support_usecase.dart' as _i364;
 import 'domain/usecases/dashboard/fetch_dashboard_metrics_usecase.dart'
     as _i711;
 import 'domain/usecases/get_articles_usecase.dart' as _i913;
 import 'domain/usecases/get_macro_trends_usecase.dart' as _i40;
 import 'domain/usecases/profile/change_password_usecase.dart' as _i183;
 import 'domain/usecases/profile/change_username_usecase.dart' as _i244;
+import 'domain/usecases/profile/confirm_change_email_usecase.dart' as _i140;
+import 'domain/usecases/profile/request_change_email_usecase.dart' as _i1027;
 import 'domain/usecases/stablecoin/get_stablecoin_chart_data_usecase.dart'
     as _i711;
 import 'presentation/blocs/alerts/alerts_bloc.dart' as _i9;
 import 'presentation/blocs/anchorwise/anchorwise_bloc.dart' as _i320;
 import 'presentation/blocs/authentication/authentication_bloc.dart' as _i259;
+import 'presentation/blocs/change_email/change_email_bloc.dart' as _i625;
 import 'presentation/blocs/change_password/change_password_bloc.dart' as _i192;
 import 'presentation/blocs/change_username/change_username_bloc.dart' as _i673;
 import 'presentation/blocs/contact/contact_bloc.dart' as _i945;
+import 'presentation/blocs/contact_support/contact_support_bloc.dart' as _i688;
 import 'presentation/blocs/dashboard/dashboard_bloc.dart' as _i37;
 import 'presentation/blocs/discover/articles/articles_bloc.dart' as _i100;
 import 'presentation/blocs/discover/chart_summary/chart_summary_bloc.dart'
@@ -91,6 +99,7 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     gh.factory<_i945.ContactBloc>(() => _i945.ContactBloc());
+    gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
     gh.factory<_i855.FaqBloc>(() => _i855.FaqBloc());
     gh.factory<_i62.NavigationBloc>(() => _i62.NavigationBloc());
     gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
@@ -138,6 +147,9 @@ extension GetItInjectableX on _i174.GetIt {
         remoteDataSource: gh<_i671.ProfileRemoteDataSource>(),
       ),
     );
+    gh.lazySingleton<_i850.ContactRemoteDataSource>(
+      () => _i850.ContactRemoteDataSourceImpl(dioClient: gh<_i332.DioClient>()),
+    );
     gh.factory<_i893.MacroTrendsRepository>(
       () => _i461.MacroTrendsRepositoryImpl(
         gh<_i743.MacroTrendsRemoteDataSource>(),
@@ -173,6 +185,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i183.ChangePasswordUseCase>(
       () => _i183.ChangePasswordUseCase(gh<_i172.ProfileRepository>()),
+    gh.factory<_i140.ConfirmChangeEmailUseCase>(
+      () => _i140.ConfirmChangeEmailUseCase(gh<_i172.ProfileRepository>()),
+    );
+    gh.factory<_i1027.RequestChangeEmailUseCase>(
+      () => _i1027.RequestChangeEmailUseCase(gh<_i172.ProfileRepository>()),
     );
     gh.factory<_i673.ChangeUsernameBloc>(
       () => _i673.ChangeUsernameBloc(gh<_i244.ChangeUsernameUseCase>()),
@@ -211,11 +228,22 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i711.GetStablecoinChartDataUseCase(gh<_i58.StablecoinRepository>()),
     );
+    gh.factory<_i625.ChangeEmailBloc>(
+      () => _i625.ChangeEmailBloc(
+        gh<_i1027.RequestChangeEmailUseCase>(),
+        gh<_i140.ConfirmChangeEmailUseCase>(),
+      ),
+    );
     gh.factory<_i40.GetMacroTrendsUseCase>(
       () => _i40.GetMacroTrendsUseCase(gh<_i893.MacroTrendsRepository>()),
     );
     gh.factory<_i379.StablecoinBloc>(
       () => _i379.StablecoinBloc(gh<_i711.GetStablecoinChartDataUseCase>()),
+    );
+    gh.lazySingleton<_i654.ContactRepository>(
+      () => _i95.ContactRepositoryImpl(
+        remoteDataSource: gh<_i850.ContactRemoteDataSource>(),
+      ),
     );
     gh.factory<_i512.ForgotPasswordUseCase>(
       () => _i512.ForgotPasswordUseCase(gh<_i716.AuthRepository>()),
@@ -264,6 +292,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.AuthenticationService>(),
       ),
     );
+    gh.factory<_i364.ContactSupportUseCase>(
+      () => _i364.ContactSupportUseCase(gh<_i654.ContactRepository>()),
+    );
     gh.factory<_i580.PasswordResetBloc>(
       () => _i580.PasswordResetBloc(
         gh<_i512.ForgotPasswordUseCase>(),
@@ -276,6 +307,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i981.ChartSummaryBloc>(
       () => _i981.ChartSummaryBloc(gh<_i209.GetChartSummaryUseCase>()),
+    gh.factory<_i945.ContactBloc>(
+      () => _i945.ContactBloc(gh<_i364.ContactSupportUseCase>()),
+    );
+    gh.factory<_i688.ContactSupportBloc>(
+      () => _i688.ContactSupportBloc(gh<_i364.ContactSupportUseCase>()),
     );
     return this;
   }

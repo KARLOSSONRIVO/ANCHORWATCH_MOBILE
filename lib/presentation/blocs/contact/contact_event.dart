@@ -37,3 +37,8 @@ class ContactFormSubmitted extends ContactEvent {
 class ContactNavigateToFaq extends ContactEvent {
   const ContactNavigateToFaq();
 }
+
+/// Event to reset the status after showing notifications
+class ContactStatusReset extends ContactEvent {
+  const ContactStatusReset();
+}

@@ -12,4 +12,7 @@ class ProfileEndpoints {
   // Profile picture endpoints
   static const String generateProfileUploadURL = '$_accounts/upload-url/';
   static const String confirmProfileImage = '$_accounts/confirm/';
+  // Change email endpoints
+  static const String requestChangeEmail = '$_accounts/request-change/';
+  static const String confirmChangeEmail = '$_accounts/confirm-change/';
 }

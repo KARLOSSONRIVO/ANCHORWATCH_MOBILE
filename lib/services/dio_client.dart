@@ -1,10 +1,23 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+import 'dart:io';
 
 @lazySingleton
 class DioClient {
   static const String _baseUrl = 'http://127.0.0.1:8000';  // Android emulator localhost
+  // Dynamic base URL based on platform
+  static String get _baseUrl {
+    if (kIsWeb) {
+      return 'http://127.0.0.1:8000';  // Web can use localhost directly
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8000';   // Android emulator special IP
+    } else if (Platform.isIOS) {
+      return 'http://127.0.0.1:8000';  // iOS simulator can use localhost
+    } else {
+      return 'http://127.0.0.1:8000';  // Default for other platforms
+    }
+  }
   
   late final Dio _dio;
 
