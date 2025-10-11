@@ -59,4 +59,21 @@ class AnchorWiseRepositoryImpl implements AnchorWiseRepository {
       throw Exception('Failed to delete conversation: $e');
     }
   }
+
+  @override
+  Future<bool> sendFeedback({
+    required String conversationId,
+    required String messageId,
+    required String feedback,
+  }) async {
+    try {
+      return await _remoteDataSource.sendFeedback(
+        conversationId: conversationId,
+        messageId: messageId,
+        feedback: feedback,
+      );
+    } catch (e) {
+      throw Exception('Failed to send feedback: $e');
+    }
+  }
 }

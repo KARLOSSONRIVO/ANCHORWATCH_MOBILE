@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/anchorwise/anchorwise.dart';
 import '../widgets/widgets.dart';
+import '../widgets/chat_bubble_widget.dart';
 import '../themes/app_theme.dart';
 
 /// AnchorWise AI chat screen using AnchorWiseBloc
@@ -21,6 +22,19 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
     _questionController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  /// Convert ChatMessage from BLoC to ChatBubbleMessage for the widget
+  ChatBubbleMessage _convertToChatBubbleMessage(ChatMessage message) {
+    print('🔍 Converting message - ID: ${message.id}, ConversationID: ${message.conversationId}, Sender: ${message.sender}');
+    return ChatBubbleMessage(
+      id: message.id,
+      content: message.content,
+      isUser: message.sender == MessageSender.user,
+      timestamp: message.timestamp,
+      canReceiveFeedback: message.sender == MessageSender.ai,
+      conversationId: message.conversationId,
+    );
   }
 
   @override
@@ -86,11 +100,26 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
       itemCount: state.messages.length + (state.isTyping ? 1 : 0),
       itemBuilder: (context, index) {
         if (state.isTyping && index == state.messages.length) {
-          return _buildTypingIndicator();
+          return ChatBubbleWidget(
+            message: ChatBubbleMessage(
+              id: 'loading',
+              content: 'AnchorWise is thinking...',
+              isUser: false,
+              isLoading: true,
+              canReceiveFeedback: false,
+              conversationId: state.currentConversationId,
+            ),
+            showFeedbackButtons: false,
+          );
         }
         
         final message = state.messages[index];
-        return _buildMessageBubble(message);
+        return ChatBubbleWidget(
+          message: _convertToChatBubbleMessage(message),
+          showTimestamp: true,
+          onPositiveFeedback: _handlePositiveFeedback,
+          onNegativeFeedback: _handleNegativeFeedback,
+        );
       },
     );
   }
@@ -156,136 +185,9 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message) {
-    final isUser = message.sender == MessageSender.user;
-    
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!isUser) ...[
-            
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: AppTheme.getCardBackgroundColor(context),
-              backgroundImage: const AssetImage('assets/images/LOGO.png'),
-              
-            ),
-            const SizedBox(width: 8),
-          ],
-          
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.all(12.0),
-              decoration: BoxDecoration(
-                color: isUser 
-                    ? AppTheme.primaryColor
-                    : Colors.grey.shade800,
-                borderRadius: BorderRadius.circular(16).copyWith(
-                  bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(4),
-                  bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(16),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    message.content,
-                    style: TextStyle(
-                      color: isUser ? Colors.black : Colors.white,
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatTime(message.timestamp),
-                    style: TextStyle(
-                      color: isUser 
-                          ? Colors.black.withOpacity(0.6)
-                          : Colors.grey.shade400,
-                      fontSize: 10,
-                      fontFamily: 'Inter',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          if (isUser) ...[
-            const SizedBox(width: 8),
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.grey.shade700,
-              child: const Icon(
-                Icons.person,
-                size: 16,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 
-  Widget _buildTypingIndicator() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: AppTheme.getCardBackgroundColor(context),
-            backgroundImage: const AssetImage('assets/images/LOGO.png'),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade800,
-              borderRadius: BorderRadius.circular(16).copyWith(
-                bottomLeft: const Radius.circular(4),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 40,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(3, (index) {
-                      return TweenAnimationBuilder<double>(
-                        duration: const Duration(milliseconds: 600),
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        builder: (context, value, child) {
-                          return Transform.translate(
-                            offset: Offset(0, -4 * (0.5 - (0.5 - value).abs())),
-                            child: Container(
-                              width: 4,
-                              height: 4,
-                              decoration: const BoxDecoration(
-                                color: AppTheme.primaryColor,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
+
 
   Widget _buildInputArea(BuildContext context, AnchorWiseState state) {
     final isSending = state.status == AnchorWiseStatus.sending;
@@ -378,20 +280,66 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
     context.read<AnchorWiseBloc>().add(const AnchorWiseCancelRequest());
   }
 
+  /// Handle positive feedback for AI messages
+  Future<bool> _handlePositiveFeedback(ChatBubbleMessage message) async {
+    try {
+      if (!message.canReceiveFeedback) {
+        throw Exception('This message cannot receive feedback');
+      }
 
-  String _formatTime(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
+      // Get conversation ID from current state if message doesn't have it
+      final conversationId = message.conversationId ?? 
+          context.read<AnchorWiseBloc>().state.currentConversationId;
 
-    if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
-    } else {
-      // Format as HH:mm for recent messages
-      return '${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}';
+      if (conversationId == null || conversationId.isEmpty) {
+        throw Exception('Cannot send feedback: No conversation ID available');
+      }
+
+      // Debug logging
+      print('🔍 Sending positive feedback - ConversationID: $conversationId, MessageID: ${message.id}');
+
+      // Send positive feedback event to BLoC
+      context.read<AnchorWiseBloc>().add(AnchorWiseSendPositiveFeedback(message.id));
+      
+      // Return true to indicate the feedback was sent
+      // The actual success/failure will be handled by the BLoC and shown via snackbar
+      return true;
+    } catch (e) {
+      print('❌ Failed to send positive feedback: $e');
+      return false;
     }
   }
+
+  /// Handle negative feedback for AI messages
+  Future<bool> _handleNegativeFeedback(ChatBubbleMessage message) async {
+    try {
+      if (!message.canReceiveFeedback) {
+        throw Exception('This message cannot receive feedback');
+      }
+
+      // Get conversation ID from current state if message doesn't have it
+      final conversationId = message.conversationId ?? 
+          context.read<AnchorWiseBloc>().state.currentConversationId;
+
+      if (conversationId == null || conversationId.isEmpty) {
+        throw Exception('Cannot send feedback: No conversation ID available');
+      }
+
+      // Debug logging
+      print('🔍 Sending negative feedback - ConversationID: $conversationId, MessageID: ${message.id}');
+
+      // Send negative feedback event to BLoC
+      context.read<AnchorWiseBloc>().add(AnchorWiseSendNegativeFeedback(message.id));
+      
+      // Return true to indicate the feedback was sent
+      // The actual success/failure will be handled by the BLoC and shown via snackbar
+      return true;
+    } catch (e) {
+      print('❌ Failed to send negative feedback: $e');
+      return false;
+    }
+  }
+
+
+
 }

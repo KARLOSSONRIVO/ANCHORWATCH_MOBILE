@@ -23,6 +23,13 @@ abstract class AnchorWiseRemoteDataSource {
   
   /// Delete a conversation by ID
   Future<DeleteConversationResponseModel> deleteConversation(String conversationId);
+  
+  /// Send feedback for a message
+  Future<bool> sendFeedback({
+    required String conversationId,
+    required String messageId,
+    required String feedback,
+  });
 }
 
 @Injectable(as: AnchorWiseRemoteDataSource)
@@ -130,6 +137,35 @@ class AnchorWiseRemoteDataSourceImpl implements AnchorWiseRemoteDataSource {
       throw _handleDioError(e);
     } catch (e) {
       throw Exception('Failed to delete conversation: $e');
+    }
+  }
+
+  @override
+  Future<bool> sendFeedback({
+    required String conversationId,
+    required String messageId,
+    required String feedback,
+  }) async {
+    try {
+      final response = await _dioClient.post(
+        AnchorWiseEndpoints.sendFeedback,
+        data: {
+          'conversation_id': conversationId,
+          'message_id': messageId,
+          'feedback': feedback,
+        },
+        options: Options(
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 15),
+        ),
+      );
+
+      // Assuming the API returns success: true/false or just 200 status
+      return response.data?['success'] ?? (response.statusCode == 200);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw Exception('Failed to send feedback: $e');
     }
   }
 

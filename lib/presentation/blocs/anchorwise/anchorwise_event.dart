@@ -72,3 +72,23 @@ class AnchorWiseDeleteConversation extends AnchorWiseEvent {
   @override
   List<Object> get props => [conversationId];
 }
+
+/// Event to send positive feedback for a message
+class AnchorWiseSendPositiveFeedback extends AnchorWiseEvent {
+  final String messageId;
+
+  const AnchorWiseSendPositiveFeedback(this.messageId);
+
+  @override
+  List<Object> get props => [messageId];
+}
+
+/// Event to send negative feedback for a message
+class AnchorWiseSendNegativeFeedback extends AnchorWiseEvent {
+  final String messageId;
+
+  const AnchorWiseSendNegativeFeedback(this.messageId);
+
+  @override
+  List<Object> get props => [messageId];
+}

@@ -5,6 +5,7 @@ import '../../../domain/usecases/anchorwise/create_new_conversation_usecase.dart
 import '../../../domain/usecases/anchorwise/get_conversations_usecase.dart';
 import '../../../domain/usecases/anchorwise/get_conversation_by_id_usecase.dart';
 import '../../../domain/usecases/anchorwise/delete_conversation_usecase.dart';
+import '../../../domain/usecases/anchorwise/send_feedback_usecase.dart';
 import 'anchorwise_event.dart';
 import 'anchorwise_state.dart';
 
@@ -16,6 +17,7 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
   final GetConversationsUseCase _getConversationsUseCase;
   final GetConversationByIdUseCase _getConversationByIdUseCase;
   final DeleteConversationUseCase _deleteConversationUseCase;
+  final SendFeedbackUseCase _sendFeedbackUseCase;
   String? _currentConversationId;
 
   AnchorWiseBloc(
@@ -24,6 +26,7 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
     this._getConversationsUseCase,
     this._getConversationByIdUseCase,
     this._deleteConversationUseCase,
+    this._sendFeedbackUseCase,
   ) : super(const AnchorWiseState()) {
     on<AnchorWiseSendMessage>(_onSendMessage);
     on<AnchorWiseLoadHistory>(_onLoadHistory);
@@ -34,6 +37,8 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
     on<AnchorWiseLoadConversations>(_onLoadConversations);
     on<AnchorWiseSelectConversation>(_onSelectConversation);
     on<AnchorWiseDeleteConversation>(_onDeleteConversation);
+    on<AnchorWiseSendPositiveFeedback>(_onSendPositiveFeedback);
+    on<AnchorWiseSendNegativeFeedback>(_onSendNegativeFeedback);
   }
 
   /// Send message and get AI response
@@ -49,6 +54,7 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
       content: event.message,
       sender: MessageSender.user,
       timestamp: DateTime.now(),
+      conversationId: _currentConversationId ?? state.currentConversationId,
     );
 
     final updatedMessages = [...state.messages, userMessage];
@@ -67,7 +73,48 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
         conversationId: _currentConversationId,
       );
 
-      // Parse timestamp from API response
+      // Update conversation ID if it's returned from the response (for new conversations)
+      if (response.conversationId != null && response.conversationId!.isNotEmpty) {
+        _currentConversationId = response.conversationId!;
+        print('🔍 BLoC: Updated conversation ID from response: $_currentConversationId');
+      }
+
+      // Instead of creating our own messages, let's reload the conversation to get the proper IDs
+      if (_currentConversationId != null) {
+        print('🔍 BLoC: Reloading conversation to get proper message IDs');
+        try {
+          final conversationResponse = await _getConversationByIdUseCase.execute(_currentConversationId!);
+          
+          // Convert API messages to ChatMessage format with proper backend IDs
+          final chatMessages = conversationResponse.conversation.messages.map((msg) {
+            return ChatMessage(
+              id: msg.id, // Use the actual backend message ID
+              content: msg.content,
+              sender: msg.role == 'user' ? MessageSender.user : MessageSender.ai,
+              timestamp: DateTime.parse(msg.timestamp),
+              conversationId: conversationResponse.conversation.conversationId,
+            );
+          }).toList();
+          
+          print('🔍 BLoC: Loaded ${chatMessages.length} messages with backend IDs');
+          for (final msg in chatMessages) {
+            print('🔍 Message: ${msg.id} (${msg.sender}) - ${msg.content.substring(0, msg.content.length > 30 ? 30 : msg.content.length)}...');
+          }
+          
+          emit(state.copyWith(
+            status: AnchorWiseStatus.idle,
+            messages: chatMessages,
+            isTyping: false,
+            currentConversationId: _currentConversationId,
+          ));
+          return;
+        } catch (e) {
+          print('❌ BLoC: Failed to reload conversation: $e');
+          // Fall back to the original approach
+        }
+      }
+
+      // Fallback: Parse timestamp from API response
       DateTime responseTimestamp;
       try {
         responseTimestamp = DateTime.parse(response.timestamp);
@@ -75,19 +122,42 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
         responseTimestamp = DateTime.now();
       }
       
+      // Use message ID from API response if available, otherwise generate one
+      final aiMessageId = response.messageId ?? (DateTime.now().millisecondsSinceEpoch + 1).toString();
+      print('🔍 BLoC: AI message ID from API: $aiMessageId');
+      
       final aiMessage = ChatMessage(
-        id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
+        id: aiMessageId,
         content: response.response,
         sender: MessageSender.ai,
         timestamp: responseTimestamp,
+        conversationId: _currentConversationId,
       );
 
-      final finalMessages = [...updatedMessages, aiMessage];
+      // Update the user message with the conversation ID if it was null
+      List<ChatMessage> finalMessages;
+      if (userMessage.conversationId == null && _currentConversationId != null) {
+        final updatedUserMessage = ChatMessage(
+          id: userMessage.id,
+          content: userMessage.content,
+          sender: userMessage.sender,
+          timestamp: userMessage.timestamp,
+          conversationId: _currentConversationId,
+        );
+        finalMessages = [
+          ...updatedMessages.where((msg) => msg.id != userMessage.id),
+          updatedUserMessage,
+          aiMessage
+        ];
+      } else {
+        finalMessages = [...updatedMessages, aiMessage];
+      }
       
       emit(state.copyWith(
         status: AnchorWiseStatus.idle,
         messages: finalMessages,
         isTyping: false,
+        currentConversationId: _currentConversationId,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -115,6 +185,7 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
         content: 'Hello! I\'m AnchorWise, your AI assistant for financial insights and market analysis. How can I help you today?',
         sender: MessageSender.ai,
         timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+        conversationId: _currentConversationId,
       );
 
       emit(state.copyWith(
@@ -234,6 +305,7 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
           content: msg.content,
           sender: msg.role == 'user' ? MessageSender.user : MessageSender.ai,
           timestamp: DateTime.parse(msg.timestamp),
+          conversationId: response.conversation.conversationId, // Use conversation ID from response
         );
       }).toList();
       
@@ -278,6 +350,88 @@ class AnchorWiseBloc extends Bloc<AnchorWiseEvent, AnchorWiseState> {
     } catch (e) {
       emit(state.copyWith(
         error: 'Failed to delete conversation: $e',
+      ));
+    }
+  }
+
+  /// Send positive feedback for a message
+  void _onSendPositiveFeedback(
+    AnchorWiseSendPositiveFeedback event,
+    Emitter<AnchorWiseState> emit,
+  ) async {
+    print('🔍 BLoC: Attempting to send positive feedback');
+    print('🔍 Current conversation ID: $_currentConversationId');
+    print('🔍 Message ID: ${event.messageId}');
+
+    if (_currentConversationId == null || _currentConversationId!.isEmpty) {
+      print('❌ BLoC: No active conversation ID');
+      emit(state.copyWith(
+        error: 'No active conversation to send feedback for',
+      ));
+      return;
+    }
+
+    try {
+      final success = await _sendFeedbackUseCase.call(
+        conversationId: _currentConversationId!,
+        messageId: event.messageId,
+        feedback: 'positive',
+      );
+
+      if (!success) {
+        print('❌ BLoC: Feedback use case returned false');
+        emit(state.copyWith(
+          error: 'Failed to send positive feedback',
+        ));
+      } else {
+        print('✅ BLoC: Positive feedback sent successfully');
+      }
+      // Note: We don't emit success state here as the UI handles feedback confirmation
+    } catch (e) {
+      print('❌ BLoC: Exception sending positive feedback: $e');
+      emit(state.copyWith(
+        error: 'Failed to send positive feedback: $e',
+      ));
+    }
+  }
+
+  /// Send negative feedback for a message
+  void _onSendNegativeFeedback(
+    AnchorWiseSendNegativeFeedback event,
+    Emitter<AnchorWiseState> emit,
+  ) async {
+    print('🔍 BLoC: Attempting to send negative feedback');
+    print('🔍 Current conversation ID: $_currentConversationId');
+    print('🔍 Message ID: ${event.messageId}');
+
+    if (_currentConversationId == null || _currentConversationId!.isEmpty) {
+      print('❌ BLoC: No active conversation ID');
+      emit(state.copyWith(
+        error: 'No active conversation to send feedback for',
+      ));
+      return;
+    }
+
+    try {
+      final success = await _sendFeedbackUseCase.call(
+        conversationId: _currentConversationId!,
+        messageId: event.messageId,
+        feedback: 'negative',
+      );
+
+      if (!success) {
+        print('❌ BLoC: Feedback use case returned false');
+        emit(state.copyWith(
+          error: 'Failed to send negative feedback',
+        ));
+      } else {
+        print('✅ BLoC: Negative feedback sent successfully');
+      }
+      // Note: We don't emit success state here as the UI handles feedback confirmation
+    } catch (e) {
+      print('❌ BLoC: Exception sending negative feedback: $e');
+      emit(state.copyWith(
+        error: 'Failed to send negative feedback: $e',
       ));
     }
   }

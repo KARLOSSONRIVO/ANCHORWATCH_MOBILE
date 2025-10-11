@@ -21,4 +21,7 @@ class AnchorWiseEndpoints {
   // Delete conversation by ID
   static String deleteConversation(String conversationId) => 
       '$_llm/conversations/?conversation_id=$conversationId';
+      
+  // Send feedback for a message
+  static String get sendFeedback => '$_llm/feedback/';
 }

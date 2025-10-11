@@ -14,17 +14,26 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import 'data/datasources/remote/anchorwise_remote_datasource.dart' as _i465;
+import 'data/datasources/remote/articles_remote_data_source.dart' as _i235;
 import 'data/datasources/remote/auth_remote_datasource.dart' as _i86;
 import 'data/datasources/remote/dashboard_remote_datasource.dart' as _i807;
+import 'data/datasources/remote/macro_trends_remote_data_source.dart' as _i743;
 import 'data/datasources/remote/profile_remote_datasource.dart' as _i671;
+import 'data/datasources/remote/stablecoin_remote_data_source.dart' as _i196;
 import 'data/repositories/anchorwise_repository_impl.dart' as _i348;
+import 'data/repositories/articles_repository_impl.dart' as _i998;
 import 'data/repositories/auth_repository_impl.dart' as _i145;
 import 'data/repositories/dashboard_repository_impl.dart' as _i855;
+import 'data/repositories/macro_trends_repository_impl.dart' as _i461;
 import 'data/repositories/profile_repository_impl.dart' as _i1059;
+import 'data/repositories/stablecoin_repository_impl.dart' as _i658;
 import 'domain/repositories/anchorwise_repository.dart' as _i135;
+import 'domain/repositories/articles_repository.dart' as _i976;
 import 'domain/repositories/auth_repository.dart' as _i716;
 import 'domain/repositories/dashboard_repository.dart' as _i564;
+import 'domain/repositories/macro_trends_repository.dart' as _i893;
 import 'domain/repositories/profile_repository.dart' as _i172;
+import 'domain/repositories/stablecoin_repository.dart' as _i58;
 import 'domain/usecases/anchorwise/create_new_conversation_usecase.dart'
     as _i625;
 import 'domain/usecases/anchorwise/delete_conversation_usecase.dart' as _i258;
@@ -32,6 +41,7 @@ import 'domain/usecases/anchorwise/get_conversation_by_id_usecase.dart'
     as _i539;
 import 'domain/usecases/anchorwise/get_conversations_usecase.dart' as _i1011;
 import 'domain/usecases/anchorwise/send_chat_message_usecase.dart' as _i1011;
+import 'domain/usecases/anchorwise/send_feedback_usecase.dart' as _i920;
 import 'domain/usecases/auth/forgot_password_usecase.dart' as _i512;
 import 'domain/usecases/auth/login_usecase.dart' as _i289;
 import 'domain/usecases/auth/register_usecase.dart' as _i339;
@@ -39,8 +49,12 @@ import 'domain/usecases/auth/reset_password_usecase.dart' as _i461;
 import 'domain/usecases/auth/verify_otp_usecase.dart' as _i33;
 import 'domain/usecases/dashboard/fetch_dashboard_metrics_usecase.dart'
     as _i711;
+import 'domain/usecases/get_articles_usecase.dart' as _i913;
+import 'domain/usecases/get_macro_trends_usecase.dart' as _i40;
 import 'domain/usecases/profile/change_password_usecase.dart' as _i183;
 import 'domain/usecases/profile/change_username_usecase.dart' as _i244;
+import 'domain/usecases/stablecoin/get_stablecoin_chart_data_usecase.dart'
+    as _i711;
 import 'presentation/blocs/alerts/alerts_bloc.dart' as _i9;
 import 'presentation/blocs/anchorwise/anchorwise_bloc.dart' as _i320;
 import 'presentation/blocs/authentication/authentication_bloc.dart' as _i259;
@@ -48,6 +62,10 @@ import 'presentation/blocs/change_password/change_password_bloc.dart' as _i192;
 import 'presentation/blocs/change_username/change_username_bloc.dart' as _i673;
 import 'presentation/blocs/contact/contact_bloc.dart' as _i945;
 import 'presentation/blocs/dashboard/dashboard_bloc.dart' as _i37;
+import 'presentation/blocs/discover/articles/articles_bloc.dart' as _i100;
+import 'presentation/blocs/discover/macro_trends/macro_trends_bloc.dart'
+    as _i221;
+import 'presentation/blocs/discover/stablecoin/stablecoin_bloc.dart' as _i379;
 import 'presentation/blocs/faq/faq_bloc.dart' as _i855;
 import 'presentation/blocs/navigation/navigation_bloc.dart' as _i62;
 import 'presentation/blocs/onboarding/onboarding_bloc.dart' as _i131;
@@ -76,11 +94,25 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i646.TokenStorageService>(
       () => _i646.TokenStorageService(gh<_i460.SharedPreferences>()),
     );
+    gh.factory<_i235.ArticlesRemoteDataSource>(
+      () => _i235.ArticlesRemoteDataSource(gh<_i332.DioClient>()),
+    );
+    gh.factory<_i743.MacroTrendsRemoteDataSource>(
+      () => _i743.MacroTrendsRemoteDataSource(gh<_i332.DioClient>()),
+    );
+    gh.factory<_i196.StablecoinRemoteDataSource>(
+      () => _i196.StablecoinRemoteDataSource(gh<_i332.DioClient>()),
+    );
     gh.lazySingleton<_i86.AuthRemoteDataSource>(
       () => _i86.AuthRemoteDataSourceImpl(dioClient: gh<_i332.DioClient>()),
     );
     gh.lazySingleton<_i671.ProfileRemoteDataSource>(
       () => _i671.ProfileRemoteDataSourceImpl(dioClient: gh<_i332.DioClient>()),
+    );
+    gh.factory<_i58.StablecoinRepository>(
+      () => _i658.StablecoinRepositoryImpl(
+        gh<_i196.StablecoinRemoteDataSource>(),
+      ),
     );
     gh.factory<_i465.AnchorWiseRemoteDataSource>(
       () => _i465.AnchorWiseRemoteDataSourceImpl(gh<_i332.DioClient>()),
@@ -92,6 +124,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i172.ProfileRepository>(
       () => _i1059.ProfileRepositoryImpl(
         remoteDataSource: gh<_i671.ProfileRemoteDataSource>(),
+      ),
+    );
+    gh.factory<_i893.MacroTrendsRepository>(
+      () => _i461.MacroTrendsRepositoryImpl(
+        gh<_i743.MacroTrendsRemoteDataSource>(),
       ),
     );
     gh.factory<_i135.AnchorWiseRepository>(
@@ -122,6 +159,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i673.ChangeUsernameBloc>(
       () => _i673.ChangeUsernameBloc(gh<_i244.ChangeUsernameUseCase>()),
     );
+    gh.factory<_i976.ArticlesRepository>(
+      () => _i998.ArticlesRepositoryImpl(gh<_i235.ArticlesRemoteDataSource>()),
+    );
     gh.factory<_i192.ChangePasswordBloc>(
       () => _i192.ChangePasswordBloc(gh<_i183.ChangePasswordUseCase>()),
     );
@@ -140,6 +180,19 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i1011.SendChatMessageUseCase>(
       () => _i1011.SendChatMessageUseCase(gh<_i135.AnchorWiseRepository>()),
+    );
+    gh.factory<_i920.SendFeedbackUseCase>(
+      () => _i920.SendFeedbackUseCase(gh<_i135.AnchorWiseRepository>()),
+    );
+    gh.factory<_i711.GetStablecoinChartDataUseCase>(
+      () =>
+          _i711.GetStablecoinChartDataUseCase(gh<_i58.StablecoinRepository>()),
+    );
+    gh.factory<_i40.GetMacroTrendsUseCase>(
+      () => _i40.GetMacroTrendsUseCase(gh<_i893.MacroTrendsRepository>()),
+    );
+    gh.factory<_i379.StablecoinBloc>(
+      () => _i379.StablecoinBloc(gh<_i711.GetStablecoinChartDataUseCase>()),
     );
     gh.factory<_i512.ForgotPasswordUseCase>(
       () => _i512.ForgotPasswordUseCase(gh<_i716.AuthRepository>()),
@@ -162,6 +215,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i37.DashboardBloc>(
       () => _i37.DashboardBloc(gh<_i711.FetchDashboardMetricsUseCase>()),
     );
+    gh.factory<_i221.MacroTrendsBloc>(
+      () => _i221.MacroTrendsBloc(gh<_i40.GetMacroTrendsUseCase>()),
+    );
+    gh.factory<_i913.GetArticlesUseCase>(
+      () => _i913.GetArticlesUseCase(gh<_i976.ArticlesRepository>()),
+    );
+    gh.factory<_i320.AnchorWiseBloc>(
+      () => _i320.AnchorWiseBloc(
+        gh<_i1011.SendChatMessageUseCase>(),
+        gh<_i625.CreateNewConversationUseCase>(),
+        gh<_i1011.GetConversationsUseCase>(),
+        gh<_i539.GetConversationByIdUseCase>(),
+        gh<_i258.DeleteConversationUseCase>(),
+        gh<_i920.SendFeedbackUseCase>(),
+      ),
+    );
     gh.factory<_i259.AuthenticationBloc>(
       () => _i259.AuthenticationBloc(
         gh<_i289.LoginUseCase>(),
@@ -176,14 +245,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i461.ResetPasswordUseCase>(),
       ),
     );
-    gh.factory<_i320.AnchorWiseBloc>(
-      () => _i320.AnchorWiseBloc(
-        gh<_i1011.SendChatMessageUseCase>(),
-        gh<_i625.CreateNewConversationUseCase>(),
-        gh<_i1011.GetConversationsUseCase>(),
-        gh<_i539.GetConversationByIdUseCase>(),
-        gh<_i258.DeleteConversationUseCase>(),
-      ),
+    gh.factory<_i100.ArticlesBloc>(
+      () => _i100.ArticlesBloc(gh<_i913.GetArticlesUseCase>()),
     );
     return this;
   }

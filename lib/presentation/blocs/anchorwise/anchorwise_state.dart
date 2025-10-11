@@ -11,15 +11,20 @@ class ChatMessage extends Equatable {
     required this.content,
     required this.sender,
     required this.timestamp,
+    this.conversationId,
   });
 
   final String id;
   final String content;
   final MessageSender sender;
   final DateTime timestamp;
+  final String? conversationId;
+
+  /// Check if this message can receive feedback (only AI messages can)
+  bool get canReceiveFeedback => sender == MessageSender.ai;
 
   @override
-  List<Object> get props => [id, content, sender, timestamp];
+  List<Object?> get props => [id, content, sender, timestamp, conversationId];
 }
 
 /// AnchorWise status enum

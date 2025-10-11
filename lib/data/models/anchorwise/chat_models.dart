@@ -17,16 +17,22 @@ class ChatRequestModel {
 class ChatResponseModel {
   final String response;
   final String timestamp;
+  final String? conversationId;
+  final String? messageId;
 
   ChatResponseModel({
     required this.response,
     required this.timestamp,
+    this.conversationId,
+    this.messageId,
   });
 
   factory ChatResponseModel.fromJson(Map<String, dynamic> json) {
     return ChatResponseModel(
       response: json['response'] ?? '',
       timestamp: json['timestamp'] ?? '',
+      conversationId: json['conversation_id'],
+      messageId: json['message_id'],
     );
   }
 }

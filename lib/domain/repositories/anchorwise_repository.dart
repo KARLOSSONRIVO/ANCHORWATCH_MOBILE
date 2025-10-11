@@ -19,4 +19,11 @@ abstract class AnchorWiseRepository {
   
   /// Delete a conversation by ID
   Future<DeleteConversationResponseModel> deleteConversation(String conversationId);
+  
+  /// Send feedback for a message
+  Future<bool> sendFeedback({
+    required String conversationId,
+    required String messageId,
+    required String feedback,
+  });
 }
