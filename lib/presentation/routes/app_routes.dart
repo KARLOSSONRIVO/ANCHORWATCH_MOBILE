@@ -21,11 +21,14 @@ class AppRoutes {
   
   // Support and help routes
   static const String contact = '/contact';
+  static const String contactSupport = '/contact-support';
   static const String faq = '/faq';
   
   // Profile management routes
   static const String changePassword = '/change-password';
   static const String changeUsername = '/change-username';
+  static const String requestChangeEmail = '/request-change-email';
+  static const String confirmChangeEmail = '/confirm-change-email';
   
   // AnchorWatch specific routes (for future features)
   static const String anchorHistory = '/anchor-history';
@@ -47,9 +50,12 @@ class AppRoutes {
     alerts,
     profile,
     contact,
+    contactSupport,
     faq,
     changePassword,
     changeUsername,
+    requestChangeEmail,
+    confirmChangeEmail,
     anchorHistory,
   ];
   
@@ -62,9 +68,12 @@ class AppRoutes {
     alerts,
     profile,
     contact,
+    contactSupport,
     faq,
     changePassword,
     changeUsername,
+    requestChangeEmail,
+    confirmChangeEmail,
     anchorHistory
   ];
   

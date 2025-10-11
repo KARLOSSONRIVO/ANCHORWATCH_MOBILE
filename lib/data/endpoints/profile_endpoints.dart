@@ -8,4 +8,8 @@ class ProfileEndpoints {
   
   // Change username endpoint
   static const String changeUsername = '$_accounts/change-username/';
+  
+  // Change email endpoints
+  static const String requestChangeEmail = '$_accounts/request-change/';
+  static const String confirmChangeEmail = '$_accounts/confirm-change/';
 }

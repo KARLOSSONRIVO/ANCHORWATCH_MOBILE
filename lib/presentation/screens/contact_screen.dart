@@ -4,6 +4,7 @@ import '../blocs/contact/contact.dart';
 import '../themes/app_theme.dart';
 import '../widgets/loading_widget.dart';
 import '../widgets/custom_snackbar.dart';
+import '../../injection_container.dart';
 
 /// Contact screen with BLoC architecture
 class ContactScreen extends StatelessWidget {
@@ -11,8 +12,12 @@ class ContactScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('[CONTACT_SCREEN] ContactScreen build called');
     return BlocProvider(
-      create: (context) => ContactBloc()..add(const ContactLoadRequested()),
+      create: (context) {
+        print('[CONTACT_SCREEN] Creating ContactBloc and adding load event');
+        return getIt<ContactBloc>()..add(const ContactLoadRequested());
+      },
       child: const _ContactView(),
     );
   }
@@ -56,6 +61,10 @@ class _ContactViewState extends State<_ContactView> {
         ),
       ),
       body: BlocConsumer<ContactBloc, ContactState>(
+        listenWhen: (previous, current) {
+          // Only listen when status actually changes to avoid repeated snackbars
+          return previous.status != current.status;
+        },
         listener: (context, state) {
           if (state.status == ContactStatus.submitted) {
             // Clear the text field when form is successfully submitted
@@ -67,6 +76,9 @@ class _ContactViewState extends State<_ContactView> {
               'Your question has been submitted successfully!',
               duration: const Duration(seconds: 3),
             );
+            
+            // Reset status to prevent repeated snackbars
+            context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.failure) {
             // Show error message
             SnackBarHelper.showError(
@@ -74,9 +86,17 @@ class _ContactViewState extends State<_ContactView> {
               state.errorMessage,
               duration: const Duration(seconds: 3),
             );
+            
+            // Reset status to prevent repeated snackbars
+            context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.navigatingToFaq) {
-            // Navigate to FAQ and replace current screen in stack
-            Navigator.of(context).pushReplacementNamed('/faq');
+            // Navigate to FAQ (use regular push instead of replacement)
+            Navigator.of(context).pushNamed('/faq').then((_) {
+              // Reset status after navigation
+              if (context.mounted) {
+                context.read<ContactBloc>().add(const ContactStatusReset());
+              }
+            });
           }
         },
         builder: (context, state) {

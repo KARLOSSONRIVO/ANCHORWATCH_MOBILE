@@ -5,7 +5,6 @@ import '../../blocs/profile/profile.dart';
 import '../../routes/app_routes.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/custom_snackbar.dart';
 
 /// Profile page content with dark theme using BLoC architecture
 class ProfileScreen extends StatelessWidget {
@@ -28,6 +27,10 @@ class _ProfileView extends StatelessWidget {
     return Container(
       color: AppTheme.getBackgroundColor(context),
       child: BlocConsumer<ProfileBloc, ProfileState>(
+        listenWhen: (previous, current) {
+          // Only listen when status actually changes to avoid stuck navigation states
+          return previous.status != current.status;
+        },
         listener: (context, state) {
           // Handle navigation based on state
           if (state.status == ProfileStatus.navigatingToEditAccount) {
@@ -35,10 +38,20 @@ class _ProfileView extends StatelessWidget {
             Navigator.of(context).pushNamed('/edit-account');
           } else if (state.status == ProfileStatus.navigatingToContactSupport) {
             // Navigate to contact support screen
-            Navigator.of(context).pushNamed('/contact');
+            Navigator.of(context).pushNamed('/contact').then((_) {
+              // Reset status after navigation to allow re-navigation
+              if (context.mounted) {
+                context.read<ProfileBloc>().add(const ProfileLoadRequested());
+              }
+            });
           } else if (state.status == ProfileStatus.navigatingToFAQs) {
             // Navigate to FAQs screen
-            Navigator.of(context).pushNamed('/faq');
+            Navigator.of(context).pushNamed('/faq').then((_) {
+              // Reset status after navigation to allow re-navigation
+              if (context.mounted) {
+                context.read<ProfileBloc>().add(const ProfileLoadRequested());
+              }
+            });
           }
         },
         builder: (context, state) {
@@ -360,11 +373,20 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
               ),
               _DropdownOption(
                 title: 'Change Email',
-                onTap: () {
+                onTap: () async {
                   setState(() {
                     _isExpanded = false;
                   });
-                  _showChangeDialog(context, 'Change Email', 'Enter new email');
+                  final result = await Navigator.pushNamed(
+                    context,
+                    AppRoutes.requestChangeEmail,
+                  );
+                  
+                  // If email was successfully changed, refresh the profile
+                  if (result != null && result is String && result.isNotEmpty) {
+                    // Refresh profile data to show updated email
+                    context.read<ProfileBloc>().add(const ProfileLoadRequested());
+                  }
                 },
                 showDivider: false,
               ),
@@ -381,43 +403,6 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
     );
   }
 
-  void _showChangeDialog(BuildContext context, String title, String hint) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        final TextEditingController controller = TextEditingController();
-        return AlertDialog(
-          title: Text(title),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: hint,
-              border: const OutlineInputBorder(),
-            ),
-            obscureText: title.contains('Password'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle the change here
-                String newValue = controller.text.trim();
-                if (newValue.isNotEmpty) {
-                  // TODO: Implement the actual change logic
-                  SnackBarHelper.showInfo(context, '$title: $newValue');
-                }
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
 /// Individual dropdown option widget

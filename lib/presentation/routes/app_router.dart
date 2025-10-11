@@ -13,6 +13,8 @@ import '../screens/password_reset/reset_password_otp_screen.dart';
 import '../screens/password_reset/reset_password_confirm_screen.dart';
 import '../screens/profile/change_password_screen.dart';
 import '../screens/profile/change_username_screen.dart';
+import '../screens/profile/change_email_screen.dart';
+import '../screens/profile/confirm_change_email_screen.dart';
 import '../../injection_container.dart';
 import 'app_routes.dart';
 
@@ -119,6 +121,19 @@ class AppRouter {
       case AppRoutes.changeUsername:
         return MaterialPageRoute(
           builder: (_) => const ChangeUsernameScreen(),
+          settings: settings,
+        );
+        
+      case AppRoutes.requestChangeEmail:
+        return MaterialPageRoute(
+          builder: (_) => const ChangeEmailScreen(),
+          settings: settings,
+        );
+        
+      case AppRoutes.confirmChangeEmail:
+        final newEmail = settings.arguments as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => ConfirmChangeEmailScreen(newEmail: newEmail),
           settings: settings,
         );
         

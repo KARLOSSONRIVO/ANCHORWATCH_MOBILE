@@ -2,9 +2,12 @@ import 'package:injectable/injectable.dart';
 
 import '../../domain/entities/profile/change_password_result.dart';
 import '../../domain/entities/profile/change_username_result.dart';
+import '../../domain/entities/change_email/request_change_email_result.dart';
+import '../../domain/entities/change_email/confirm_change_email_result.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../datasources/remote/profile_remote_datasource.dart';
 import '../models/profile/profile_models.dart';
+import '../models/change_email/change_email_models.dart';
 import '../../services/dio_client.dart';
 
 @LazySingleton(as: ProfileRepository)
@@ -52,6 +55,44 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return ChangeUsernameResult.failure(e.message);
     } catch (e) {
       return ChangeUsernameResult.failure('Change username failed: $e');
+    }
+  }
+
+  @override
+  Future<RequestChangeEmailResult> requestChangeEmail({
+    required String newEmail,
+  }) async {
+    try {
+      final request = RequestChangeEmailRequestModel(
+        newEmail: newEmail,
+      );
+
+      final response = await _remoteDataSource.requestChangeEmail(request);
+      return RequestChangeEmailResult(message: response.message);
+    } on AppException catch (e) {
+      throw Exception(e.message);  // Throw exception to trigger failure state
+    } catch (e) {
+      throw Exception('Request change email failed: $e');  // Throw exception to trigger failure state
+    }
+  }
+
+  @override
+  Future<ConfirmChangeEmailResult> confirmChangeEmail({
+    required String otp,
+    required String newEmail,
+  }) async {
+    try {
+      final request = ConfirmChangeEmailRequestModel(
+        otp: otp,
+        newEmail: newEmail,
+      );
+
+      final response = await _remoteDataSource.confirmChangeEmail(request);
+      return ConfirmChangeEmailResult(message: response.message);
+    } on AppException catch (e) {
+      throw Exception(e.message);  // Throw exception to trigger failure state
+    } catch (e) {
+      throw Exception('Confirm change email failed: $e');  // Throw exception to trigger failure state
     }
   }
 }
