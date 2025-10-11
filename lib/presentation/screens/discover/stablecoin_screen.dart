@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../injection_container.dart';
 import '../../blocs/discover/stablecoin/stablecoin.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/chart_summary_widget.dart';
 
 class StablecoinView extends StatelessWidget {
   const StablecoinView({super.key});
@@ -111,10 +112,26 @@ class _StablecoinView extends StatelessWidget {
                     context,
                     title: 'Total Supply Over Time',
                     child: _totalSupplyChart(state),
+                    chartType: 'total_supply_over_time',
                   ),
-                  _card(context, title: 'Mint vs Burn Activity', child: _mintBurnChart(state)),
-                  _card(context, title: 'Net Change in Supply', child: _netChangeChart(state)),
-                  _card(context, title: 'Rolling Average Supply Changes', child: _rollingAverageChart(state)),
+                  _card(
+                    context, 
+                    title: 'Mint vs Burn Activity', 
+                    child: _mintBurnChart(state),
+                    chartType: 'mint_burn_activity',
+                  ),
+                  _card(
+                    context, 
+                    title: 'Net Change in Supply', 
+                    child: _netChangeChart(state),
+                    chartType: 'net_change_in_supply',
+                  ),
+                  _card(
+                    context, 
+                    title: 'Rolling Average Supply Changes', 
+                    child: _rollingAverageChart(state),
+                    chartType: 'rolling_average_supply_changes',
+                  ),
                 ],
               ),
             ),
@@ -129,6 +146,7 @@ class _StablecoinView extends StatelessWidget {
     required String title,
     String? subtitle,
     required Widget child,
+    required String chartType,
   }) =>
       Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -177,6 +195,11 @@ class _StablecoinView extends StatelessWidget {
             SizedBox(
               height: 240,
               child: child,
+            ),
+            // Add chart summary widget
+            ChartSummaryWidget(
+              chartType: chartType,
+              chartTitle: title,
             ),
           ],
         ),

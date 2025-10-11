@@ -13,3 +13,4 @@ export 'dashboard/dashboard.dart';
 export 'discover/macro_trends/macro_trends.dart';
 export 'discover/stablecoin/stablecoin.dart';
 export 'discover/articles/articles.dart';
+export 'discover/chart_summary/chart_summary.dart';

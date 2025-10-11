@@ -6,6 +6,7 @@ import '../../blocs/discover/macro_trends/macro_trends.dart';
 import '../../../utils/number_formatter.dart';
 import '../../../domain/entities/macro_trends.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/chart_summary_widget.dart';
 
 class MacroTrendsView extends StatelessWidget {
   const MacroTrendsView({super.key});
@@ -94,9 +95,24 @@ class _MacroTrendsView extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 8),
-                  _card(context, title: 'Annual Inflation Rates', child: SizedBox(height: 240, child: _inflationTimelineChart(state))),
-                  _card(context, title: 'Inflation vs Supply Growth', child: SizedBox(height: 240, child: _inflationVsSupplyChart(state))),
-                  _card(context, title: 'Correlation Matrix', child: _correlationHeatmap(state)),
+                  _card(
+                    context, 
+                    title: 'Annual Inflation Rates', 
+                    child: SizedBox(height: 240, child: _inflationTimelineChart(state)),
+                    chartType: 'annual_inflation_rates',
+                  ),
+                  _card(
+                    context, 
+                    title: 'Inflation vs Supply Growth', 
+                    child: SizedBox(height: 240, child: _inflationVsSupplyChart(state)),
+                    chartType: 'inflation_vs_supply_growth',
+                  ),
+                  _card(
+                    context, 
+                    title: 'Correlation Matrix', 
+                    child: _correlationHeatmap(state),
+                    chartType: 'correlation_table',
+                  ),
                 ],
               ),
             ),
@@ -106,7 +122,7 @@ class _MacroTrendsView extends StatelessWidget {
     );
   }
 
-  Widget _card(BuildContext context, {required String title, String? subtitle, required Widget child}) => Container(
+  Widget _card(BuildContext context, {required String title, String? subtitle, required Widget child, required String chartType}) => Container(
     margin: const EdgeInsets.only(bottom: 16),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
@@ -149,6 +165,11 @@ class _MacroTrendsView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         child,
+        // Add chart summary widget
+        ChartSummaryWidget(
+          chartType: chartType,
+          chartTitle: title,
+        ),
       ],
     ),
   );
