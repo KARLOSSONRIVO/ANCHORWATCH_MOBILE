@@ -8,4 +8,8 @@ class ProfileEndpoints {
   
   // Change username endpoint
   static const String changeUsername = '$_accounts/change-username/';
+  
+  // Profile picture endpoints
+  static const String generateProfileUploadURL = '$_accounts/upload-url/';
+  static const String confirmProfileImage = '$_accounts/confirm/';
 }

@@ -77,8 +77,10 @@ import 'presentation/blocs/navigation/navigation_bloc.dart' as _i62;
 import 'presentation/blocs/onboarding/onboarding_bloc.dart' as _i131;
 import 'presentation/blocs/password_reset/password_reset_bloc.dart' as _i580;
 import 'presentation/blocs/profile/profile_bloc.dart' as _i226;
+import 'presentation/blocs/profile_picture/profile_picture_bloc.dart' as _i945;
 import 'services/authentication_service.dart' as _i460;
 import 'services/dio_client.dart' as _i332;
+import 'services/s3_upload_service.dart' as _i408;
 import 'services/token_storage_service.dart' as _i646;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -93,6 +95,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i62.NavigationBloc>(() => _i62.NavigationBloc());
     gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
     gh.factory<_i131.OnboardingBloc>(() => _i131.OnboardingBloc());
+    gh.lazySingleton<_i408.S3UploadService>(() => _i408.S3UploadService());
     gh.lazySingleton<_i332.DioClient>(() => _i332.DioClient());
     gh.lazySingleton<_i807.DashboardRemoteDataSource>(
       () => _i807.LiveDashboardRemoteDataSource(gh<_i332.DioClient>()),
@@ -143,6 +146,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i135.AnchorWiseRepository>(
       () => _i348.AnchorWiseRepositoryImpl(
         gh<_i465.AnchorWiseRemoteDataSource>(),
+      ),
+    );
+    gh.factory<_i945.ProfilePictureBloc>(
+      () => _i945.ProfilePictureBloc(
+        gh<_i671.ProfileRemoteDataSource>(),
+        gh<_i408.S3UploadService>(),
       ),
     );
     gh.lazySingleton<_i460.AuthenticationService>(

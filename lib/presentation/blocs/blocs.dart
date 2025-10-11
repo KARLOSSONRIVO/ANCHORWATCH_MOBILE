@@ -5,6 +5,7 @@ export 'navigation/navigation_bloc.dart';
 export 'navigation/navigation_event.dart';
 export 'navigation/navigation_state.dart';
 export 'profile/profile.dart';
+export 'profile_picture/profile_picture.dart';
 export 'alerts/alerts.dart';
 export 'anchorwise/anchorwise.dart';
 export 'contact/contact.dart';

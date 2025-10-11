@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../injection_container.dart';
 import '../../blocs/profile/profile.dart';
+import '../../blocs/profile_picture/profile_picture.dart';
 import '../../routes/app_routes.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/custom_snackbar.dart';
+import '../../widgets/profile_picture_picker_widget.dart';
 
 /// Profile page content with dark theme using BLoC architecture
 class ProfileScreen extends StatelessWidget {
@@ -13,8 +15,15 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<ProfileBloc>()..add(const ProfileLoadRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => getIt<ProfileBloc>()..add(const ProfileLoadRequested()),
+        ),
+        BlocProvider(
+          create: (context) => getIt<ProfilePictureBloc>(),
+        ),
+      ],
       child: const _ProfileView(),
     );
   }
@@ -87,28 +96,20 @@ class _ProfileView extends StatelessWidget {
                 Center(
                   child: Column(
                     children: [
-                      // Avatar
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppTheme.getSurfaceColor(context),
-                          border: Border.all(
-                            color: AppTheme.getBorderColor(context),
-                            width: 2,
-                          ),
-                        ),
-                        child: ClipOval(
-                          child: state.avatar != null
-                              ? Image.network(
-                                  state.avatar!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const _DefaultAvatar();
-                                  },
-                                )
-                              : const _DefaultAvatar(),
+                      // Profile Picture Picker
+                      BlocListener<ProfilePictureBloc, ProfilePictureState>(
+                        listener: (context, profilePictureState) {
+                          if (profilePictureState.status == ProfilePictureStatus.confirmed) {
+                            // Refresh profile data to get updated image URL
+                            context.read<ProfileBloc>().add(const ProfileLoadRequested());
+                          }
+                        },
+                        child: ProfilePicturePickerWidget(
+                          currentImageUrl: state.avatar,
+                          size: 80.0,
+                          onImageChanged: () {
+                            // Profile will be refreshed automatically via listener
+                          },
                         ),
                       ),
                       const SizedBox(height: 16),
