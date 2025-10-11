@@ -98,11 +98,10 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    gh.factory<_i945.ContactBloc>(() => _i945.ContactBloc());
+    gh.factory<_i945.ContactBloc>(() => _i945.ContactBloc(gh<_i364.ContactSupportUseCase>()));
     gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
     gh.factory<_i855.FaqBloc>(() => _i855.FaqBloc());
     gh.factory<_i62.NavigationBloc>(() => _i62.NavigationBloc());
-    gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
     gh.factory<_i131.OnboardingBloc>(() => _i131.OnboardingBloc());
     gh.lazySingleton<_i408.S3UploadService>(() => _i408.S3UploadService());
     gh.lazySingleton<_i332.DioClient>(() => _i332.DioClient());
@@ -185,6 +184,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i183.ChangePasswordUseCase>(
       () => _i183.ChangePasswordUseCase(gh<_i172.ProfileRepository>()),
+    );
     gh.factory<_i140.ConfirmChangeEmailUseCase>(
       () => _i140.ConfirmChangeEmailUseCase(gh<_i172.ProfileRepository>()),
     );
@@ -307,8 +307,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i981.ChartSummaryBloc>(
       () => _i981.ChartSummaryBloc(gh<_i209.GetChartSummaryUseCase>()),
-    gh.factory<_i945.ContactBloc>(
-      () => _i945.ContactBloc(gh<_i364.ContactSupportUseCase>()),
     );
     gh.factory<_i688.ContactSupportBloc>(
       () => _i688.ContactSupportBloc(gh<_i364.ContactSupportUseCase>()),

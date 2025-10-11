@@ -5,7 +5,6 @@ import 'dart:io';
 
 @lazySingleton
 class DioClient {
-  static const String _baseUrl = 'http://127.0.0.1:8000';  // Android emulator localhost
   // Dynamic base URL based on platform
   static String get _baseUrl {
     if (kIsWeb) {
