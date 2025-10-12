@@ -21,6 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isKeyboardVisible = false;
 
   @override
   void dispose() {
@@ -45,6 +46,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if keyboard is visible
+    _isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    
     // Set theme-aware system UI overlay
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
@@ -73,7 +77,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Stack(
               children: [
                 // Main content
-                Padding(
+                SingleChildScrollView(
+                  physics: _isKeyboardVisible 
+                      ? const AlwaysScrollableScrollPhysics() 
+                      : const NeverScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+                    child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
                   child: Form(
                     key: _formKey,
@@ -92,6 +102,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                         ),
+                        
+                        const SizedBox(height: 10),
                         
                         const Spacer(),
                         
@@ -337,8 +349,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: ElevatedButton(
                             onPressed: _handleSignUp,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primaryColor,
-                              foregroundColor: Colors.black,
+                              backgroundColor: const Color(0xFF484848),
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -351,7 +363,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Inter',
-                                color: Colors.black,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -385,6 +397,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         
                         const Spacer(),
                       ],
+                    ),
+                  ),
                     ),
                   ),
                 ),

@@ -79,7 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
               return Stack(
                 children: [
                   // Main content
-                  Padding(
+                  SingleChildScrollView(
+                    child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
             child: Form(
               key: _formKey,
@@ -112,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   
                   // Subtitle
                   Text(
-                    'Sign in',
+                    'Log in',
                     style: TextStyle(
                       fontSize: 16,
                       color: AppTheme.getTextSecondaryColor(context),
@@ -238,8 +239,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: ElevatedButton(
                       onPressed: _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        foregroundColor: Colors.black,
+                        backgroundColor: const Color(0xFF484848),
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -247,17 +248,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         elevation: 0,
                       ),
                       child: const Text(
-                        'Sign in',
+                        'Log in',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Inter',
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(height: 40),
                   
                   // Sign Up Link
                   Row(
@@ -292,6 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
+                    ),
           
           // Loading Overlay
           if (isLoading)

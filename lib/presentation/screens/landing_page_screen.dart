@@ -141,8 +141,8 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                         child: ElevatedButton(
                           onPressed: _nextPage,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
+                            backgroundColor: const Color(0xFF484848),
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -154,6 +154,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
+                              color: Colors.white,
                             ),
                           ),
                         ),
