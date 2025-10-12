@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 @lazySingleton
 class DioClient {
@@ -10,11 +11,38 @@ class DioClient {
     if (kIsWeb) {
       return 'http://127.0.0.1:8000';  // Web can use localhost directly
     } else if (Platform.isAndroid) {
+      // For Android emulator: 10.0.2.2 maps to host machine's localhost
+      // For physical device: Use your computer's local network IP
       return 'http://10.0.2.2:8000';   // Android emulator special IP
     } else if (Platform.isIOS) {
+      // For iOS simulator: 127.0.0.1 works
+      // For physical device: Use your computer's local network IP
       return 'http://127.0.0.1:8000';  // iOS simulator can use localhost
     } else {
       return 'http://127.0.0.1:8000';  // Default for other platforms
+    }
+  }
+
+  /// Get the base URL for physical devices
+  /// This method can be used to dynamically detect the correct IP
+  static Future<String> getPhysicalDeviceBaseUrl() async {
+    try {
+      // Get network interfaces to find the correct IP
+      for (var interface in await NetworkInterface.list()) {
+        for (var addr in interface.addresses) {
+          // Look for IPv4 addresses that are not localhost
+          if (addr.type == InternetAddressType.IPv4 && 
+              !addr.isLoopback && 
+              addr.address.startsWith('192.168.')) {
+            return 'http://${addr.address}:8000';
+          }
+        }
+      }
+      // Fallback to localhost if no suitable IP found
+      return 'http://127.0.0.1:8000';
+    } catch (e) {
+      // Fallback to localhost on error
+      return 'http://127.0.0.1:8000';
     }
   }
   
