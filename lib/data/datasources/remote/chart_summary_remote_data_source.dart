@@ -21,7 +21,7 @@ class ChartSummaryRemoteDataSource {
           'chart_type': chartType,
         },
         options: Options(
-          receiveTimeout: const Duration(minutes: 2), // 2 minutes for LLM generation
+          receiveTimeout: const Duration(minutes: 8), // 8 minutes for LLM generation (matches global timeout)
           sendTimeout: const Duration(seconds: 30),
         ),
       );

@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'dart:io';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 @lazySingleton
 class DioClient {
@@ -52,7 +51,7 @@ class DioClient {
     _dio = Dio(BaseOptions(
       baseUrl: _baseUrl,
       connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(minutes: 8), // Increased for LLM responses
       sendTimeout: const Duration(seconds: 30),
       headers: {
         'Content-Type': 'application/json',

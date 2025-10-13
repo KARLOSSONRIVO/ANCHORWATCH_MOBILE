@@ -51,7 +51,7 @@ class AnchorWiseRemoteDataSourceImpl implements AnchorWiseRemoteDataSource {
         endpoint,
         data: requestModel.toJson(),
         options: Options(
-          receiveTimeout: const Duration(minutes: 2), // 2 minutes for AI responses
+          receiveTimeout: const Duration(minutes: 8), // 8 minutes for AI responses (matches global timeout)
           sendTimeout: const Duration(seconds: 30),
         ),
       );
