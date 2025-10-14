@@ -13,11 +13,13 @@ class ChartSummaryRepositoryImpl implements ChartSummaryRepository {
   Future<ChartSummary> getChartSummary({
     required String chartType,
     String? timeFrame,
+    List<Map<String, dynamic>>? chartData,
   }) async {
     try {
       final model = await _remoteDataSource.getChartSummary(
         chartType: chartType,
         timeFrame: timeFrame,
+        chartData: chartData,
       );
       return model.toEntity();
     } catch (e) {
