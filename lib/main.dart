@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'blocs/authentication/authentication.dart';
-import 'routes/routes.dart';
-import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
+import 'presentation/blocs/blocs.dart';
+import 'presentation/routes/routes.dart';
+import 'presentation/screens/onboarding_screen.dart';
+import 'presentation/screens/main_navigation_screen.dart';
+import 'presentation/screens/login_screen.dart';
+import 'presentation/themes/app_theme.dart';
+import 'injection_container.dart';
+import 'services/storage_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize services
+  await StorageService.init();
+  
+  // Initialize dependency injection with Injectable
+  await configureDependencies();
+  
   runApp(const MyApp());
 }
 
@@ -14,32 +26,83 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthenticationBloc()
-        ..add(const AuthenticationStatusRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => getIt<OnboardingBloc>()
+            ..add(const OnboardingStatusRequested()),
+        ),
+        BlocProvider(
+          create: (context) => getIt<AuthenticationBloc>()
+            ..add(const AuthenticationStatusRequested()),
+        ),
+        BlocProvider(
+          create: (context) => getIt<NavigationBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => getIt<ProfileBloc>()
+            ..add(const ProfileLoadRequested()),
+        ),
+        BlocProvider(
+          create: (context) => getIt<AlertsBloc>()
+            ..add(const AlertsLoadRequested()),
+        ),
+        BlocProvider(
+          create: (context) => getIt<AnchorWiseBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => getIt<ContactBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => getIt<FaqBloc>(),
+        ),
+      ],
       child: MaterialApp(
         title: 'AnchorWatch',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-        ),
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system, // Automatically follows system theme
         onGenerateRoute: AppRouter.generateRoute,
-        home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-          builder: (context, state) {
-            print('🚀 Building UI with auth status: ${state.status}');
-            
-            switch (state.status) {
-              case AuthenticationStatus.authenticated:
-                print('🏠 Showing HomeScreen');
-                return const HomeScreen();
-              case AuthenticationStatus.unauthenticated:
-                print('🔐 Showing LoginScreen');
-                return const LoginScreen();
-              case AuthenticationStatus.unknown:
-                print('⏳ Showing SplashScreen');
-                return const _SplashScreen();
-            }
+        home: BlocBuilder<OnboardingBloc, OnboardingState>(
+          builder: (context, onboardingState) {
+            return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+              builder: (context, authState) {
+                print('🏗️ Building app - Onboarding: ${onboardingState.status}, Auth: ${authState.status}');
+                print('🔍 AuthState details: ${authState.toString()}');
+                
+                // Check onboarding first - only show splash on initial load
+                if (onboardingState.status == OnboardingStatus.loading) {
+                  return const _SplashScreen();
+                }
+                
+                // If onboarding not completed, show onboarding
+                if (onboardingState.status == OnboardingStatus.notCompleted) {
+                  return const OnboardingScreen();
+                }
+                
+                // Onboarding completed, check authentication
+                switch (authState.status) {
+                  case AuthenticationStatus.authenticated:
+                    print('🔐 Navigating to MainNavigationScreen (authenticated)');
+                    return const MainNavigationScreen();
+                  case AuthenticationStatus.unauthenticated:
+                    print('🚪 Navigating to LoginScreen (unauthenticated)');
+                    return const LoginScreen();
+                  case AuthenticationStatus.loading:
+                    return const LoginScreen(); // Stay on login during loading
+                  case AuthenticationStatus.signUpSuccess:
+                    return const LoginScreen(); // Redirect to login after successful signup
+                  case AuthenticationStatus.unknown:
+                    // Only show splash on app startup, not during login
+                    if (onboardingState.status == OnboardingStatus.loading) {
+                      return const _SplashScreen();
+                    } else {
+                      return const LoginScreen(); // Stay on login during loading
+                    }
+                }
+              },
+            );
           },
         ),
       ),
@@ -54,12 +117,12 @@ class _SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade700,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.anchor,
               size: 120,
               color: Colors.white,
@@ -73,10 +136,6 @@ class _SplashScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              color: Colors.white,
-            ),
-            const SizedBox(height: 16),
             Text(
               'Initializing...',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
