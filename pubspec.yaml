@@ -76,6 +76,9 @@ dev_dependencies:
   # Injectable code generation
   injectable_generator: ^2.4.1
   build_runner: ^2.4.7
+  
+  # Flutter launcher icons generator
+  flutter_launcher_icons: ^0.13.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -126,3 +129,11 @@ flutter:
           weight: 600
         - asset: assets/fonts/Inter_24pt-Bold.ttf
           weight: 700
+
+# Flutter Launcher Icons configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/AnchorWatch_Icon_Logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/AnchorWatch_Icon_Logo.png"

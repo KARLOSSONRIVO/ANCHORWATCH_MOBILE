@@ -120,9 +120,11 @@ class _DashboardView extends StatelessWidget {
                     title: 'Unified Table (${state.selectedTimePeriod})',
                     child: Column(
                       children: [
-                        Expanded(
+                        SizedBox(
+                          height: 280,
                           child: _buildDataTable(context, state),
                         ),
+                        const SizedBox(height: 12),
                         ChartSummaryWidget(
                           chartType: 'unified_table',
                           chartTitle: 'Unified Table (${state.selectedTimePeriod})',
@@ -139,7 +141,7 @@ class _DashboardView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    height: 420,
+                    height: null,
                   ),
                   _buildCard(
                     title: 'Price vs Market Cap',
