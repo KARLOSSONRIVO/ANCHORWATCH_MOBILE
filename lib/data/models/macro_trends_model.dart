@@ -71,36 +71,73 @@ class MacroTrendsModel {
 
 class InflationRateModel {
   final int year;
+  final String? period;
   final double? inflationRate;
 
-  InflationRateModel({required this.year, required this.inflationRate});
+  InflationRateModel({required this.year, this.period, required this.inflationRate});
 
   factory InflationRateModel.fromJson(Map<String, dynamic> json) {
+    // Handle both 'year' (yearly) and 'period' (monthly) fields
+    int yearValue = 0;
+    String? periodValue;
+    
+    if (json['year'] != null) {
+      yearValue = json['year'] as int;
+    } else if (json['period'] != null) {
+      periodValue = json['period'] as String;
+      // Extract year from period string (e.g., "2023-01" -> 2023)
+      try {
+        yearValue = int.parse(periodValue.split('-')[0]);
+      } catch (e) {
+        yearValue = 0;
+      }
+    }
+    
     return InflationRateModel(
-      year: json['year'] as int? ?? 0,
+      year: yearValue,
+      period: periodValue,
       inflationRate: (json['inflation_rate'] as num?)?.toDouble(),
     );
   }
 
   InflationRateData toEntity() {
-    return InflationRateData(year: year, inflationRate: inflationRate);
+    return InflationRateData(year: year, period: period, inflationRate: inflationRate);
   }
 }
 
 class InflationSupplyModel {
   final int year;
+  final String? period;
   final double? inflationRate;
   final double? supplyGrowthPct;
 
   InflationSupplyModel({
     required this.year,
+    this.period,
     required this.inflationRate,
     this.supplyGrowthPct,
   });
 
   factory InflationSupplyModel.fromJson(Map<String, dynamic> json) {
+    // Handle both 'year' (yearly) and 'period' (monthly) fields
+    int yearValue = 0;
+    String? periodValue;
+    
+    if (json['year'] != null) {
+      yearValue = json['year'] as int;
+    } else if (json['period'] != null) {
+      periodValue = json['period'] as String;
+      // Extract year from period string (e.g., "2023-01" -> 2023)
+      try {
+        yearValue = int.parse(periodValue.split('-')[0]);
+      } catch (e) {
+        yearValue = 0;
+      }
+    }
+    
     return InflationSupplyModel(
-      year: json['year'] as int? ?? 0,
+      year: yearValue,
+      period: periodValue,
       inflationRate: (json['inflation_rate'] as num?)?.toDouble(),
       supplyGrowthPct: (json['supply_growth_pct'] as num?)?.toDouble(),
     );
@@ -109,6 +146,7 @@ class InflationSupplyModel {
   InflationSupplyData toEntity() {
     return InflationSupplyData(
       year: year,
+      period: period,
       inflationRate: inflationRate,
       supplyGrowthPct: supplyGrowthPct,
     );

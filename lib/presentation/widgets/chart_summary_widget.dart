@@ -35,7 +35,7 @@ class ChartSummaryWidget extends StatelessWidget {
   }
 }
 
-class _ChartSummaryContent extends StatelessWidget {
+class _ChartSummaryContent extends StatefulWidget {
   final String chartType;
   final String chartTitle;
   final String? timeFrame;
@@ -47,6 +47,52 @@ class _ChartSummaryContent extends StatelessWidget {
     this.timeFrame,
     this.chartData,
   });
+
+  @override
+  State<_ChartSummaryContent> createState() => _ChartSummaryContentState();
+}
+
+class _ChartSummaryContentState extends State<_ChartSummaryContent> {
+  String? _lastTimeFrame;
+  String? _lastChartDataHash;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastTimeFrame = widget.timeFrame;
+    _lastChartDataHash = _generateChartDataHash(widget.chartData);
+  }
+
+  @override
+  void didUpdateWidget(_ChartSummaryContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Check if timeFrame or chartData has changed
+    final currentTimeFrame = widget.timeFrame;
+    final currentChartDataHash = _generateChartDataHash(widget.chartData);
+    
+    if (_lastTimeFrame != currentTimeFrame || _lastChartDataHash != currentChartDataHash) {
+      _lastTimeFrame = currentTimeFrame;
+      _lastChartDataHash = currentChartDataHash;
+      
+      // Clear existing summary when data changes, but don't auto-regenerate
+      // Let user manually trigger regeneration to avoid overloading device
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.read<ChartSummaryBloc>().add(const ChartSummaryClearRequested());
+        }
+      });
+    }
+  }
+
+  String? _generateChartDataHash(List<Map<String, dynamic>>? chartData) {
+    if (chartData == null || chartData.isEmpty) return null;
+    
+    // Create a simple hash based on data length and first few entries
+    final dataString = chartData.length.toString() + 
+                      (chartData.isNotEmpty ? chartData.first.toString() : '');
+    return dataString.hashCode.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,13 +161,15 @@ class _ChartSummaryContent extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         context.read<ChartSummaryBloc>().add(
-                          ChartSummaryGenerateRequested(chartType, timeFrame, chartData),
+                          ChartSummaryGenerateRequested(widget.chartType, widget.timeFrame, widget.chartData),
                         );
                       },
                       icon: const Icon(Icons.auto_awesome, size: 16),
-                      label: const Text('Generate'),
+                      label: Text(state.summary == null ? 'Generate' : 'Regenerate'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00D4AA),
+                        backgroundColor: state.summary == null 
+                            ? const Color(0xFF00D4AA) 
+                            : const Color(0xFF00D4AA).withOpacity(0.8),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         minimumSize: Size.zero,
@@ -178,6 +226,40 @@ class _ChartSummaryContent extends StatelessWidget {
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              if (state.status == ChartSummaryStatus.initial && state.summary == null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? const Color(0xFFF0F8F7).withOpacity(0.5)
+                        : const Color(0xFF1A2A2A).withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF00D4AA).withOpacity(0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: const Color(0xFF00D4AA).withOpacity(0.7),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Click Generate to get AI analysis for this chart',
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -311,7 +393,7 @@ class _ChartSummaryContent extends StatelessWidget {
                       ElevatedButton(
                         onPressed: () {
                         context.read<ChartSummaryBloc>().add(
-                          ChartSummaryGenerateRequested(chartType, timeFrame, chartData),
+                          ChartSummaryGenerateRequested(widget.chartType, widget.timeFrame, widget.chartData),
                         );
                         },
                         style: ElevatedButton.styleFrom(

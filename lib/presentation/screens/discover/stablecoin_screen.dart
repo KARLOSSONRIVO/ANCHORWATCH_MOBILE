@@ -206,7 +206,7 @@ class _StablecoinView extends StatelessWidget {
               chartType: chartType,
               chartTitle: title,
               timeFrame: state.selectedPeriod,
-              chartData: state.chartData,
+              chartData: _getChartDataForType(state, chartType),
             ),
           ],
         ),
@@ -233,12 +233,12 @@ class _StablecoinView extends StatelessWidget {
           splashColor: Colors.transparent,
           hoverColor: Colors.transparent,
         ),
-        child: PopupMenuButton<String>(
-          initialValue: state.selectedPeriod == 'yearly' ? 'Yearly' : 'Monthly',
-          onSelected: (String value) {
-            final period = value.toLowerCase();
-            context.read<StablecoinBloc>().add(StablecoinAggregationPeriodChanged(period));
-          },
+                        child: PopupMenuButton<String>(
+                          initialValue: state.selectedPeriod == 'yearly' ? 'Yearly' : 'Monthly',
+                          onSelected: (String value) {
+                            final period = value.toLowerCase();
+                            context.read<StablecoinBloc>().add(StablecoinAggregationPeriodChanged(period));
+                          },
           color: const Color(0xFF2A2A2A),
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -578,5 +578,37 @@ class _StablecoinView extends StatelessWidget {
         );
       },
     );
+  }
+
+  /// Get chart-specific data for AI summary generation
+  List<Map<String, dynamic>>? _getChartDataForType(StablecoinState state, String chartType) {
+    if (state.chartData == null) return null;
+    
+    switch (chartType) {
+      case 'total_supply_over_time':
+        return state.chartData!.map((item) => {
+          'date': item['date'],
+          'totalSupply': item['totalSupply'],
+        }).toList();
+      case 'mint_burn_activity':
+        return state.chartData!.map((item) => {
+          'date': item['date'],
+          'mintAmount': item['mintAmount'],
+          'burnAmount': item['burnAmount'],
+        }).toList();
+      case 'net_change_in_supply':
+        return state.chartData!.map((item) => {
+          'date': item['date'],
+          'netChange': (item['mintAmount'] ?? 0.0) - (item['burnAmount'] ?? 0.0),
+        }).toList();
+      case 'rolling_average_supply_changes':
+        return state.chartData!.map((item) => {
+          'date': item['date'],
+          'rollingAverage7': item['rollingAverage7'],
+          'rollingAverage30': item['rollingAverage30'],
+        }).toList();
+      default:
+        return state.chartData;
+    }
   }
 }

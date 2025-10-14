@@ -115,7 +115,7 @@ class _MacroTrendsView extends StatelessWidget {
                   _card(
                     context, 
                     state,
-                    title: 'Annual Inflation Rates', 
+                    title: _getInflationChartTitle(state), 
                     child: SizedBox(height: 240, child: _inflationTimelineChart(state)),
                     chartType: 'annual_inflation_rates',
                   ),
@@ -227,6 +227,10 @@ class _MacroTrendsView extends StatelessWidget {
       );
     }
 
+    // Check if we have monthly data (period field) or yearly data
+    final isMonthly = validData.isNotEmpty && validData.first.period != null;
+    final xAxisTitle = isMonthly ? 'Month' : 'Year';
+
     return Builder(
       builder: (context) {
         final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.54) ?? Colors.white54;
@@ -234,15 +238,24 @@ class _MacroTrendsView extends StatelessWidget {
 
         return SfCartesianChart(
           plotAreaBorderWidth: 0,
-          primaryXAxis: NumericAxis(
-            labelStyle: TextStyle(color: labelColor, fontSize: 12, fontWeight: FontWeight.w500),
-            majorGridLines: const MajorGridLines(width: 0),
-            axisLine: const AxisLine(width: 0),
-            title: AxisTitle(text: 'Year', textStyle: TextStyle(color: titleColor, fontSize: 12)),
-            interval: 1,
-            labelFormat: '{value}',
-            majorTickLines: const MajorTickLines(width: 0),
-          ),
+          primaryXAxis: isMonthly 
+            ? CategoryAxis(
+                labelStyle: TextStyle(color: labelColor, fontSize: 12, fontWeight: FontWeight.w500),
+                majorGridLines: const MajorGridLines(width: 0),
+                axisLine: const AxisLine(width: 0),
+                title: AxisTitle(text: xAxisTitle, textStyle: TextStyle(color: titleColor, fontSize: 12)),
+                majorTickLines: const MajorTickLines(width: 0),
+                labelRotation: -45,
+              )
+            : NumericAxis(
+                labelStyle: TextStyle(color: labelColor, fontSize: 12, fontWeight: FontWeight.w500),
+                majorGridLines: const MajorGridLines(width: 0),
+                axisLine: const AxisLine(width: 0),
+                title: AxisTitle(text: xAxisTitle, textStyle: TextStyle(color: titleColor, fontSize: 12)),
+                interval: 1,
+                labelFormat: '{value}',
+                majorTickLines: const MajorTickLines(width: 0),
+              ),
           primaryYAxis: NumericAxis(
             labelStyle: TextStyle(color: titleColor, fontSize: 11),
             majorGridLines: MajorGridLines(width: 0.5, color: Theme.of(context).dividerColor),
@@ -250,9 +263,9 @@ class _MacroTrendsView extends StatelessWidget {
             title: AxisTitle(text: 'Inflation Rate (%)', textStyle: TextStyle(color: titleColor, fontSize: 12)),
           ),
           series: <CartesianSeries>[
-            LineSeries<InflationRateData, int>(
+            LineSeries<InflationRateData, dynamic>(
               dataSource: validData,
-              xValueMapper: (InflationRateData data, _) => data.year,
+              xValueMapper: (InflationRateData data, _) => isMonthly ? data.period : data.year,
               yValueMapper: (InflationRateData data, _) => data.inflationRate,
               color: const Color(0xFF00D4AA),
               width: 3,
@@ -590,6 +603,20 @@ class _MacroTrendsView extends StatelessWidget {
             .toList();
       default:
         return null;
+    }
+  }
+
+  String _getInflationChartTitle(MacroTrendsState state) {
+    final period = state.selectedPeriod;
+    switch (period) {
+      case 'monthly':
+        return 'Monthly Inflation Rates';
+      case 'weekly':
+        return 'Weekly Inflation Rates';
+      case 'daily':
+        return 'Daily Inflation Rates';
+      default:
+        return 'Annual Inflation Rates';
     }
   }
 

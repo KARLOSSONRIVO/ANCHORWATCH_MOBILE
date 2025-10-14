@@ -14,21 +14,25 @@ class MacroTrendsData {
 
 class InflationRateData {
   final int year;
+  final String? period;
   final double? inflationRate;
 
   InflationRateData({
     required this.year,
+    this.period,
     required this.inflationRate,
   });
 }
 
 class InflationSupplyData {
   final int year;
+  final String? period;
   final double? inflationRate;
   final double? supplyGrowthPct;
 
   InflationSupplyData({
     required this.year,
+    this.period,
     this.inflationRate,
     this.supplyGrowthPct,
   });
