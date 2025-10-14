@@ -110,24 +110,28 @@ class _StablecoinView extends StatelessWidget {
                   ),
                   _card(
                     context,
+                    state,
                     title: 'Total Supply Over Time',
                     child: _totalSupplyChart(state),
                     chartType: 'total_supply_over_time',
                   ),
                   _card(
                     context, 
+                    state,
                     title: 'Mint vs Burn Activity', 
                     child: _mintBurnChart(state),
                     chartType: 'mint_burn_activity',
                   ),
                   _card(
                     context, 
+                    state,
                     title: 'Net Change in Supply', 
                     child: _netChangeChart(state),
                     chartType: 'net_change_in_supply',
                   ),
                   _card(
                     context, 
+                    state,
                     title: 'Rolling Average Supply Changes', 
                     child: _rollingAverageChart(state),
                     chartType: 'rolling_average_supply_changes',
@@ -142,7 +146,8 @@ class _StablecoinView extends StatelessWidget {
   }
 
   Widget _card(
-    BuildContext context, {
+    BuildContext context,
+    StablecoinState state, {
     required String title,
     String? subtitle,
     required Widget child,
@@ -200,6 +205,7 @@ class _StablecoinView extends StatelessWidget {
             ChartSummaryWidget(
               chartType: chartType,
               chartTitle: title,
+              timeFrame: state.selectedPeriod,
             ),
           ],
         ),

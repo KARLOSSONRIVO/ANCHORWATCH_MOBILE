@@ -5,5 +5,6 @@ abstract class ChartSummaryRepository {
   /// Get chart summary for a specific chart type
   Future<ChartSummary> getChartSummary({
     required String chartType,
+    String? timeFrame,
   });
 }

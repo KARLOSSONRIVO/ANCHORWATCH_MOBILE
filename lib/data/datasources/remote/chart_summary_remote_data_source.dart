@@ -11,11 +11,23 @@ class ChartSummaryRemoteDataSource {
   ChartSummaryRemoteDataSource(this._dioClient);
 
   /// Get chart summary from backend
-  Future<ChartSummaryModel> getChartSummary({required String chartType}) async {
+  Future<ChartSummaryModel> getChartSummary({
+    required String chartType,
+    String? timeFrame,
+  }) async {
     try {
+      final requestData = <String, dynamic>{
+        'chart_type': chartType,
+      };
+      
+      // Add timeframe if provided
+      if (timeFrame != null) {
+        requestData['timeframe'] = timeFrame;
+      }
+      
       final response = await _dioClient.post(
         DashboardEndpoints.chartSummary,
-        data: {'chart_type': chartType},
+        data: requestData,
         options: Options(
           receiveTimeout: const Duration(
             minutes: 8,

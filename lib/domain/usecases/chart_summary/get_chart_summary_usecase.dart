@@ -11,9 +11,11 @@ class GetChartSummaryUseCase {
   /// Execute getting chart summary
   Future<ChartSummary> execute({
     required String chartType,
+    String? timeFrame,
   }) async {
     return await _repository.getChartSummary(
       chartType: chartType,
+      timeFrame: timeFrame,
     );
   }
 }

@@ -17,3 +17,13 @@ class MacroTrendsLoadRequested extends MacroTrendsEvent {
 class MacroTrendsRefreshRequested extends MacroTrendsEvent {
   const MacroTrendsRefreshRequested();
 }
+
+/// Event to change aggregation period
+class MacroTrendsAggregationPeriodChanged extends MacroTrendsEvent {
+  final String period;
+
+  const MacroTrendsAggregationPeriodChanged(this.period);
+
+  @override
+  List<Object> get props => [period];
+}

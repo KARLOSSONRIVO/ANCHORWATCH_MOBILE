@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/discover/chart_summary/chart_summary.dart';
 import '../../injection_container.dart';
+import 'data_quality_indicator.dart';
+import '../../data/models/chart_summary_model.dart';
+import '../../data/models/data_quality_model.dart';
 
 /// Widget for displaying chart summary with generate button
 class ChartSummaryWidget extends StatelessWidget {
   final String chartType;
   final String chartTitle;
+  final String? timeFrame;
 
   const ChartSummaryWidget({
     super.key,
     required this.chartType,
     required this.chartTitle,
+    this.timeFrame,
   });
 
   @override
@@ -21,6 +26,7 @@ class ChartSummaryWidget extends StatelessWidget {
       child: _ChartSummaryContent(
         chartType: chartType,
         chartTitle: chartTitle,
+        timeFrame: timeFrame,
       ),
     );
   }
@@ -29,10 +35,12 @@ class ChartSummaryWidget extends StatelessWidget {
 class _ChartSummaryContent extends StatelessWidget {
   final String chartType;
   final String chartTitle;
+  final String? timeFrame;
 
   const _ChartSummaryContent({
     required this.chartType,
     required this.chartTitle,
+    this.timeFrame,
   });
 
   @override
@@ -102,7 +110,7 @@ class _ChartSummaryContent extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         context.read<ChartSummaryBloc>().add(
-                          ChartSummaryGenerateRequested(chartType),
+                          ChartSummaryGenerateRequested(chartType, timeFrame),
                         );
                       },
                       icon: const Icon(Icons.auto_awesome, size: 16),
@@ -187,6 +195,28 @@ class _ChartSummaryContent extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Data Quality Indicator
+                      if (state.summary is ChartSummaryModel && 
+                          (state.summary as ChartSummaryModel).dataQuality != null) ...[
+                        Row(
+                          children: [
+                            DataQualityIndicator(
+                              dataQuality: (state.summary as ChartSummaryModel).dataQuality,
+                              onTap: () => _showQualityDetails(context, (state.summary as ChartSummaryModel).dataQuality!),
+                            ),
+                            const Spacer(),
+                            if ((state.summary as ChartSummaryModel).qualityWarnings.isNotEmpty ||
+                                (state.summary as ChartSummaryModel).qualityIssues.isNotEmpty)
+                              IconButton(
+                                icon: const Icon(Icons.info_outline, size: 16),
+                                onPressed: () => _showQualityDetails(context, (state.summary as ChartSummaryModel).dataQuality!),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       Text(
                         state.summary!.summary,
                         style: TextStyle(
@@ -276,7 +306,7 @@ class _ChartSummaryContent extends StatelessWidget {
                       ElevatedButton(
                         onPressed: () {
                           context.read<ChartSummaryBloc>().add(
-                            ChartSummaryGenerateRequested(chartType),
+                            ChartSummaryGenerateRequested(chartType, timeFrame),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -302,6 +332,25 @@ class _ChartSummaryContent extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  void _showQualityDetails(BuildContext context, DataQualityModel dataQuality) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Data Quality Details'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: DataQualityDetails(dataQuality: dataQuality),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 }

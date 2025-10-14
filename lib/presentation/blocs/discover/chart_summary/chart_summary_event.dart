@@ -11,11 +11,12 @@ abstract class ChartSummaryEvent extends Equatable {
 /// Event to generate chart summary for a specific chart type
 class ChartSummaryGenerateRequested extends ChartSummaryEvent {
   final String chartType;
+  final String? timeFrame;
 
-  const ChartSummaryGenerateRequested(this.chartType);
+  const ChartSummaryGenerateRequested(this.chartType, [this.timeFrame]);
 
   @override
-  List<Object> get props => [chartType];
+  List<Object> get props => [chartType, timeFrame ?? ''];
 }
 
 /// Event to clear chart summary

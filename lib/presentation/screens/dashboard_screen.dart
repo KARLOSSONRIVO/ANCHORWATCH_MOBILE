@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/loading_widget.dart';
 import '../widgets/custom_snackbar.dart';
+import '../widgets/chart_summary_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../injection_container.dart';
 import '../../domain/entities/article.dart';
@@ -117,35 +118,115 @@ class _DashboardView extends StatelessWidget {
                   _buildRecentArticlesCard(context),
                   _buildCard(
                     title: 'Unified Table (${state.selectedTimePeriod})',
-                    child: _buildDataTable(context, state),
-                    height: 320,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildDataTable(context, state),
+                        ),
+                        ChartSummaryWidget(
+                          chartType: 'unified_table',
+                          chartTitle: 'Unified Table (${state.selectedTimePeriod})',
+                          timeFrame: state.selectedTimePeriod.toLowerCase(),
+                        ),
+                      ],
+                    ),
+                    height: 420,
                   ),
                   _buildCard(
                     title: 'Price vs Market Cap',
-                    child: _buildPriceMarketCapChart(context, state),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildPriceMarketCapChart(context, state),
+                        ),
+                        ChartSummaryWidget(
+                          chartType: 'price_market_cap',
+                          chartTitle: 'Price vs Market Cap',
+                          timeFrame: state.selectedTimePeriod.toLowerCase(),
+                        ),
+                      ],
+                    ),
+                    height: 350,
                   ),
                   _buildCard(
                     title: 'Supply vs Inflation (Dual Axis)',
-                    child: _buildSupplyInflationChart(context, state),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildSupplyInflationChart(context, state),
+                        ),
+                        ChartSummaryWidget(
+                          chartType: 'supply_inflation',
+                          chartTitle: 'Supply vs Inflation (Dual Axis)',
+                          timeFrame: state.selectedTimePeriod.toLowerCase(),
+                        ),
+                      ],
+                    ),
+                    height: 350,
                   ),
                   _buildCard(
                     title: 'Mint vs Burn (Stacked)',
-                    child: _buildMintBurnChart(context, state),
-                    height: 300,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildMintBurnChart(context, state),
+                        ),
+                        ChartSummaryWidget(
+                          chartType: 'mint_burn_activity',
+                          chartTitle: 'Mint vs Burn (Stacked)',
+                          timeFrame: state.selectedTimePeriod.toLowerCase(),
+                        ),
+                      ],
+                    ),
+                    height: 400,
                   ),
                   _buildCard(
                     title: 'Supply% vs Price% (Scatter)',
-                    child: _buildCorrelationScatterChart(context, state),
-                    height: 280,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildCorrelationScatterChart(context, state),
+                        ),
+                        ChartSummaryWidget(
+                          chartType: 'correlation_scatter',
+                          chartTitle: 'Supply% vs Price% (Scatter)',
+                          timeFrame: state.selectedTimePeriod.toLowerCase(),
+                        ),
+                      ],
+                    ),
+                    height: 380,
                   ),
                   _buildCard(
                     title: 'Correlation Heatmap',
-                    child: _buildCorrelationHeatmap(context, state),
-                    height: 320,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildCorrelationHeatmap(context, state),
+                        ),
+                        ChartSummaryWidget(
+                          chartType: 'correlation_table',
+                          chartTitle: 'Correlation Heatmap',
+                          timeFrame: state.selectedTimePeriod.toLowerCase(),
+                        ),
+                      ],
+                    ),
+                    height: 420,
                   ),
                   _buildCard(
                     title: 'Rolling Correlation (Supply vs Market Cap)',
-                    child: _buildRollingCorrelationChart(context, state),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildRollingCorrelationChart(context, state),
+                        ),
+                        ChartSummaryWidget(
+                          chartType: 'rolling_correlation',
+                          chartTitle: 'Rolling Correlation (Supply vs Market Cap)',
+                          timeFrame: state.selectedTimePeriod.toLowerCase(),
+                        ),
+                      ],
+                    ),
+                    height: 350,
                   ),
                 ],
               ),
@@ -294,113 +375,111 @@ class _DashboardView extends StatelessWidget {
 
   Widget _buildDataTable(BuildContext context, DashboardLoadedState state) {
     return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [
-            DataColumn(
-              label: Text(
-                'Period',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.getTextPrimaryColor(context),
-                ),
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: [
+          DataColumn(
+            label: Text(
+              'Period',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                color: AppTheme.getTextPrimaryColor(context),
               ),
             ),
-            DataColumn(
-              label: Text(
-                'Price',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.getTextPrimaryColor(context),
-                ),
+          ),
+          DataColumn(
+            label: Text(
+              'Price',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                color: AppTheme.getTextPrimaryColor(context),
               ),
             ),
-            DataColumn(
-              label: Text(
-                'Supply (M)',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.getTextPrimaryColor(context),
-                ),
+          ),
+          DataColumn(
+            label: Text(
+              'Supply (M)',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                color: AppTheme.getTextPrimaryColor(context),
               ),
             ),
-            DataColumn(
-              label: Text(
-                'Net Δ',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.getTextPrimaryColor(context),
-                ),
+          ),
+          DataColumn(
+            label: Text(
+              'Net Δ',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                color: AppTheme.getTextPrimaryColor(context),
               ),
             ),
-            DataColumn(
-              label: Text(
-                'Inflation %',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.getTextPrimaryColor(context),
-                ),
+          ),
+          DataColumn(
+            label: Text(
+              'Inflation %',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                color: AppTheme.getTextPrimaryColor(context),
               ),
             ),
-          ],
-          rows: state.unified.map((row) {
-            return DataRow(
-              cells: [
-                DataCell(
-                  Text(
-                    row.timeId,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: AppTheme.getTextSecondaryColor(context),
-                    ),
+          ),
+        ],
+        rows: state.unified.map((row) {
+          return DataRow(
+            cells: [
+              DataCell(
+                Text(
+                  row.timeId,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
                   ),
                 ),
-                DataCell(
-                  Text(
-                    NumberFormatter.formatCurrency(row.price),
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: AppTheme.getTextSecondaryColor(context),
-                    ),
+              ),
+              DataCell(
+                Text(
+                  NumberFormatter.formatCurrency(row.price),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
                   ),
                 ),
-                DataCell(
-                  Text(
-                    NumberFormatter.formatSupplyInMillions(row.supply),
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: AppTheme.getTextSecondaryColor(context),
-                    ),
+              ),
+              DataCell(
+                Text(
+                  NumberFormatter.formatSupplyInMillions(row.supply),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
                   ),
                 ),
-                DataCell(
-                  Text(
-                    NumberFormatter.formatTableValue(row.netChange),
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: AppTheme.getTextSecondaryColor(context),
-                    ),
+              ),
+              DataCell(
+                Text(
+                  NumberFormatter.formatTableValue(row.netChange),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
                   ),
                 ),
-                DataCell(
-                  Text(
-                    NumberFormatter.formatMacroIndicator(row.inflation),
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: AppTheme.getTextSecondaryColor(context),
-                    ),
+              ),
+              DataCell(
+                Text(
+                  NumberFormatter.formatMacroIndicator(row.inflation),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
                   ),
                 ),
-              ],
-            );
-          }).toList(),
-        ),
+              ),
+            ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -445,10 +524,10 @@ class _DashboardView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Expanded(
+          Flexible(
             child: Column(
               children: List.generate(size, (row) {
-                return Expanded(
+                return Flexible(
                   child: Row(
                     children: [
                       SizedBox(
@@ -562,41 +641,44 @@ class _DashboardView extends StatelessWidget {
       burnPoints.add({'x': unified.timeId, 'y': burn / 1e6});
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: mintPoints.length * 60.0 + 100,
-        child: SfCartesianChart(
-          backgroundColor: AppTheme.getChartBackgroundColor(context),
-          margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
-          legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
-          primaryXAxis: CategoryAxis(
-            labelStyle: TextStyle(color: labelColor),
-            majorGridLines: const MajorGridLines(width: 0),
-            maximumLabels: 20,
-            labelIntersectAction: AxisLabelIntersectAction.multipleRows,
-          ),
-          primaryYAxis: NumericAxis(
-            labelStyle: TextStyle(color: labelColor),
-            title: AxisTitle(text: 'Volume (M)', textStyle: TextStyle(color: labelColor)),
-            numberFormat: NumberFormat.compact(),
-          ),
-          series: <CartesianSeries<dynamic, String>>[
-            StackedColumnSeries<dynamic, String>(
-              name: 'Mint',
-              dataSource: mintPoints,
-              xValueMapper: (dynamic data, _) => data['x'],
-              yValueMapper: (dynamic data, _) => data['y'],
-              color: Colors.lightGreenAccent,
+    return SizedBox(
+      height: 250,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: mintPoints.length * 60.0 + 100,
+          child: SfCartesianChart(
+            backgroundColor: AppTheme.getChartBackgroundColor(context),
+            margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
+            legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
+            primaryXAxis: CategoryAxis(
+              labelStyle: TextStyle(color: labelColor),
+              majorGridLines: const MajorGridLines(width: 0),
+              maximumLabels: 20,
+              labelIntersectAction: AxisLabelIntersectAction.multipleRows,
             ),
-            StackedColumnSeries<dynamic, String>(
-              name: 'Burn',
-              dataSource: burnPoints,
-              xValueMapper: (dynamic data, _) => data['x'],
-              yValueMapper: (dynamic data, _) => data['y'],
-              color: Colors.redAccent,
+            primaryYAxis: NumericAxis(
+              labelStyle: TextStyle(color: labelColor),
+              title: AxisTitle(text: 'Volume (M)', textStyle: TextStyle(color: labelColor)),
+              numberFormat: NumberFormat.compact(),
             ),
-          ],
+            series: <CartesianSeries<dynamic, String>>[
+              StackedColumnSeries<dynamic, String>(
+                name: 'Mint',
+                dataSource: mintPoints,
+                xValueMapper: (dynamic data, _) => data['x'],
+                yValueMapper: (dynamic data, _) => data['y'],
+                color: Colors.lightGreenAccent,
+              ),
+              StackedColumnSeries<dynamic, String>(
+                name: 'Burn',
+                dataSource: burnPoints,
+                xValueMapper: (dynamic data, _) => data['x'],
+                yValueMapper: (dynamic data, _) => data['y'],
+                color: Colors.redAccent,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -606,35 +688,38 @@ class _DashboardView extends StatelessWidget {
     final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
     final textColor = AppTheme.getTextSecondaryColor(context);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: state.scatterPoints.length * 80.0 + 150,
-        child: SfCartesianChart(
-          backgroundColor: AppTheme.getChartBackgroundColor(context),
-          primaryXAxis: NumericAxis(
-            labelStyle: TextStyle(color: labelColor),
-            title: AxisTitle(text: 'Supply Δ% (YoY)', textStyle: TextStyle(color: labelColor)),
-            majorGridLines: const MajorGridLines(width: 0.5),
+    return SizedBox(
+      height: 250,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: state.scatterPoints.length * 80.0 + 150,
+          child: SfCartesianChart(
+            backgroundColor: AppTheme.getChartBackgroundColor(context),
+            primaryXAxis: NumericAxis(
+              labelStyle: TextStyle(color: labelColor),
+              title: AxisTitle(text: 'Supply Δ% (YoY)', textStyle: TextStyle(color: labelColor)),
+              majorGridLines: const MajorGridLines(width: 0.5),
+            ),
+            primaryYAxis: NumericAxis(
+              labelStyle: TextStyle(color: labelColor),
+              title: AxisTitle(text: 'Price Δ% (YoY)', textStyle: TextStyle(color: labelColor)),
+              majorGridLines: const MajorGridLines(width: 0.5),
+            ),
+            series: <CartesianSeries<dynamic, double>>[
+              ScatterSeries<dynamic, double>(
+                name: 'Year',
+                dataSource: state.scatterPoints,
+                xValueMapper: (dynamic data, _) => data.x,
+                yValueMapper: (dynamic data, _) => data.y,
+                dataLabelSettings: DataLabelSettings(
+                  isVisible: true,
+                  textStyle: TextStyle(color: textColor, fontSize: 10),
+                ),
+                pointColorMapper: (dynamic data, _) => Colors.blueAccent,
+              )
+            ],
           ),
-          primaryYAxis: NumericAxis(
-            labelStyle: TextStyle(color: labelColor),
-            title: AxisTitle(text: 'Price Δ% (YoY)', textStyle: TextStyle(color: labelColor)),
-            majorGridLines: const MajorGridLines(width: 0.5),
-          ),
-          series: <CartesianSeries<dynamic, double>>[
-            ScatterSeries<dynamic, double>(
-              name: 'Year',
-              dataSource: state.scatterPoints,
-              xValueMapper: (dynamic data, _) => data.x,
-              yValueMapper: (dynamic data, _) => data.y,
-              dataLabelSettings: DataLabelSettings(
-                isVisible: true,
-                textStyle: TextStyle(color: textColor, fontSize: 10),
-              ),
-              pointColorMapper: (dynamic data, _) => Colors.blueAccent,
-            )
-          ],
         ),
       ),
     );
@@ -745,34 +830,37 @@ class _DashboardView extends StatelessWidget {
   Widget _buildRollingCorrelationChart(BuildContext context, DashboardLoadedState state) {
     final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: state.rollingCorrSeries.length * 70.0 + 120,
-        child: SfCartesianChart(
-          backgroundColor: AppTheme.getChartBackgroundColor(context),
-          margin: const EdgeInsets.fromLTRB(10, 15, 10, 30),
-          primaryXAxis: CategoryAxis(
-            labelStyle: TextStyle(color: labelColor),
-            majorGridLines: const MajorGridLines(width: 0),
-          ),
-          primaryYAxis: NumericAxis(
-            labelStyle: TextStyle(color: labelColor),
-            minimum: -1,
-            maximum: 1,
-            interval: 0.5,
-          ),
-          series: <CartesianSeries<dynamic, String>>[
-            LineSeries<dynamic, String>(
-              name: 'Rolling Corr',
-              dataSource: state.rollingCorrSeries,
-              xValueMapper: (dynamic data, _) => data.x,
-              yValueMapper: (dynamic data, _) => data.y,
-              color: Colors.amberAccent,
-              width: 2,
-              markerSettings: const MarkerSettings(isVisible: true),
+    return SizedBox(
+      height: 250,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: state.rollingCorrSeries.length * 70.0 + 120,
+          child: SfCartesianChart(
+            backgroundColor: AppTheme.getChartBackgroundColor(context),
+            margin: const EdgeInsets.fromLTRB(10, 15, 10, 30),
+            primaryXAxis: CategoryAxis(
+              labelStyle: TextStyle(color: labelColor),
+              majorGridLines: const MajorGridLines(width: 0),
             ),
-          ],
+            primaryYAxis: NumericAxis(
+              labelStyle: TextStyle(color: labelColor),
+              minimum: -1,
+              maximum: 1,
+              interval: 0.5,
+            ),
+            series: <CartesianSeries<dynamic, String>>[
+              LineSeries<dynamic, String>(
+                name: 'Rolling Corr',
+                dataSource: state.rollingCorrSeries,
+                xValueMapper: (dynamic data, _) => data.x,
+                yValueMapper: (dynamic data, _) => data.y,
+                color: Colors.amberAccent,
+                width: 2,
+                markerSettings: const MarkerSettings(isVisible: true),
+              ),
+            ],
+          ),
         ),
       ),
     );

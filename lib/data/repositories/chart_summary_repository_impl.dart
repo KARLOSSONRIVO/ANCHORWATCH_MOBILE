@@ -12,10 +12,12 @@ class ChartSummaryRepositoryImpl implements ChartSummaryRepository {
   @override
   Future<ChartSummary> getChartSummary({
     required String chartType,
+    String? timeFrame,
   }) async {
     try {
       final model = await _remoteDataSource.getChartSummary(
         chartType: chartType,
+        timeFrame: timeFrame,
       );
       return model.toEntity();
     } catch (e) {

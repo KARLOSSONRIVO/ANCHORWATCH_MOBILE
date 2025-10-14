@@ -1,13 +1,21 @@
 import '../../domain/entities/chart_summary.dart';
+import 'data_quality_model.dart';
 
 /// Chart summary model for data serialization
 class ChartSummaryModel extends ChartSummary {
+  final DataQualityModel? dataQuality;
+  final List<String> qualityWarnings;
+  final List<String> qualityIssues;
+
   const ChartSummaryModel({
     required super.chartType,
     required super.summary,
     required super.source,
     required super.cacheHit,
     required super.timestamp,
+    this.dataQuality,
+    this.qualityWarnings = const [],
+    this.qualityIssues = const [],
   });
 
   /// Create model from JSON
@@ -20,6 +28,11 @@ class ChartSummaryModel extends ChartSummary {
       timestamp:
           DateTime.tryParse(json['timestamp'] as String? ?? '') ??
           DateTime.now(),
+      dataQuality: json['data_quality'] != null 
+          ? DataQualityModel.fromJson(json['data_quality'] as Map<String, dynamic>)
+          : null,
+      qualityWarnings: (json['quality_warnings'] as List<dynamic>?)?.cast<String>() ?? [],
+      qualityIssues: (json['quality_issues'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
 
@@ -31,6 +44,9 @@ class ChartSummaryModel extends ChartSummary {
       'source': source,
       'cache_hit': cacheHit,
       'timestamp': timestamp.toIso8601String(),
+      'data_quality': dataQuality?.toJson(),
+      'quality_warnings': qualityWarnings,
+      'quality_issues': qualityIssues,
     };
   }
 

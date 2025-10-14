@@ -12,6 +12,7 @@ class MacroTrendsBloc extends Bloc<MacroTrendsEvent, MacroTrendsState> {
   MacroTrendsBloc(this._getMacroTrendsUseCase) : super(const MacroTrendsState()) {
     on<MacroTrendsLoadRequested>(_onMacroTrendsLoadRequested);
     on<MacroTrendsRefreshRequested>(_onMacroTrendsRefreshRequested);
+    on<MacroTrendsAggregationPeriodChanged>(_onMacroTrendsAggregationPeriodChanged);
   }
 
   /// Handle loading macro trends data
@@ -23,7 +24,7 @@ class MacroTrendsBloc extends Bloc<MacroTrendsEvent, MacroTrendsState> {
 
     try {
       final macroTrendsData = await _getMacroTrendsUseCase(
-        aggregationPeriod: 'yearly',
+        aggregationPeriod: state.selectedPeriod,
       );
       
       emit(state.copyWith(
@@ -46,7 +47,7 @@ class MacroTrendsBloc extends Bloc<MacroTrendsEvent, MacroTrendsState> {
     // Don't show loading state for refresh
     try {
       final macroTrendsData = await _getMacroTrendsUseCase(
-        aggregationPeriod: 'yearly',
+        aggregationPeriod: state.selectedPeriod,
       );
       
       emit(state.copyWith(
@@ -61,5 +62,28 @@ class MacroTrendsBloc extends Bloc<MacroTrendsEvent, MacroTrendsState> {
     }
   }
 
+  /// Handle changing aggregation period
+  void _onMacroTrendsAggregationPeriodChanged(
+    MacroTrendsAggregationPeriodChanged event,
+    Emitter<MacroTrendsState> emit,
+  ) async {
+    emit(state.copyWith(selectedPeriod: event.period, status: MacroTrendsStatus.loading));
+
+    try {
+      final macroTrendsData = await _getMacroTrendsUseCase(
+        aggregationPeriod: event.period,
+      );
+      
+      emit(state.copyWith(
+        status: MacroTrendsStatus.loaded,
+        macroTrendsData: macroTrendsData,
+      ));
+    } catch (error) {
+      emit(state.copyWith(
+        status: MacroTrendsStatus.error,
+        errorMessage: error.toString(),
+      ));
+    }
+  }
 
 }

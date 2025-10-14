@@ -94,21 +94,41 @@ class _MacroTrendsView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Column(
                 children: [
-                  const SizedBox(height: 8),
+                  // Dropdown positioned outside and above the first card
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Period',
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        _buildDropdown(context, state),
+                      ],
+                    ),
+                  ),
                   _card(
                     context, 
+                    state,
                     title: 'Annual Inflation Rates', 
                     child: SizedBox(height: 240, child: _inflationTimelineChart(state)),
                     chartType: 'annual_inflation_rates',
                   ),
                   _card(
                     context, 
+                    state,
                     title: 'Inflation vs Supply Growth', 
                     child: SizedBox(height: 240, child: _inflationVsSupplyChart(state)),
                     chartType: 'inflation_vs_supply_growth',
                   ),
                   _card(
                     context, 
+                    state,
                     title: 'Correlation Matrix', 
                     child: _correlationHeatmap(state),
                     chartType: 'correlation_table',
@@ -122,7 +142,7 @@ class _MacroTrendsView extends StatelessWidget {
     );
   }
 
-  Widget _card(BuildContext context, {required String title, String? subtitle, required Widget child, required String chartType}) => Container(
+  Widget _card(BuildContext context, MacroTrendsState state, {required String title, String? subtitle, required Widget child, required String chartType}) => Container(
     margin: const EdgeInsets.only(bottom: 16),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
@@ -169,6 +189,7 @@ class _MacroTrendsView extends StatelessWidget {
         ChartSummaryWidget(
           chartType: chartType,
           chartTitle: title,
+          timeFrame: state.selectedPeriod,
         ),
       ],
     ),
@@ -534,6 +555,108 @@ class _MacroTrendsView extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDropdown(BuildContext context, MacroTrendsState state) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.light
+            ? const Color(0xFF2A2A2A) // Dark button for contrast
+            : const Color(0xFF2A2A2A), // Dark button for both themes
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.light
+              ? const Color(0xFF404040)
+              : const Color(0xFF404040),
+          width: 1,
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+        ),
+        child: PopupMenuButton<String>(
+          initialValue: state.selectedPeriod == 'yearly' ? 'Yearly' : 'Monthly',
+          onSelected: (String value) {
+            final period = value.toLowerCase();
+            context.read<MacroTrendsBloc>().add(MacroTrendsAggregationPeriodChanged(period));
+          },
+          color: const Color(0xFF2A2A2A),
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xFF404040), width: 1),
+          ),
+          offset: const Offset(0, 45),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                state.selectedPeriod == 'yearly' ? 'Yearly' : 'Monthly',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.white,
+                size: 18,
+              ),
+            ],
+          ),
+          itemBuilder: (BuildContext context) => [
+            PopupMenuItem<String>(
+              value: 'Monthly',
+              padding: EdgeInsets.zero,
+              mouseCursor: SystemMouseCursors.click,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.transparent,
+                ),
+                child: const Text(
+                  'Monthly',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'Yearly',
+              padding: EdgeInsets.zero,
+              mouseCursor: SystemMouseCursors.click,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.transparent,
+                ),
+                child: const Text(
+                  'Yearly',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
