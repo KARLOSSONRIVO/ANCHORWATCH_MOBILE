@@ -118,6 +118,7 @@ class _SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
+      // No FAB in splash screen (debug tester removed)
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

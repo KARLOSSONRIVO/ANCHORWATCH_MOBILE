@@ -4,9 +4,13 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:injectable/injectable.dart';
 import '../domain/entities/alert.dart';
 import '../data/models/alert_model.dart';
+import 'email_service.dart';
 
 @singleton
 class AlertWebSocketService {
+  final EmailService _emailService;
+
+  AlertWebSocketService(this._emailService);
   WebSocketChannel? _channel;
   StreamController<Alert>? _alertController;
   StreamController<AlertDashboard>? _dashboardController;
@@ -59,10 +63,30 @@ class AlertWebSocketService {
     try {
       final jsonData = jsonDecode(data as String);
 
-      if (jsonData['type'] == 'alert') {
+        if (jsonData['type'] == 'alert') {
         final alertModel = AlertModel.fromJson(jsonData['data']);
         final alert = alertModel.toEntity();
         _alertController?.add(alert);
+
+        // Attempt to send the alert to the user's email in background.
+        // This will try a backend send first and fall back to opening mail app if needed.
+        try {
+          // fire-and-forget; do not await to avoid blocking websocket handling
+          _emailService.sendAlertEmail(alert).then((result) {
+            if (result.success) {
+              // Optionally log or handle success
+              // keep lightweight to avoid spamming logs
+              print('Alert email sent successfully');
+            } else {
+              print('Alert email send fallback/result: ${result.message}');
+            }
+          }).catchError((e) {
+            print('EmailService.sendAlertEmail error: $e');
+          });
+        } catch (e) {
+          // Swallow any errors to avoid disrupting the websocket flow
+          print('EmailService.sendAlertEmail error: $e');
+        }
       } else if (jsonData['type'] == 'dashboard') {
         // Handle dashboard updates if needed
         // final dashboard = AlertDashboardModel.fromJson(jsonData['data']).toEntity();
