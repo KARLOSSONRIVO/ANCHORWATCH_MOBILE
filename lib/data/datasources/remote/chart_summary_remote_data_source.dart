@@ -11,30 +11,35 @@ class ChartSummaryRemoteDataSource {
   ChartSummaryRemoteDataSource(this._dioClient);
 
   /// Get chart summary from backend
-  Future<ChartSummaryModel> getChartSummary({
-    required String chartType,
-  }) async {
+  Future<ChartSummaryModel> getChartSummary({required String chartType}) async {
     try {
       final response = await _dioClient.post(
         DashboardEndpoints.chartSummary,
-        data: {
-          'chart_type': chartType,
-        },
+        data: {'chart_type': chartType},
         options: Options(
-          receiveTimeout: const Duration(minutes: 8), // 8 minutes for LLM generation (matches global timeout)
+          receiveTimeout: const Duration(
+            minutes: 8,
+          ), // 8 minutes for LLM generation (matches global timeout)
           sendTimeout: const Duration(seconds: 30),
         ),
       );
-      
+
       if (response.statusCode == 200) {
         final jsonData = response.data as Map<String, dynamic>;
-        
+
         // Check if the response indicates success
         if (jsonData['success'] == true) {
-          final model = ChartSummaryModel.fromJson(jsonData);
+          // Extract the nested data object and add timestamp from root level
+          final nestedData = jsonData['data'] as Map<String, dynamic>;
+          nestedData['timestamp'] =
+              jsonData['timestamp']; // Add timestamp from root level
+
+          final model = ChartSummaryModel.fromJson(nestedData);
           return model;
         } else {
-          throw Exception('Failed to get chart summary: ${jsonData['detail'] ?? 'Unknown error'}');
+          throw Exception(
+            'Failed to get chart summary: ${jsonData['detail'] ?? 'Unknown error'}',
+          );
         }
       } else {
         throw Exception('Failed to get chart summary: ${response.statusCode}');

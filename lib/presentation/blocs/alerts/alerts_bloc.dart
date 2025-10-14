@@ -1,133 +1,240 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../domain/usecases/alerts/get_alert_history_usecase.dart';
+import '../../../domain/usecases/alerts/acknowledge_alert_usecase.dart';
+import '../../../domain/usecases/alerts/resolve_alert_usecase.dart';
+import '../../../domain/repositories/alert_repository.dart';
 import 'alerts_event.dart';
 import 'alerts_state.dart';
 
 /// BLoC for managing alerts state
 @injectable
 class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
-  AlertsBloc() : super(const AlertsState()) {
+  final GetAlertHistoryUseCase _getAlertHistoryUseCase;
+  final AcknowledgeAlertUseCase _acknowledgeAlertUseCase;
+  final ResolveAlertUseCase _resolveAlertUseCase;
+  final AlertRepository _alertRepository;
+
+  AlertsBloc(
+    this._getAlertHistoryUseCase,
+    this._acknowledgeAlertUseCase,
+    this._resolveAlertUseCase,
+    this._alertRepository,
+  ) : super(const AlertsInitial()) {
     on<AlertsLoadRequested>(_onAlertsLoadRequested);
-    on<AlertAddRequested>(_onAlertAddRequested);
-    on<AlertToggleRequested>(_onAlertToggleRequested);
-    on<AlertDeleteRequested>(_onAlertDeleteRequested);
+    on<AlertsRefreshRequested>(_onAlertsRefreshRequested);
+    on<AlertsLoadMoreRequested>(_onAlertsLoadMoreRequested);
+    on<AlertsDashboardLoadRequested>(_onAlertsDashboardLoadRequested);
+    on<AlertAcknowledgeRequested>(_onAlertAcknowledgeRequested);
+    on<AlertResolveRequested>(_onAlertResolveRequested);
+    on<AlertsFilterChanged>(_onAlertsFilterChanged);
+    on<AlertDetectionTriggerRequested>(_onAlertDetectionTriggerRequested);
+    on<AlertSystemTestRequested>(_onAlertSystemTestRequested);
   }
 
-  /// Load alerts
+  /// Load alerts with optional filters
   void _onAlertsLoadRequested(
     AlertsLoadRequested event,
     Emitter<AlertsState> emit,
   ) async {
-    emit(state.copyWith(status: AlertsStatus.loading));
+    emit(const AlertsLoading());
 
     try {
-      // Simulate API call to load alerts
-      await Future.delayed(const Duration(seconds: 1));
+      final alerts = await _getAlertHistoryUseCase.call(
+        page: event.page,
+        limit: event.limit,
+        severity: event.severity,
+        status: event.status,
+        type: event.type,
+      );
 
-      // Mock alerts data
-      final alerts = [
-        AlertModel(
-          id: '1',
-          type: AlertType.price,
-          title: 'BTC Price Alert',
-          description: 'Bitcoin reached \$50,000',
-          isActive: true,
-          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-          price: 50000,
+      emit(
+        AlertsLoaded(
+          alerts: alerts,
+          hasReachedMax: alerts.length < event.limit,
+          currentPage: event.page,
+          currentSeverityFilter: event.severity,
+          currentStatusFilter: event.status,
+          currentTypeFilter: event.type,
         ),
-        AlertModel(
-          id: '2',
-          type: AlertType.volume,
-          title: 'High Volume Alert',
-          description: 'USDC volume spike detected',
-          isActive: true,
-          createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-        ),
-        AlertModel(
-          id: '3',
-          type: AlertType.news,
-          title: 'Market News',
-          description: 'Fed announces interest rate decision',
-          isActive: false,
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-        AlertModel(
-          id: '4',
-          type: AlertType.technical,
-          title: 'Technical Alert',
-          description: 'RSI oversold condition on ETH',
-          isActive: true,
-          createdAt: DateTime.now().subtract(const Duration(hours: 8)),
-        ),
-      ];
-
-      emit(state.copyWith(
-        status: AlertsStatus.loaded,
-        alerts: alerts,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        status: AlertsStatus.error,
-        error: 'Failed to load alerts: $e',
-      ));
+      );
+    } catch (error) {
+      emit(AlertsError(error.toString()));
     }
   }
 
-  /// Add new alert
-  void _onAlertAddRequested(
-    AlertAddRequested event,
+  /// Refresh alerts
+  void _onAlertsRefreshRequested(
+    AlertsRefreshRequested event,
     Emitter<AlertsState> emit,
   ) async {
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 1));
+      // If currently loaded, get current filters
+      String? severityFilter;
+      String? statusFilter;
+      String? typeFilter;
 
-      final newAlert = AlertModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        type: event.type,
-        title: event.title,
-        description: event.description,
-        isActive: true,
-        createdAt: DateTime.now(),
-        price: event.price,
+      if (state is AlertsLoaded) {
+        final loadedState = state as AlertsLoaded;
+        severityFilter = loadedState.currentSeverityFilter;
+        statusFilter = loadedState.currentStatusFilter;
+        typeFilter = loadedState.currentTypeFilter;
+      }
+
+      final alerts = await _getAlertHistoryUseCase.call(
+        page: 1,
+        limit: 20,
+        severity: severityFilter,
+        status: statusFilter,
+        type: typeFilter,
       );
 
-      final updatedAlerts = [newAlert, ...state.alerts];
-
-      emit(state.copyWith(
-        alerts: updatedAlerts,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        error: 'Failed to add alert: $e',
-      ));
+      emit(
+        AlertsLoaded(
+          alerts: alerts,
+          hasReachedMax: alerts.length < 20,
+          currentPage: 1,
+          currentSeverityFilter: severityFilter,
+          currentStatusFilter: statusFilter,
+          currentTypeFilter: typeFilter,
+        ),
+      );
+    } catch (error) {
+      emit(AlertsError(error.toString()));
     }
   }
 
-  /// Toggle alert activation
-  void _onAlertToggleRequested(
-    AlertToggleRequested event,
+  /// Load more alerts for pagination
+  void _onAlertsLoadMoreRequested(
+    AlertsLoadMoreRequested event,
     Emitter<AlertsState> emit,
-  ) {
-    final updatedAlerts = state.alerts.map((alert) {
-      if (alert.id == event.alertId) {
-        return alert.copyWith(isActive: !alert.isActive);
-      }
-      return alert;
-    }).toList();
+  ) async {
+    if (state is AlertsLoaded) {
+      final currentState = state as AlertsLoaded;
 
-    emit(state.copyWith(alerts: updatedAlerts));
+      if (currentState.hasReachedMax) return;
+
+      try {
+        final newAlerts = await _getAlertHistoryUseCase.call(
+          page: currentState.currentPage + 1,
+          limit: 20,
+          severity: currentState.currentSeverityFilter,
+          status: currentState.currentStatusFilter,
+          type: currentState.currentTypeFilter,
+        );
+
+        emit(
+          currentState.copyWith(
+            alerts: List.from(currentState.alerts)..addAll(newAlerts),
+            hasReachedMax: newAlerts.length < 20,
+            currentPage: currentState.currentPage + 1,
+          ),
+        );
+      } catch (error) {
+        emit(AlertsError(error.toString()));
+      }
+    }
   }
 
-  /// Delete alert
-  void _onAlertDeleteRequested(
-    AlertDeleteRequested event,
+  /// Load alert dashboard
+  void _onAlertsDashboardLoadRequested(
+    AlertsDashboardLoadRequested event,
     Emitter<AlertsState> emit,
-  ) {
-    final updatedAlerts = state.alerts
-        .where((alert) => alert.id != event.alertId)
-        .toList();
+  ) async {
+    try {
+      final dashboard = await _alertRepository.getAlertDashboard();
+      emit(AlertsDashboardLoaded(dashboard));
+    } catch (error) {
+      emit(AlertsError(error.toString()));
+    }
+  }
 
-    emit(state.copyWith(alerts: updatedAlerts));
+  /// Acknowledge an alert
+  void _onAlertAcknowledgeRequested(
+    AlertAcknowledgeRequested event,
+    Emitter<AlertsState> emit,
+  ) async {
+    try {
+      await _acknowledgeAlertUseCase.call(event.alertId);
+      emit(AlertAcknowledged(event.alertId));
+
+      // Refresh alerts to show updated status
+      add(const AlertsRefreshRequested());
+    } catch (error) {
+      emit(AlertsError(error.toString()));
+    }
+  }
+
+  /// Resolve an alert
+  void _onAlertResolveRequested(
+    AlertResolveRequested event,
+    Emitter<AlertsState> emit,
+  ) async {
+    try {
+      await _resolveAlertUseCase.call(event.alertId);
+      emit(AlertResolved(event.alertId));
+
+      // Refresh alerts to show updated status
+      add(const AlertsRefreshRequested());
+    } catch (error) {
+      emit(AlertsError(error.toString()));
+    }
+  }
+
+  /// Filter alerts
+  void _onAlertsFilterChanged(
+    AlertsFilterChanged event,
+    Emitter<AlertsState> emit,
+  ) async {
+    emit(const AlertsLoading());
+
+    try {
+      final alerts = await _getAlertHistoryUseCase.call(
+        page: 1,
+        limit: 20,
+        severity: event.severity,
+        status: event.status,
+        type: event.type,
+      );
+
+      emit(
+        AlertsLoaded(
+          alerts: alerts,
+          hasReachedMax: alerts.length < 20,
+          currentPage: 1,
+          currentSeverityFilter: event.severity,
+          currentStatusFilter: event.status,
+          currentTypeFilter: event.type,
+        ),
+      );
+    } catch (error) {
+      emit(AlertsError(error.toString()));
+    }
+  }
+
+  /// Trigger alert detection (admin)
+  void _onAlertDetectionTriggerRequested(
+    AlertDetectionTriggerRequested event,
+    Emitter<AlertsState> emit,
+  ) async {
+    try {
+      await _alertRepository.triggerAlertDetection();
+      emit(const AlertDetectionTriggered());
+    } catch (error) {
+      emit(AlertsError(error.toString()));
+    }
+  }
+
+  /// Test alert system (admin)
+  void _onAlertSystemTestRequested(
+    AlertSystemTestRequested event,
+    Emitter<AlertsState> emit,
+  ) async {
+    try {
+      final testResults = await _alertRepository.testAlertSystem();
+      emit(AlertSystemTestCompleted(testResults));
+    } catch (error) {
+      emit(AlertsError(error.toString()));
+    }
   }
 }

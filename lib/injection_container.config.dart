@@ -13,6 +13,7 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import 'data/datasources/remote/alert_remote_data_source.dart' as _i944;
 import 'data/datasources/remote/anchorwise_remote_datasource.dart' as _i465;
 import 'data/datasources/remote/articles_remote_data_source.dart' as _i235;
 import 'data/datasources/remote/auth_remote_datasource.dart' as _i86;
@@ -22,6 +23,7 @@ import 'data/datasources/remote/dashboard_remote_datasource.dart' as _i807;
 import 'data/datasources/remote/macro_trends_remote_data_source.dart' as _i743;
 import 'data/datasources/remote/profile_remote_datasource.dart' as _i671;
 import 'data/datasources/remote/stablecoin_remote_data_source.dart' as _i196;
+import 'data/repositories/alert_repository_impl.dart' as _i976;
 import 'data/repositories/anchorwise_repository_impl.dart' as _i348;
 import 'data/repositories/articles_repository_impl.dart' as _i998;
 import 'data/repositories/auth_repository_impl.dart' as _i145;
@@ -31,6 +33,7 @@ import 'data/repositories/dashboard_repository_impl.dart' as _i855;
 import 'data/repositories/macro_trends_repository_impl.dart' as _i461;
 import 'data/repositories/profile_repository_impl.dart' as _i1059;
 import 'data/repositories/stablecoin_repository_impl.dart' as _i658;
+import 'domain/repositories/alert_repository.dart' as _i692;
 import 'domain/repositories/anchorwise_repository.dart' as _i135;
 import 'domain/repositories/articles_repository.dart' as _i976;
 import 'domain/repositories/auth_repository.dart' as _i716;
@@ -40,6 +43,9 @@ import 'domain/repositories/dashboard_repository.dart' as _i564;
 import 'domain/repositories/macro_trends_repository.dart' as _i893;
 import 'domain/repositories/profile_repository.dart' as _i172;
 import 'domain/repositories/stablecoin_repository.dart' as _i58;
+import 'domain/usecases/alerts/acknowledge_alert_usecase.dart' as _i928;
+import 'domain/usecases/alerts/get_alert_history_usecase.dart' as _i241;
+import 'domain/usecases/alerts/resolve_alert_usecase.dart' as _i267;
 import 'domain/usecases/anchorwise/create_new_conversation_usecase.dart'
     as _i625;
 import 'domain/usecases/anchorwise/delete_conversation_usecase.dart' as _i258;
@@ -86,6 +92,7 @@ import 'presentation/blocs/onboarding/onboarding_bloc.dart' as _i131;
 import 'presentation/blocs/password_reset/password_reset_bloc.dart' as _i580;
 import 'presentation/blocs/profile/profile_bloc.dart' as _i226;
 import 'presentation/blocs/profile_picture/profile_picture_bloc.dart' as _i945;
+import 'services/alert_websocket_service.dart' as _i459;
 import 'services/authentication_service.dart' as _i460;
 import 'services/dio_client.dart' as _i332;
 import 'services/s3_upload_service.dart' as _i408;
@@ -98,11 +105,12 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    gh.factory<_i945.ContactBloc>(() => _i945.ContactBloc(gh<_i364.ContactSupportUseCase>()));
-    gh.factory<_i9.AlertsBloc>(() => _i9.AlertsBloc());
     gh.factory<_i855.FaqBloc>(() => _i855.FaqBloc());
     gh.factory<_i62.NavigationBloc>(() => _i62.NavigationBloc());
     gh.factory<_i131.OnboardingBloc>(() => _i131.OnboardingBloc());
+    gh.singleton<_i459.AlertWebSocketService>(
+      () => _i459.AlertWebSocketService(),
+    );
     gh.lazySingleton<_i408.S3UploadService>(() => _i408.S3UploadService());
     gh.lazySingleton<_i332.DioClient>(() => _i332.DioClient());
     gh.lazySingleton<_i807.DashboardRemoteDataSource>(
@@ -129,6 +137,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i671.ProfileRemoteDataSource>(
       () => _i671.ProfileRemoteDataSourceImpl(dioClient: gh<_i332.DioClient>()),
     );
+    gh.lazySingleton<_i944.AlertRemoteDataSource>(
+      () => _i944.AlertRemoteDataSourceImpl(gh<_i332.DioClient>()),
+    );
     gh.factory<_i58.StablecoinRepository>(
       () => _i658.StablecoinRepositoryImpl(
         gh<_i196.StablecoinRemoteDataSource>(),
@@ -140,6 +151,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i564.DashboardRepository>(
       () =>
           _i855.DashboardRepositoryImpl(gh<_i807.DashboardRemoteDataSource>()),
+    );
+    gh.factory<_i692.AlertRepository>(
+      () => _i976.AlertRepositoryImpl(gh<_i944.AlertRemoteDataSource>()),
     );
     gh.lazySingleton<_i172.ProfileRepository>(
       () => _i1059.ProfileRepositoryImpl(
@@ -179,17 +193,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i711.FetchDashboardMetricsUseCase>(
       () => _i711.FetchDashboardMetricsUseCase(gh<_i564.DashboardRepository>()),
     );
-    gh.factory<_i244.ChangeUsernameUseCase>(
-      () => _i244.ChangeUsernameUseCase(gh<_i172.ProfileRepository>()),
-    );
-    gh.factory<_i183.ChangePasswordUseCase>(
-      () => _i183.ChangePasswordUseCase(gh<_i172.ProfileRepository>()),
-    );
     gh.factory<_i140.ConfirmChangeEmailUseCase>(
       () => _i140.ConfirmChangeEmailUseCase(gh<_i172.ProfileRepository>()),
     );
     gh.factory<_i1027.RequestChangeEmailUseCase>(
       () => _i1027.RequestChangeEmailUseCase(gh<_i172.ProfileRepository>()),
+    );
+    gh.factory<_i244.ChangeUsernameUseCase>(
+      () => _i244.ChangeUsernameUseCase(gh<_i172.ProfileRepository>()),
+    );
+    gh.factory<_i183.ChangePasswordUseCase>(
+      () => _i183.ChangePasswordUseCase(gh<_i172.ProfileRepository>()),
     );
     gh.factory<_i673.ChangeUsernameBloc>(
       () => _i673.ChangeUsernameBloc(gh<_i244.ChangeUsernameUseCase>()),
@@ -236,6 +250,15 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i40.GetMacroTrendsUseCase>(
       () => _i40.GetMacroTrendsUseCase(gh<_i893.MacroTrendsRepository>()),
+    );
+    gh.factory<_i928.AcknowledgeAlertUseCase>(
+      () => _i928.AcknowledgeAlertUseCase(gh<_i692.AlertRepository>()),
+    );
+    gh.factory<_i241.GetAlertHistoryUseCase>(
+      () => _i241.GetAlertHistoryUseCase(gh<_i692.AlertRepository>()),
+    );
+    gh.factory<_i267.ResolveAlertUseCase>(
+      () => _i267.ResolveAlertUseCase(gh<_i692.AlertRepository>()),
     );
     gh.factory<_i379.StablecoinBloc>(
       () => _i379.StablecoinBloc(gh<_i711.GetStablecoinChartDataUseCase>()),
@@ -302,11 +325,22 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i461.ResetPasswordUseCase>(),
       ),
     );
+    gh.factory<_i9.AlertsBloc>(
+      () => _i9.AlertsBloc(
+        gh<_i241.GetAlertHistoryUseCase>(),
+        gh<_i928.AcknowledgeAlertUseCase>(),
+        gh<_i267.ResolveAlertUseCase>(),
+        gh<_i692.AlertRepository>(),
+      ),
+    );
     gh.factory<_i100.ArticlesBloc>(
       () => _i100.ArticlesBloc(gh<_i913.GetArticlesUseCase>()),
     );
     gh.factory<_i981.ChartSummaryBloc>(
       () => _i981.ChartSummaryBloc(gh<_i209.GetChartSummaryUseCase>()),
+    );
+    gh.factory<_i945.ContactBloc>(
+      () => _i945.ContactBloc(gh<_i364.ContactSupportUseCase>()),
     );
     gh.factory<_i688.ContactSupportBloc>(
       () => _i688.ContactSupportBloc(gh<_i364.ContactSupportUseCase>()),

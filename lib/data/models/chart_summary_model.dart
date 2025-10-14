@@ -13,11 +13,13 @@ class ChartSummaryModel extends ChartSummary {
   /// Create model from JSON
   factory ChartSummaryModel.fromJson(Map<String, dynamic> json) {
     return ChartSummaryModel(
-      chartType: json['chart_type'] as String,
-      summary: json['summary'] as String,
-      source: json['source'] as String,
-      cacheHit: json['cache_hit'] as bool,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      chartType: json['chart_type'] as String? ?? '',
+      summary: json['summary'] as String? ?? '',
+      source: json['source'] as String? ?? '',
+      cacheHit: json['cache_hit'] as bool? ?? false,
+      timestamp:
+          DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 

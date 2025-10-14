@@ -1,85 +1,123 @@
 import 'package:equatable/equatable.dart';
-import 'alerts_event.dart';
+import '../../../domain/entities/alert.dart';
 
-/// Alert data model
-class AlertModel extends Equatable {
-  const AlertModel({
-    required this.id,
-    required this.type,
-    required this.title,
-    required this.description,
-    required this.isActive,
-    required this.createdAt,
-    this.price,
-    this.triggeredAt,
-  });
-
-  final String id;
-  final AlertType type;
-  final String title;
-  final String description;
-  final bool isActive;
-  final DateTime createdAt;
-  final double? price;
-  final DateTime? triggeredAt;
-
-  AlertModel copyWith({
-    String? id,
-    AlertType? type,
-    String? title,
-    String? description,
-    bool? isActive,
-    DateTime? createdAt,
-    double? price,
-    DateTime? triggeredAt,
-  }) {
-    return AlertModel(
-      id: id ?? this.id,
-      type: type ?? this.type,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt ?? this.createdAt,
-      price: price ?? this.price,
-      triggeredAt: triggeredAt ?? this.triggeredAt,
-    );
-  }
+/// Base state for AlertsBloc
+abstract class AlertsState extends Equatable {
+  const AlertsState();
 
   @override
-  List<Object?> get props => [id, type, title, description, isActive, createdAt, price, triggeredAt];
+  List<Object?> get props => [];
 }
 
-/// Alerts status enum
-enum AlertsStatus { loading, loaded, error }
+/// Initial state
+class AlertsInitial extends AlertsState {
+  const AlertsInitial();
+}
 
-/// Alerts state
-class AlertsState extends Equatable {
-  const AlertsState({
-    this.status = AlertsStatus.loading,
-    this.alerts = const [],
-    this.error,
+/// Loading state
+class AlertsLoading extends AlertsState {
+  const AlertsLoading();
+}
+
+/// Loaded state
+class AlertsLoaded extends AlertsState {
+  final List<Alert> alerts;
+  final bool hasReachedMax;
+  final int currentPage;
+  final String? currentSeverityFilter;
+  final String? currentStatusFilter;
+  final String? currentTypeFilter;
+
+  const AlertsLoaded({
+    required this.alerts,
+    this.hasReachedMax = false,
+    this.currentPage = 1,
+    this.currentSeverityFilter,
+    this.currentStatusFilter,
+    this.currentTypeFilter,
   });
 
-  final AlertsStatus status;
-  final List<AlertModel> alerts;
-  final String? error;
-
-  /// Creates a copy with new values
-  AlertsState copyWith({
-    AlertsStatus? status,
-    List<AlertModel>? alerts,
-    String? error,
+  AlertsLoaded copyWith({
+    List<Alert>? alerts,
+    bool? hasReachedMax,
+    int? currentPage,
+    String? currentSeverityFilter,
+    String? currentStatusFilter,
+    String? currentTypeFilter,
   }) {
-    return AlertsState(
-      status: status ?? this.status,
+    return AlertsLoaded(
       alerts: alerts ?? this.alerts,
-      error: error ?? this.error,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      currentPage: currentPage ?? this.currentPage,
+      currentSeverityFilter:
+          currentSeverityFilter ?? this.currentSeverityFilter,
+      currentStatusFilter: currentStatusFilter ?? this.currentStatusFilter,
+      currentTypeFilter: currentTypeFilter ?? this.currentTypeFilter,
     );
   }
 
   @override
-  List<Object?> get props => [status, alerts, error];
+  List<Object?> get props => [
+    alerts,
+    hasReachedMax,
+    currentPage,
+    currentSeverityFilter,
+    currentStatusFilter,
+    currentTypeFilter,
+  ];
+}
+
+/// Error state
+class AlertsError extends AlertsState {
+  final String message;
+
+  const AlertsError(this.message);
 
   @override
-  String toString() => 'AlertsState(status: $status, alerts: ${alerts.length}, error: $error)';
+  List<Object> get props => [message];
+}
+
+/// Alert acknowledged state
+class AlertAcknowledged extends AlertsState {
+  final String alertId;
+
+  const AlertAcknowledged(this.alertId);
+
+  @override
+  List<Object> get props => [alertId];
+}
+
+/// Alert resolved state
+class AlertResolved extends AlertsState {
+  final String alertId;
+
+  const AlertResolved(this.alertId);
+
+  @override
+  List<Object> get props => [alertId];
+}
+
+/// Dashboard loaded state
+class AlertsDashboardLoaded extends AlertsState {
+  final AlertDashboard dashboard;
+
+  const AlertsDashboardLoaded(this.dashboard);
+
+  @override
+  List<Object> get props => [dashboard];
+}
+
+/// Alert detection triggered state
+class AlertDetectionTriggered extends AlertsState {
+  const AlertDetectionTriggered();
+}
+
+/// Alert system test result state
+class AlertSystemTestCompleted extends AlertsState {
+  final Map<String, dynamic> testResults;
+
+  const AlertSystemTestCompleted(this.testResults);
+
+  @override
+  List<Object> get props => [testResults];
 }

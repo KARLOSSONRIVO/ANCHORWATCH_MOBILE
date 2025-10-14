@@ -16,27 +16,55 @@ class MacroTrendsModel {
 
   factory MacroTrendsModel.fromJson(Map<String, dynamic> json) {
     return MacroTrendsModel(
-      annualInflationRates: (json['annual_inflation_rates'] as List<dynamic>?)
-              ?.map((item) => InflationRateModel.fromJson(item as Map<String, dynamic>))
-              .toList() ?? [],
-      inflationVsSupplyGrowth: (json['inflation_vs_supply_growth'] as List<dynamic>?)
-              ?.map((item) => InflationSupplyModel.fromJson(item as Map<String, dynamic>))
-              .toList() ?? [],
-      inflationTimeline: (json['inflation_timeline'] as List<dynamic>?)
-              ?.map((item) => InflationRateModel.fromJson(item as Map<String, dynamic>))
-              .toList() ?? [],
-      correlationTable: (json['correlation_table'] as List<dynamic>?)
-              ?.map((item) => CorrelationModel.fromJson(item as Map<String, dynamic>))
-              .toList() ?? [],
+      annualInflationRates:
+          (json['annual_inflation_rates'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    InflationRateModel.fromJson(item as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+      inflationVsSupplyGrowth:
+          (json['inflation_vs_supply_growth'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    InflationSupplyModel.fromJson(item as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+      inflationTimeline:
+          (json['inflation_timeline'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    InflationRateModel.fromJson(item as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+      correlationTable:
+          (json['correlation_table'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    CorrelationModel.fromJson(item as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
     );
   }
 
   MacroTrendsData toEntity() {
     return MacroTrendsData(
-      annualInflationRates: annualInflationRates.map((model) => model.toEntity()).toList(),
-      inflationVsSupplyGrowth: inflationVsSupplyGrowth.map((model) => model.toEntity()).toList(),
-      inflationTimeline: inflationTimeline.map((model) => model.toEntity()).toList(),
-      correlationTable: correlationTable.map((model) => model.toEntity()).toList(),
+      annualInflationRates: annualInflationRates
+          .map((model) => model.toEntity())
+          .toList(),
+      inflationVsSupplyGrowth: inflationVsSupplyGrowth
+          .map((model) => model.toEntity())
+          .toList(),
+      inflationTimeline: inflationTimeline
+          .map((model) => model.toEntity())
+          .toList(),
+      correlationTable: correlationTable
+          .map((model) => model.toEntity())
+          .toList(),
     );
   }
 }
@@ -45,23 +73,17 @@ class InflationRateModel {
   final int year;
   final double? inflationRate;
 
-  InflationRateModel({
-    required this.year,
-    required this.inflationRate,
-  });
+  InflationRateModel({required this.year, required this.inflationRate});
 
   factory InflationRateModel.fromJson(Map<String, dynamic> json) {
     return InflationRateModel(
-      year: json['year'] as int,
-      inflationRate: json['inflation_rate'] as double?,
+      year: json['year'] as int? ?? 0,
+      inflationRate: (json['inflation_rate'] as num?)?.toDouble(),
     );
   }
 
   InflationRateData toEntity() {
-    return InflationRateData(
-      year: year,
-      inflationRate: inflationRate,
-    );
+    return InflationRateData(year: year, inflationRate: inflationRate);
   }
 }
 
@@ -78,9 +100,9 @@ class InflationSupplyModel {
 
   factory InflationSupplyModel.fromJson(Map<String, dynamic> json) {
     return InflationSupplyModel(
-      year: json['year'] as int,
-      inflationRate: json['inflation_rate'] as double?,
-      supplyGrowthPct: json['supply_growth_pct'] as double?,
+      year: json['year'] as int? ?? 0,
+      inflationRate: (json['inflation_rate'] as num?)?.toDouble(),
+      supplyGrowthPct: (json['supply_growth_pct'] as num?)?.toDouble(),
     );
   }
 
@@ -112,12 +134,12 @@ class CorrelationModel {
 
   factory CorrelationModel.fromJson(Map<String, dynamic> json) {
     return CorrelationModel(
-      variable: json['variable'] as String,
-      inflationRate: (json['inflation_rate'] as num).toDouble(),
-      price: (json['price'] as num).toDouble(),
-      marketCap: (json['market_cap'] as num).toDouble(),
-      supplyClosing: (json['supply_closing'] as num).toDouble(),
-      netChangeUsd: (json['net_change_usd'] as num).toDouble(),
+      variable: json['variable'] as String? ?? '',
+      inflationRate: (json['inflation_rate'] as num?)?.toDouble() ?? 0.0,
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      marketCap: (json['market_cap'] as num?)?.toDouble() ?? 0.0,
+      supplyClosing: (json['supply_closing'] as num?)?.toDouble() ?? 0.0,
+      netChangeUsd: (json['net_change_usd'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
