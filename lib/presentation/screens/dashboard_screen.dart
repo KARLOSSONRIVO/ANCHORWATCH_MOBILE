@@ -515,6 +515,78 @@ class _DashboardView extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
+          // Legend at the top
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Correlation: ',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 20,
+                  height: 15,
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    border: Border.all(color: Colors.grey.shade600, width: 0.5),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Negative',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  width: 20,
+                  height: 15,
+                  decoration: BoxDecoration(
+                    color: AppTheme.getChartBackgroundColor(context),
+                    border: Border.all(color: Colors.grey.shade600, width: 0.5),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Neutral',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  width: 20,
+                  height: 15,
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent,
+                    border: Border.all(color: Colors.grey.shade600, width: 0.5),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Positive',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontFamily: 'Inter',
+                    color: AppTheme.getTextSecondaryColor(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Row(
             children: [
               const SizedBox(width: 60),
@@ -707,6 +779,7 @@ class _DashboardView extends StatelessWidget {
           width: state.scatterPoints.length * 80.0 + 150,
           child: SfCartesianChart(
             backgroundColor: AppTheme.getChartBackgroundColor(context),
+            legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
             primaryXAxis: NumericAxis(
               labelStyle: TextStyle(color: labelColor),
               title: AxisTitle(text: 'Supply Δ% (YoY)', textStyle: TextStyle(color: labelColor)),
@@ -744,48 +817,59 @@ class _DashboardView extends StatelessWidget {
     final textColor = AppTheme.getTextSecondaryColor(context);
     final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
 
-    return SfCartesianChart(
-      backgroundColor: AppTheme.getChartBackgroundColor(context),
-      margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
-      legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
-      primaryXAxis: CategoryAxis(
-        labelStyle: TextStyle(color: labelColor),
-        majorGridLines: const MajorGridLines(width: 0),
-      ),
-      primaryYAxis: NumericAxis(
-        labelStyle: TextStyle(color: labelColor),
-        title: AxisTitle(text: 'Price', textStyle: TextStyle(color: labelColor)),
-        numberFormat: NumberFormat.compact(),
-      ),
-      axes: [
-        NumericAxis(
-          name: 'mc',
-          opposedPosition: true,
-          labelStyle: TextStyle(color: labelColor),
-          title: AxisTitle(text: 'Mkt Cap (M)', textStyle: TextStyle(color: labelColor)),
-          numberFormat: NumberFormat.compact(),
-        )
-      ],
-      series: <CartesianSeries<dynamic, String>>[
-        LineSeries<dynamic, String>(
-          name: 'Price',
-          dataSource: state.priceSeries,
-          xValueMapper: (dynamic data, _) => data.x,
-          yValueMapper: (dynamic data, _) => data.y,
-          color: Colors.cyanAccent,
-          width: 2,
-          markerSettings: const MarkerSettings(isVisible: true),
+    return SizedBox(
+      height: 250,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: state.priceSeries.length * 60.0 + 100,
+          child: SfCartesianChart(
+            backgroundColor: AppTheme.getChartBackgroundColor(context),
+            margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
+            legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
+            primaryXAxis: CategoryAxis(
+              labelStyle: TextStyle(color: labelColor),
+              majorGridLines: const MajorGridLines(width: 0),
+              maximumLabels: 20,
+              labelIntersectAction: AxisLabelIntersectAction.multipleRows,
+            ),
+            primaryYAxis: NumericAxis(
+              labelStyle: TextStyle(color: labelColor),
+              title: AxisTitle(text: 'Price', textStyle: TextStyle(color: labelColor)),
+              numberFormat: NumberFormat.compact(),
+            ),
+            axes: [
+              NumericAxis(
+                name: 'mc',
+                opposedPosition: true,
+                labelStyle: TextStyle(color: labelColor),
+                title: AxisTitle(text: 'Mkt Cap (M)', textStyle: TextStyle(color: labelColor)),
+                numberFormat: NumberFormat.compact(),
+              )
+            ],
+            series: <CartesianSeries<dynamic, String>>[
+              LineSeries<dynamic, String>(
+                name: 'Price',
+                dataSource: state.priceSeries,
+                xValueMapper: (dynamic data, _) => data.x,
+                yValueMapper: (dynamic data, _) => data.y,
+                color: Colors.cyanAccent,
+                width: 2,
+                markerSettings: const MarkerSettings(isVisible: true),
+              ),
+              LineSeries<dynamic, String>(
+                name: 'Market Cap',
+                dataSource: state.marketCapSeries,
+                xValueMapper: (dynamic data, _) => data.x,
+                yValueMapper: (dynamic data, _) => data.y, // Already converted to millions in BLoC
+                yAxisName: 'mc',
+                color: Colors.deepPurpleAccent,
+                width: 2,
+              ),
+            ],
+          ),
         ),
-        LineSeries<dynamic, String>(
-          name: 'Market Cap',
-          dataSource: state.marketCapSeries,
-          xValueMapper: (dynamic data, _) => data.x,
-          yValueMapper: (dynamic data, _) => data.y, // Already converted to millions in BLoC
-          yAxisName: 'mc',
-          color: Colors.deepPurpleAccent,
-          width: 2,
-        ),
-      ],
+      ),
     );
   }
 
@@ -793,53 +877,65 @@ class _DashboardView extends StatelessWidget {
     final textColor = AppTheme.getTextSecondaryColor(context);
     final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
 
-    return SfCartesianChart(
-      backgroundColor: AppTheme.getChartBackgroundColor(context),
-      margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
-      legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
-      primaryXAxis: CategoryAxis(
-        labelStyle: TextStyle(color: labelColor),
-        majorGridLines: const MajorGridLines(width: 0),
-      ),
-      primaryYAxis: NumericAxis(
-        labelStyle: TextStyle(color: labelColor),
-        title: AxisTitle(text: 'Supply (M)', textStyle: TextStyle(color: labelColor)),
-        numberFormat: NumberFormat.compact(),
-      ),
-      axes: [
-        NumericAxis(
-          name: 'infl',
-          opposedPosition: true,
-          labelStyle: TextStyle(color: labelColor),
-          title: AxisTitle(text: 'Inflation %', textStyle: TextStyle(color: labelColor)),
-          numberFormat: NumberFormat.compact(),
-        )
-      ],
-      series: <CartesianSeries<dynamic, String>>[
-        SplineSeries<dynamic, String>(
-          name: 'Supply',
-          dataSource: state.supplySeries,
-          xValueMapper: (dynamic data, _) => data.x,
-          yValueMapper: (dynamic data, _) => data.y, // Already in millions from BLoC
-          color: Colors.greenAccent,
-          width: 2,
+    return SizedBox(
+      height: 250,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: state.supplySeries.length * 60.0 + 100,
+          child: SfCartesianChart(
+            backgroundColor: AppTheme.getChartBackgroundColor(context),
+            margin: const EdgeInsets.fromLTRB(10, 15, 10, 45),
+            legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
+            primaryXAxis: CategoryAxis(
+              labelStyle: TextStyle(color: labelColor),
+              majorGridLines: const MajorGridLines(width: 0),
+              maximumLabels: 20,
+              labelIntersectAction: AxisLabelIntersectAction.multipleRows,
+            ),
+            primaryYAxis: NumericAxis(
+              labelStyle: TextStyle(color: labelColor),
+              title: AxisTitle(text: 'Supply (M)', textStyle: TextStyle(color: labelColor)),
+              numberFormat: NumberFormat.compact(),
+            ),
+            axes: [
+              NumericAxis(
+                name: 'infl',
+                opposedPosition: true,
+                labelStyle: TextStyle(color: labelColor),
+                title: AxisTitle(text: 'Inflation %', textStyle: TextStyle(color: labelColor)),
+                numberFormat: NumberFormat.compact(),
+              )
+            ],
+            series: <CartesianSeries<dynamic, String>>[
+              SplineSeries<dynamic, String>(
+                name: 'Supply',
+                dataSource: state.supplySeries,
+                xValueMapper: (dynamic data, _) => data.x,
+                yValueMapper: (dynamic data, _) => data.y, // Already in millions from BLoC
+                color: Colors.greenAccent,
+                width: 2,
+              ),
+              StepLineSeries<dynamic, String>(
+                name: 'Inflation',
+                dataSource: state.inflationSeries,
+                xValueMapper: (dynamic data, _) => data.x,
+                yValueMapper: (dynamic data, _) => data.y,
+                yAxisName: 'infl',
+                color: Colors.orangeAccent,
+                width: 2,
+                markerSettings: const MarkerSettings(isVisible: true),
+              ),
+            ],
+          ),
         ),
-        StepLineSeries<dynamic, String>(
-          name: 'Inflation',
-          dataSource: state.inflationSeries,
-          xValueMapper: (dynamic data, _) => data.x,
-          yValueMapper: (dynamic data, _) => data.y,
-          yAxisName: 'infl',
-          color: Colors.orangeAccent,
-          width: 2,
-          markerSettings: const MarkerSettings(isVisible: true),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildRollingCorrelationChart(BuildContext context, DashboardLoadedState state) {
     final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
+    final textColor = AppTheme.getTextSecondaryColor(context);
 
     return SizedBox(
       height: 250,
@@ -850,9 +946,12 @@ class _DashboardView extends StatelessWidget {
           child: SfCartesianChart(
             backgroundColor: AppTheme.getChartBackgroundColor(context),
             margin: const EdgeInsets.fromLTRB(10, 15, 10, 30),
+            legend: Legend(isVisible: true, textStyle: TextStyle(color: textColor)),
             primaryXAxis: CategoryAxis(
               labelStyle: TextStyle(color: labelColor),
               majorGridLines: const MajorGridLines(width: 0),
+              maximumLabels: 20,
+              labelIntersectAction: AxisLabelIntersectAction.multipleRows,
             ),
             primaryYAxis: NumericAxis(
               labelStyle: TextStyle(color: labelColor),
