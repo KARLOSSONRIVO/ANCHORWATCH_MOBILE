@@ -11,12 +11,14 @@ class ChartSummaryWidget extends StatelessWidget {
   final String chartType;
   final String chartTitle;
   final String? timeFrame;
+  final List<Map<String, dynamic>>? chartData;
 
   const ChartSummaryWidget({
     super.key,
     required this.chartType,
     required this.chartTitle,
     this.timeFrame,
+    this.chartData,
   });
 
   @override
@@ -27,6 +29,7 @@ class ChartSummaryWidget extends StatelessWidget {
         chartType: chartType,
         chartTitle: chartTitle,
         timeFrame: timeFrame,
+        chartData: chartData,
       ),
     );
   }
@@ -36,11 +39,13 @@ class _ChartSummaryContent extends StatelessWidget {
   final String chartType;
   final String chartTitle;
   final String? timeFrame;
+  final List<Map<String, dynamic>>? chartData;
 
   const _ChartSummaryContent({
     required this.chartType,
     required this.chartTitle,
     this.timeFrame,
+    this.chartData,
   });
 
   @override
@@ -110,7 +115,7 @@ class _ChartSummaryContent extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         context.read<ChartSummaryBloc>().add(
-                          ChartSummaryGenerateRequested(chartType, timeFrame),
+                          ChartSummaryGenerateRequested(chartType, timeFrame, chartData),
                         );
                       },
                       icon: const Icon(Icons.auto_awesome, size: 16),
@@ -305,9 +310,9 @@ class _ChartSummaryContent extends StatelessWidget {
                       const SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: () {
-                          context.read<ChartSummaryBloc>().add(
-                            ChartSummaryGenerateRequested(chartType, timeFrame),
-                          );
+                        context.read<ChartSummaryBloc>().add(
+                          ChartSummaryGenerateRequested(chartType, timeFrame, chartData),
+                        );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF00D4AA),

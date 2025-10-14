@@ -206,6 +206,7 @@ class _StablecoinView extends StatelessWidget {
               chartType: chartType,
               chartTitle: title,
               timeFrame: state.selectedPeriod,
+              chartData: state.chartData,
             ),
           ],
         ),

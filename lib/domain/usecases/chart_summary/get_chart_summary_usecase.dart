@@ -12,10 +12,12 @@ class GetChartSummaryUseCase {
   Future<ChartSummary> execute({
     required String chartType,
     String? timeFrame,
+    List<Map<String, dynamic>>? chartData,
   }) async {
     return await _repository.getChartSummary(
       chartType: chartType,
       timeFrame: timeFrame,
+      chartData: chartData,
     );
   }
 }

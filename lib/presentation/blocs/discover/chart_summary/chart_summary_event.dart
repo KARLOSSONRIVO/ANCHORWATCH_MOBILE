@@ -12,11 +12,12 @@ abstract class ChartSummaryEvent extends Equatable {
 class ChartSummaryGenerateRequested extends ChartSummaryEvent {
   final String chartType;
   final String? timeFrame;
+  final List<Map<String, dynamic>>? chartData;
 
-  const ChartSummaryGenerateRequested(this.chartType, [this.timeFrame]);
+  const ChartSummaryGenerateRequested(this.chartType, [this.timeFrame, this.chartData]);
 
   @override
-  List<Object> get props => [chartType, timeFrame ?? ''];
+  List<Object> get props => [chartType, timeFrame ?? '', chartData ?? []];
 }
 
 /// Event to clear chart summary

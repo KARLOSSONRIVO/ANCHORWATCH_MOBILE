@@ -14,6 +14,7 @@ class ChartSummaryRemoteDataSource {
   Future<ChartSummaryModel> getChartSummary({
     required String chartType,
     String? timeFrame,
+    List<Map<String, dynamic>>? chartData,
   }) async {
     try {
       final requestData = <String, dynamic>{
@@ -23,6 +24,11 @@ class ChartSummaryRemoteDataSource {
       // Add timeframe if provided
       if (timeFrame != null) {
         requestData['timeframe'] = timeFrame;
+      }
+      
+      // Add chart data if provided
+      if (chartData != null) {
+        requestData['chart_data'] = chartData;
       }
       
       final response = await _dioClient.post(

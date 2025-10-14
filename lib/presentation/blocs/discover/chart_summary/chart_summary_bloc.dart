@@ -25,6 +25,7 @@ class ChartSummaryBloc extends Bloc<ChartSummaryEvent, ChartSummaryState> {
       final summary = await _getChartSummaryUseCase.execute(
         chartType: event.chartType,
         timeFrame: event.timeFrame,
+        chartData: event.chartData,
       );
       
       emit(state.copyWith(

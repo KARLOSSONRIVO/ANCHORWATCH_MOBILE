@@ -190,6 +190,7 @@ class _MacroTrendsView extends StatelessWidget {
           chartType: chartType,
           chartTitle: title,
           timeFrame: state.selectedPeriod,
+          chartData: _getChartDataForType(state, chartType),
         ),
       ],
     ),
@@ -556,6 +557,40 @@ class _MacroTrendsView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  List<Map<String, dynamic>>? _getChartDataForType(MacroTrendsState state, String chartType) {
+    if (state.macroTrendsData == null) return null;
+    
+    switch (chartType) {
+      case 'annual_inflation_rates':
+        return state.macroTrendsData!.inflationTimeline
+            .map((item) => {
+                  'year': item.year,
+                  'inflation_rate': item.inflationRate,
+                })
+            .toList();
+      case 'inflation_vs_supply_growth':
+        return state.macroTrendsData!.inflationVsSupplyGrowth
+            .map((item) => {
+                  'year': item.year,
+                  'inflation_rate': item.inflationRate,
+                  'supply_growth_pct': item.supplyGrowthPct,
+                })
+            .toList();
+      case 'correlation_table':
+        return state.macroTrendsData!.correlationTable
+            .map((item) => {
+                  'inflation_rate': item.inflationRate,
+                  'price': item.price,
+                  'market_cap': item.marketCap,
+                  'supply_closing': item.supplyClosing,
+                  'net_change_usd': item.netChangeUsd,
+                })
+            .toList();
+      default:
+        return null;
+    }
   }
 
   Widget _buildDropdown(BuildContext context, MacroTrendsState state) {
