@@ -92,6 +92,7 @@ import 'presentation/blocs/onboarding/onboarding_bloc.dart' as _i131;
 import 'presentation/blocs/password_reset/password_reset_bloc.dart' as _i580;
 import 'presentation/blocs/profile/profile_bloc.dart' as _i226;
 import 'presentation/blocs/profile_picture/profile_picture_bloc.dart' as _i945;
+import 'presentation/blocs/signup/signup_bloc.dart' as _i569;
 import 'services/alert_websocket_service.dart' as _i459;
 import 'services/authentication_service.dart' as _i460;
 import 'services/dio_client.dart' as _i332;
@@ -292,6 +293,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i37.DashboardBloc>(
       () => _i37.DashboardBloc(gh<_i711.FetchDashboardMetricsUseCase>()),
+    );
+    gh.factory<_i569.SignUpBloc>(
+      () => _i569.SignUpBloc(
+        gh<_i339.RegisterUseCase>(),
+        gh<_i460.AuthenticationService>(),
+      ),
     );
     gh.factory<_i221.MacroTrendsBloc>(
       () => _i221.MacroTrendsBloc(gh<_i40.GetMacroTrendsUseCase>()),

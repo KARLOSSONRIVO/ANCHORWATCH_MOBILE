@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
 import '../blocs/password_reset/password_reset.dart';
+import '../blocs/signup/signup.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
@@ -57,7 +58,10 @@ class AppRouter {
         
       case AppRoutes.signup:
         return MaterialPageRoute(
-          builder: (_) => const SignUpScreen(),
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<SignUpBloc>(),
+            child: const SignUpScreen(),
+          ),
           settings: settings,
         );
         

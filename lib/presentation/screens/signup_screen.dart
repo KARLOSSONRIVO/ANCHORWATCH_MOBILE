@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
+import '../blocs/signup/signup.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
 
-/// Sign up screen for new user registration using AuthenticationBloc
+/// Sign up screen for new user registration using SignUpBloc
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -34,13 +35,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _handleSignUp() {
     if (_formKey.currentState!.validate()) {
-      context.read<AuthenticationBloc>().add(
-        AuthenticationSignUpRequested(
-          username: _usernameController.text.trim(),
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        ),
-      );
+      // Only trigger BLoC if basic form validation passes
+      context.read<SignUpBloc>().add(const SignUpFormSubmitted());
     }
   }
 
@@ -59,13 +55,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
 
-    return BlocConsumer<AuthenticationBloc, AuthenticationState>(
+    return BlocConsumer<SignUpBloc, SignUpState>(
       listener: (context, state) {
-        if (state.status == AuthenticationStatus.signUpSuccess) {
+        if (state.status == SignUpStatus.success) {
+          // Trigger authentication success
+          context.read<AuthenticationBloc>().add(
+            AuthenticationStatusRequested(),
+          );
           SnackBarHelper.showSuccess(context, 'Account created successfully!');
           Navigator.pop(context); // Go back to login
-        } else if (state.error != null) {
-          SnackBarHelper.showError(context, state.error!);
+        } else if (state.hasError) {
+          // Show customized toast for validation errors with shorter duration
+          SnackBarHelper.showError(
+            context, 
+            state.errorMessage!,
+            duration: const Duration(seconds: 2), // Reduced from 4 to 2 seconds
+          );
         }
       },
       builder: (context, state) {
@@ -84,7 +89,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
                     child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -181,6 +186,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             }
                             return null;
                           },
+                          onChanged: (username) {
+                            context.read<SignUpBloc>().add(
+                              SignUpUsernameChanged(username: username),
+                            );
+                          },
                           textInputAction: TextInputAction.next,
                         ),
                         const SizedBox(height: 16),
@@ -225,6 +235,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return 'Please enter a valid email';
                             }
                             return null;
+                          },
+                          onChanged: (email) {
+                            context.read<SignUpBloc>().add(
+                              SignUpEmailChanged(email: email),
+                            );
                           },
                           textInputAction: TextInputAction.next,
                         ),
@@ -277,10 +292,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
                             }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
+                            // Only show mismatch error if confirm password is filled and doesn't match
+                            if (_confirmPasswordController.text.isNotEmpty && 
+                                value != _confirmPasswordController.text) {
+                              return 'Passwords do not match';
                             }
                             return null;
+                          },
+                          onChanged: (password) {
+                            // Trigger BLoC password validation
+                            context.read<SignUpBloc>().add(
+                              SignUpPasswordChanged(password: password),
+                            );
+                            // Re-validate confirm password field when password changes
+                            if (_confirmPasswordController.text.isNotEmpty) {
+                              _formKey.currentState!.validate();
+                            }
                           },
                           textInputAction: TextInputAction.next,
                         ),
@@ -337,6 +364,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return 'Passwords do not match';
                             }
                             return null;
+                          },
+                          onChanged: (confirmPassword) {
+                            // Trigger BLoC confirm password validation
+                            context.read<SignUpBloc>().add(
+                              SignUpConfirmPasswordChanged(confirmPassword: confirmPassword),
+                            );
+                            // Re-validate password field when confirm password changes
+                            if (_passwordController.text.isNotEmpty) {
+                              _formKey.currentState!.validate();
+                            }
                           },
                           textInputAction: TextInputAction.done,
                           onFieldSubmitted: (_) => _handleSignUp(),
