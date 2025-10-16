@@ -6,7 +6,6 @@ import '../../blocs/profile_picture/profile_picture.dart';
 import '../../routes/app_routes.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/custom_snackbar.dart';
 import '../../widgets/profile_picture_picker_widget.dart';
 
 
@@ -204,25 +203,6 @@ class _ProfileView extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-/// Default avatar widget when no avatar is provided
-class _DefaultAvatar extends StatelessWidget {
-  const _DefaultAvatar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: AppTheme.getBorderColor(context),
-      child: Icon(
-        Icons.person,
-        color: AppTheme.getTextPrimaryColor(context),
-        size: 40,
       ),
     );
   }
