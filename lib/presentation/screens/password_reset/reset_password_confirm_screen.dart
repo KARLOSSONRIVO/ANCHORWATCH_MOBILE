@@ -11,15 +11,18 @@ class ResetPasswordConfirmScreen extends StatefulWidget {
   const ResetPasswordConfirmScreen({super.key});
 
   @override
-  State<ResetPasswordConfirmScreen> createState() => _ResetPasswordConfirmScreenState();
+  State<ResetPasswordConfirmScreen> createState() =>
+      _ResetPasswordConfirmScreenState();
 }
 
-class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen> {
+class _ResetPasswordConfirmScreenState
+    extends State<ResetPasswordConfirmScreen> {
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final FocusNode _newPasswordFocusNode = FocusNode();
   final FocusNode _confirmPasswordFocusNode = FocusNode();
-  
+
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
@@ -50,9 +53,14 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
         ),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppTheme.getTextPrimaryColor(context)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppTheme.getTextPrimaryColor(context),
+          ),
           onPressed: () {
-            context.read<PasswordResetBloc>().add(const PasswordResetPreviousStep());
+            context.read<PasswordResetBloc>().add(
+              const PasswordResetPreviousStep(),
+            );
             Navigator.of(context).pop();
           },
         ),
@@ -60,25 +68,20 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
       body: BlocConsumer<PasswordResetBloc, PasswordResetState>(
         listener: (context, state) {
           if (state.status == PasswordResetStatus.passwordReset) {
-            // Show success message and navigate back to login
-            SnackBarHelper.showSuccess(
-              context,
-              'Password reset successfully! Please login with your new password.',
-            );
-            
-            // Clear BLoC and navigate back to login screen
+            // Navigate back to login screen immediately to avoid widget tree issues
+            // Clear BLoC and navigate safely using PostFrameCallback
             AppRouter.clearPasswordResetBloc();
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              '/login',
-              (route) => false,
-            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/login', (route) => false);
+              }
+            });
           }
-          
+
           if (state.hasError) {
-            SnackBarHelper.showError(
-              context,
-              state.errorMessage!,
-            );
+            SnackBarHelper.showError(context, state.errorMessage!);
           }
         },
         builder: (context, state) {
@@ -89,7 +92,7 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  
+
                   // Logo
                   Container(
                     width: 100,
@@ -111,9 +114,9 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                       color: AppTheme.getTextPrimaryColor(context),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Title
                   Text(
                     'New Password',
@@ -125,9 +128,9 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Subtitle
                   Text(
                     'Create a new secure password for your account.',
@@ -139,9 +142,9 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // New Password Input
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +236,8 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                           ),
                         ),
                       ),
-                      if (!state.isNewPasswordValid && state.newPassword.isNotEmpty)
+                      if (!state.isNewPasswordValid &&
+                          state.newPassword.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
@@ -247,9 +251,9 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                         ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Confirm Password Input
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,7 +280,9 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                         ),
                         onChanged: (value) {
                           context.read<PasswordResetBloc>().add(
-                            PasswordResetConfirmPasswordChanged(confirmPassword: value),
+                            PasswordResetConfirmPasswordChanged(
+                              confirmPassword: value,
+                            ),
                           );
                         },
                         onSubmitted: (_) {
@@ -337,13 +343,14 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                             ),
                             onPressed: () {
                               setState(() {
-                                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                _isConfirmPasswordVisible =
+                                    !_isConfirmPasswordVisible;
                               });
                             },
                           ),
                         ),
                       ),
-                      if (!state.passwordsMatch && 
+                      if (!state.passwordsMatch &&
                           state.confirmPassword.isNotEmpty &&
                           state.newPassword.isNotEmpty)
                         Padding(
@@ -359,9 +366,8 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                         ),
                     ],
                   ),
-                  
+
                   const Spacer(),
-                  
 
                   // Confirm Button
                   SizedBox(
@@ -399,7 +405,7 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
                             ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
                 ],
               ),
@@ -413,7 +419,7 @@ class _ResetPasswordConfirmScreenState extends State<ResetPasswordConfirmScreen>
   void _confirmPasswordReset(BuildContext context) {
     _newPasswordFocusNode.unfocus();
     _confirmPasswordFocusNode.unfocus();
-    
+
     context.read<PasswordResetBloc>().add(
       PasswordResetConfirmed(
         newPassword: _newPasswordController.text,

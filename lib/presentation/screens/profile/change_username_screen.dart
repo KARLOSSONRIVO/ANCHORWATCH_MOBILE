@@ -9,6 +9,7 @@ import '../../widgets/custom_snackbar.dart';
 import '../../themes/app_theme.dart';
 import '../../../injection_container.dart';
 import '../../widgets/loading_widget.dart';
+import '../../../utils/validators/form_validators.dart';
 
 class ChangeUsernameScreen extends StatelessWidget {
   const ChangeUsernameScreen({Key? key}) : super(key: key);
@@ -63,15 +64,15 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
               if (state is ChangeUsernameSuccess) {
                 // Show success snackbar using custom widget
                 SnackBarHelper.showSuccess(context, state.message);
-                
+
                 // Extract new username from the success state
                 final newUsername = state.newUsername;
-                
+
                 // Update authentication state with new username
                 context.read<AuthenticationBloc>().add(
-                  AuthenticationUsernameUpdated(newUsername: newUsername)
+                  AuthenticationUsernameUpdated(newUsername: newUsername),
                 );
-                
+
                 // Navigate back and pass the new username as result
                 Navigator.of(context).pop(newUsername);
               } else if (state is ChangeUsernameFailure) {
@@ -97,7 +98,7 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 Center(
                   child: Text(
                     'Change Your Username',
@@ -111,7 +112,7 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                
+
                 Center(
                   child: Text(
                     'Enter a new username for your account',
@@ -124,7 +125,7 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                
+
                 // New Username Field
                 Text(
                   'New Username',
@@ -170,37 +171,19 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                       color: AppTheme.getTextSecondaryColor(context),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Username is required';
-                    }
-                    if (value.length < 3) {
-                      return 'Username must be at least 3 characters long';
-                    }
-                    if (value.length > 30) {
-                      return 'Username must be less than 30 characters';
-                    }
-                    final regex = RegExp(r'^[a-zA-Z0-9_]+$');
-                    if (!regex.hasMatch(value)) {
-                      return 'Username can only contain letters, numbers, and underscores';
-                    }
-                    return null;
-                  },
+                  validator: FormValidators.validateUsername,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _onSubmit(),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Info text
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.blue.shade200,
-                      width: 1,
-                    ),
+                    border: Border.all(color: Colors.blue.shade200, width: 1),
                   ),
                   child: Row(
                     children: [
@@ -224,14 +207,16 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Submit Button
                 BlocBuilder<ChangeUsernameBloc, ChangeUsernameState>(
                   builder: (context, state) {
                     return SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: state is ChangeUsernameLoading ? null : _onSubmit,
+                        onPressed: state is ChangeUsernameLoading
+                            ? null
+                            : _onSubmit,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           backgroundColor: AppTheme.primaryColor,

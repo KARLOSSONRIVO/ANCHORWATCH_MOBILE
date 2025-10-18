@@ -7,7 +7,6 @@ import '../blocs/authentication/authentication_state.dart';
 import '../blocs/anchorwise/anchorwise.dart';
 import '../widgets/bottom_navigation_widget.dart';
 import '../widgets/navigation_drawer_widget.dart';
-import '../widgets/custom_snackbar.dart';
 import '../widgets/conversation_history_dialog.dart';
 import '../../services/navigation_service.dart';
 import '../themes/app_theme.dart';
@@ -62,13 +61,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-    
         const Text(
           'AnchorWise',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w600
-          ),
+          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -83,7 +78,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               // Load conversations and show history dialog
               final anchorWiseBloc = BlocProvider.of<AnchorWiseBloc>(context);
               anchorWiseBloc.add(const AnchorWiseLoadConversations());
-              
+
               // Show conversation history dialog
               showDialog(
                 context: context,
@@ -115,15 +110,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listener: (context, authState) {
-        print('🔍 MainNavigationScreen: Auth state changed to ${authState.status}');
-        // If user is logged out, show success message and navigate back to login screen
+        print(
+          '🔍 MainNavigationScreen: Auth state changed to ${authState.status}',
+        );
+        // If user is logged out, navigate back to login screen
         if (authState.status == AuthenticationStatus.unauthenticated) {
           print('🚪 MainNavigationScreen: Navigating to login due to logout');
-          // Show logout success message before navigation
-          SnackBarHelper.showSuccess(context, 'Logged out successfully');
-          // Small delay to ensure snackbar is shown before navigation
-          Future.delayed(const Duration(milliseconds: 100), () {
-            Navigator.of(context).pushReplacementNamed('/login');
+          // Navigate immediately without showing snackbar to avoid widget tree issues
+          // Use WidgetsBinding to ensure navigation happens after the current frame
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.of(context).pushReplacementNamed('/login');
+            }
           });
         }
       },
@@ -137,64 +135,67 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           }
         },
         child: BlocBuilder<NavigationBloc, NavigationState>(
-        builder: (context, state) {
-          int currentIndex = 0;
-          bool canGoBack = false;
-          
-          if (state is NavigationPageSelected) {
-            currentIndex = state.currentIndex;
-            canGoBack = state.canGoBack;
-          }
+          builder: (context, state) {
+            int currentIndex = 0;
+            bool canGoBack = false;
 
-        return PopScope(
-          canPop: !canGoBack, // Prevent system back button if we have navigation stack
-          onPopInvokedWithResult: (didPop, result) {
-            if (!didPop && canGoBack) {
-              // Handle back navigation through our stack
-              NavigationService.goBack(context);
+            if (state is NavigationPageSelected) {
+              currentIndex = state.currentIndex;
+              canGoBack = state.canGoBack;
             }
-          },
-          child: Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: AppTheme.getBackgroundColor(context),
-            appBar: AppBar(
-              title: currentIndex == 2 ? _buildAnchorWiseTitle() : Text(
-                _getPageTitle(currentIndex),
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
-                ),
-              ),
-              actions: _getAppBarActions(context, currentIndex),
-            ),
-            drawer: const NavigationDrawerWidget(),
-            body: IndexedStack(
-              index: currentIndex,
-              children: const [
-                DashboardScreen(),
-                DiscoverScreen(),
-                AnchorWiseScreen(),
-                AlertsScreen(),
-                ProfileScreen(),
-              ],
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-              currentIndex: currentIndex,
-              onTap: (index) {
-                NavigationService.navigateToIndex(context, index);
+
+            return PopScope(
+              canPop:
+                  !canGoBack, // Prevent system back button if we have navigation stack
+              onPopInvokedWithResult: (didPop, result) {
+                if (!didPop && canGoBack) {
+                  // Handle back navigation through our stack
+                  NavigationService.goBack(context);
+                }
               },
-            ),
-          ),
-        );
-        },
+              child: Scaffold(
+                key: _scaffoldKey,
+                backgroundColor: AppTheme.getBackgroundColor(context),
+                appBar: AppBar(
+                  title: currentIndex == 2
+                      ? _buildAnchorWiseTitle()
+                      : Text(
+                          _getPageTitle(currentIndex),
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                  leading: Builder(
+                    builder: (context) => IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: () => Scaffold.of(context).openDrawer(),
+                    ),
+                  ),
+                  actions: _getAppBarActions(context, currentIndex),
+                ),
+                drawer: const NavigationDrawerWidget(),
+                body: IndexedStack(
+                  index: currentIndex,
+                  children: const [
+                    DashboardScreen(),
+                    DiscoverScreen(),
+                    AnchorWiseScreen(),
+                    AlertsScreen(),
+                    ProfileScreen(),
+                  ],
+                ),
+                bottomNavigationBar: BottomNavigationWidget(
+                  currentIndex: currentIndex,
+                  onTap: (index) {
+                    NavigationService.navigateToIndex(context, index);
+                  },
+                ),
+              ),
+            );
+          },
+        ),
       ),
-      )
     );
   }
 }

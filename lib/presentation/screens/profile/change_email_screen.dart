@@ -5,6 +5,7 @@ import '../../blocs/change_email/change_email_bloc.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../../injection_container.dart';
 import 'confirm_change_email_screen.dart';
+import '../../../utils/validators/form_validators.dart';
 
 class ChangeEmailScreen extends StatelessWidget {
   const ChangeEmailScreen({Key? key}) : super(key: key);
@@ -43,23 +44,25 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
         return previous.runtimeType != current.runtimeType;
       },
       listener: (context, state) {
-        print('[CHANGE_EMAIL_SCREEN] State changed to: ${state.runtimeType}');
-        
         if (state is ChangeEmailRequestSuccess) {
-          print('[CHANGE_EMAIL_SCREEN] Success - navigating to OTP screen');
-          SnackBarHelper.showSuccess(context, 'OTP sent successfully');
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ConfirmChangeEmailScreen(newEmail: _emailController.text.trim()),
-            ),
-          ).then((result) {
-            if (result != null && result.isNotEmpty && context.mounted) {
-              Navigator.pop(context, result); // bubble new email upward
+          // Navigate to OTP screen immediately to avoid timing issues
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ConfirmChangeEmailScreen(
+                    newEmail: _emailController.text.trim(),
+                  ),
+                ),
+              ).then((result) {
+                if (result != null && result.isNotEmpty && context.mounted) {
+                  Navigator.pop(context, result); // bubble new email upward
+                }
+              });
             }
           });
         } else if (state is ChangeEmailRequestFailure) {
-          print('[CHANGE_EMAIL_SCREEN] Failure - showing error: ${state.error}');
           SnackBarHelper.showError(context, state.error);
           // Do NOT navigate to OTP screen on failure
         }
@@ -84,7 +87,11 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 16),
-                  Image.asset('assets/images/LOGOnoBG.png', width: 200, height: 200),
+                  Image.asset(
+                    'assets/images/LOGOnoBG.png',
+                    width: 200,
+                    height: 200,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Change Email',
@@ -111,16 +118,19 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                   const SizedBox(height: 4),
                   TextFormField(
                     controller: _emailController,
-                    validator: _validateEmail,
+                    validator: FormValidators.validateEmail,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: 'Enter new email',
                       hintStyle: TextStyle(
-                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.color?.withOpacity(0.5),
                         fontFamily: 'Inter',
                       ),
                       filled: true,
-                      fillColor: Theme.of(context).brightness == Brightness.light
+                      fillColor:
+                          Theme.of(context).brightness == Brightness.light
                           ? Colors.white
                           : const Color(0xFF2A2A2A),
                       border: OutlineInputBorder(
@@ -144,9 +154,7 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                        ),
+                        borderSide: const BorderSide(color: Colors.red),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -155,7 +163,10 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                           width: 2,
                         ),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -163,15 +174,21 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: state is ChangeEmailRequestLoading ? null : _onSendOtp,
+                      onPressed: state is ChangeEmailRequestLoading
+                          ? null
+                          : _onSendOtp,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00E5CC), // Consistent with app branding
+                        backgroundColor: const Color(
+                          0xFF00E5CC,
+                        ), // Consistent with app branding
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        disabledBackgroundColor: const Color(0xFF00E5CC).withOpacity(0.5),
+                        disabledBackgroundColor: const Color(
+                          0xFF00E5CC,
+                        ).withOpacity(0.5),
                       ),
                       child: state is ChangeEmailRequestLoading
                           ? const SizedBox(
@@ -179,7 +196,9 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                               width: 24,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const Text(
@@ -201,22 +220,10 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
     );
   }
 
-  String? _validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Email address is required';
-    }
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
-      return 'Please enter a valid email address';
-    }
-    return null;
-  }
-
   void _onSendOtp() {
     if (_formKey.currentState?.validate() == true) {
       context.read<ChangeEmailBloc>().add(
-        RequestChangeEmailSubmitted(
-          newEmail: _emailController.text.trim(),
-        ),
+        RequestChangeEmailSubmitted(newEmail: _emailController.text.trim()),
       );
     }
   }
