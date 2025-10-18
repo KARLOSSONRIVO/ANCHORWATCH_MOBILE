@@ -6,10 +6,6 @@ import '../presentation/blocs/navigation/navigation_state.dart';
 import '../presentation/blocs/authentication/authentication.dart';
 import '../presentation/widgets/custom_snackbar.dart';
 import '../presentation/routes/app_routes.dart';
-
-
-
-/// Navigation indices enum for better type safety
 enum NavigationIndex {
   dashboard(0, 'Dashboard'),
   discover(1, 'Discover'),
@@ -28,56 +24,33 @@ enum NavigationIndex {
     );
   }
 }
-
-/// Unified navigation service that handles navigation for both bottom nav and drawer
-/// This ensures consistent navigation behavior and prevents stacking issues
 class NavigationService {
-  /// Global key to access the main scaffold state for drawer management
   static final GlobalKey<ScaffoldState> mainScaffoldKey = GlobalKey<ScaffoldState>();
-  /// Navigate to a specific tab/screen using the NavigationBloc with smart stacking
-  /// This method should be used by both bottom navigation and drawer navigation
   static void navigateToTab(BuildContext context, NavigationIndex destination) {
-    // Close the current drawer if it's open
     _closeCurrentDrawer(context);
-    
-    // Use NavigationBloc to handle the navigation with smart stacking
     context.read<NavigationBloc>().add(
       NavigationPageChanged(destination.tabIndex),
     );
   }
-
-  /// Close the current drawer if it's open
   static void _closeCurrentDrawer(BuildContext context) {
     try {
-      // Try using the main scaffold key
       if (mainScaffoldKey.currentState != null && mainScaffoldKey.currentState!.isDrawerOpen) {
         mainScaffoldKey.currentState!.closeDrawer();
         return;
       }
-      
-      // Fallback to context-based approach
       final scaffoldState = Scaffold.maybeOf(context);
       if (scaffoldState != null && scaffoldState.isDrawerOpen) {
         Navigator.of(context).pop();
       }
-    } catch (e) {
-      print('Debug: Could not close current drawer - $e');
-    }
+    } catch (_) {}
   }
-
-  /// Force close any open drawer - can be called from anywhere
   static void forceCloseDrawer() {
     try {
-      // Try the main scaffold key
       if (mainScaffoldKey.currentState != null && mainScaffoldKey.currentState!.isDrawerOpen) {
         mainScaffoldKey.currentState!.closeDrawer();
       }
-    } catch (e) {
-      print('Debug: Could not force close drawer - $e');
-    }
+    } catch (_) {}
   }
-
-  /// Navigate to tab with explicit stack push (for special cases)
   static void navigateToTabWithPush(BuildContext context, NavigationIndex destination) {
     _closeCurrentDrawer(context);
     
@@ -86,8 +59,6 @@ class NavigationService {
       NavigationStackPush(destination.tabIndex, routeName),
     );
   }
-
-  /// Go back in navigation stack
   static void goBack(BuildContext context) {
     final navigationBloc = context.read<NavigationBloc>();
     if (navigationBloc.canGoBack) {
@@ -96,8 +67,6 @@ class NavigationService {
       );
     }
   }
-
-  /// Replace current navigation with new destination
   static void replaceCurrentNavigation(BuildContext context, NavigationIndex destination) {
     _closeCurrentDrawer(context);
     
@@ -106,8 +75,6 @@ class NavigationService {
       NavigationStackReplace(destination.tabIndex, routeName),
     );
   }
-
-  /// Helper method to get route name from index
   static String _getRouteNameForIndex(int index) {
     switch (index) {
       case 0:
@@ -124,16 +91,10 @@ class NavigationService {
         return '/dashboard';
     }
   }
-  
-
-
-  /// Navigate to a specific tab by index (for backward compatibility)
   static void navigateToIndex(BuildContext context, int index) {
     final destination = NavigationIndex.fromIndex(index);
     navigateToTab(context, destination);
   }
-
-  /// Handle navigation for main app sections (dashboard, discover, etc.)
   static void handleMainNavigation(BuildContext context, NavigationIndex destination) {
     switch (destination) {
       case NavigationIndex.dashboard:
@@ -153,8 +114,6 @@ class NavigationService {
         break;
     }
   }
-
-  /// Handle special navigation actions (non-main navigation items)
   static Future<void> handleSpecialNavigation(BuildContext context, String action) async {
     switch (action) {
       case 'contact_support':
@@ -172,13 +131,8 @@ class NavigationService {
         SnackBarHelper.showWarning(context, 'Unknown action: $action');
     }
   }
-
-  /// Handle logout directly in NavigationService to avoid context issues
   static Future<void> _handleLogout(BuildContext context) async {
-    // First, get all required references while context is valid
     final authBloc = context.read<AuthenticationBloc>();
-    
-    // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -191,62 +145,44 @@ class NavigationService {
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Logout'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
           ),
-        ],
-      ),
-    );
-    
-    if (confirmed == true) {
-      // Close current drawer
-      _closeCurrentDrawer(context);
-      
-      // Trigger logout - the navigation to login screen will indicate success
-      authBloc.add(const AuthenticationLogoutRequested());
-    }
+          child: const Text('Logout'),
+        ),
+      ],
+    ),
+  );
+  
+  if (confirmed == true && context.mounted) {
+    _closeCurrentDrawer(context);
+    authBloc.add(const AuthenticationLogoutRequested());
   }
-
-  /// Get the current navigation index from NavigationBloc state
-  static int getCurrentIndex(BuildContext context) {
-    final navigationBloc = context.read<NavigationBloc>();
-    final state = navigationBloc.state;
-    
-    if (state is NavigationPageSelected) {
+}
+static int getCurrentIndex(BuildContext context) {
+  final navigationBloc = context.read<NavigationBloc>();
+  final state = navigationBloc.state;    if (state is NavigationPageSelected) {
       return state.currentIndex;
     }
     return 0; // Default to dashboard
   }
-
-  /// Check if navigation can go back
   static bool canGoBack(BuildContext context) {
     final navigationBloc = context.read<NavigationBloc>();
     return navigationBloc.canGoBack;
   }
-
-  /// Get current navigation stack
   static List<NavigationStackEntry> getNavigationStack(BuildContext context) {
     final navigationBloc = context.read<NavigationBloc>();
     return navigationBloc.navigationStack;
   }
-
-  /// Reset navigation to dashboard
   static void resetToHome(BuildContext context) {
     context.read<NavigationBloc>().add(const NavigationReset());
   }
-
-  /// Navigate to Contact screen
-  /// Use this method to programmatically navigate to the Contact screen with BLoC integration
   static void navigateToContact(BuildContext context) {
     Navigator.of(context).pushNamed(AppRoutes.contact);
   }
-
-  /// Navigate to FAQ screen
-  /// Use this method to programmatically navigate to the FAQ screen with BLoC integration
   static void navigateToFaq(BuildContext context) {
     Navigator.of(context).pushNamed(AppRoutes.faq);
   }
 }
+

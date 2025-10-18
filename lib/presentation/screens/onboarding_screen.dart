@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/onboarding/onboarding.dart';
 import '../themes/app_theme.dart';
-
-/// Onboarding screen with multiple pages showcasing app features
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -16,8 +14,6 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-
-  // Sliding pages (after GET STARTED is clicked)
   final List<OnboardingPage> _slidingPages = [
     OnboardingPage(
       title: 'Discover the Pulse of the Digital Economy',
@@ -66,15 +62,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Show landing page first
     if (!_showSlidingPages) {
       return _LandingPageWidget(
         onGetStarted: _startSlidingPages,
         onSkip: _completeOnboarding,
       );
     }
-
-    // Hide status bar for sliding pages as well
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -84,8 +77,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-    // Show sliding pages after GET STARTED is clicked
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -93,7 +84,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ),
         child: Stack(
           children: [
-            // Background image positioned at top with blur - extends above safe area
             Positioned(
               top: -MediaQuery.of(context).padding.top, // Extend above status bar
               left: 0,
@@ -116,13 +106,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               top: false, // Ignore top system UI for full immersive experience
           child: Column(
             children: [
-              // Top Navigation
               Padding(
                 padding: const EdgeInsets.fromLTRB(20.0, 30.0, 20.0, 10.0), // Reduced padding for more content space
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    // Logo
                     SizedBox(
                       width: 80,
                       height: 80,
@@ -134,8 +122,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ],
                 ),
               ),
-              
-              // PageView
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
@@ -150,14 +136,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   },
                 ),
               ),
-              
-              // Bottom Navigation
               Container(
                 padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Page Indicators
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
@@ -169,18 +152,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           decoration: BoxDecoration(
                             color: _currentPage == index
                                 ? Colors.blue
-                                : AppTheme.getTextSecondaryColor(context).withOpacity(0.3),
+                                : AppTheme.getTextSecondaryColor(context).withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
-                    // Action Buttons - Always visible
                     Column(
                       children: [
-                        // Login button
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -205,7 +185,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        // Create Account button
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton(
@@ -242,10 +221,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 }
-
-
-
-/// Landing page widget with background image
 class _LandingPageWidget extends StatelessWidget {
   const _LandingPageWidget({
     required this.onGetStarted,
@@ -257,7 +232,6 @@ class _LandingPageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Hide status bar and set dark theme
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -287,7 +261,6 @@ class _LandingPageWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top Navigation
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -310,8 +283,6 @@ class _LandingPageWidget extends StatelessWidget {
                   ),
                   
                   const SizedBox(height: 60),
-                  
-                  // Main title text with shadow for better visibility
                   Text(
                     'Track stablecoin flows.\nDecode the economy.\nStay ahead with\nAnchorWatch.',
                     style: TextStyle(
@@ -324,15 +295,13 @@ class _LandingPageWidget extends StatelessWidget {
                         Shadow(
                           offset: const Offset(0, 2),
                           blurRadius: 4,
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                         ),
                       ],
                     ),
                   ),
                   
                   const Spacer(),
-                  
-                  // GET STARTED Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -345,7 +314,7 @@ class _LandingPageWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 8,
-                        shadowColor: Colors.blue.withOpacity(0.3),
+                        shadowColor: Colors.blue.withValues(alpha: 0.3),
                       ),
                       child: const Text(
                         'GET STARTED',
@@ -367,8 +336,6 @@ class _LandingPageWidget extends StatelessWidget {
     );
   }
 }
-
-/// Sliding page widget for individual pages
 class _SlidingPageWidget extends StatelessWidget {
   const _SlidingPageWidget({required this.page});
 
@@ -381,8 +348,6 @@ class _SlidingPageWidget extends StatelessWidget {
       child: Column(
           children: [
             const SizedBox(height: 10),
-            
-            // Feature Image - Give more space
             Expanded(
               flex: 4,
               child: Container(
@@ -416,15 +381,12 @@ class _SlidingPageWidget extends StatelessWidget {
           ),
           
           const SizedBox(height: 20),
-          
-          // Content - Only description, no big title
           Expanded(
             flex: 2,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // Small title
                 Text(
                   page.title,
                   style: TextStyle(
@@ -438,8 +400,6 @@ class _SlidingPageWidget extends StatelessWidget {
                 ),
                 
                 const SizedBox(height: 16),
-                
-                // Description
                 Text(
                   page.subtitle,
                   style: TextStyle(
@@ -460,8 +420,6 @@ class _SlidingPageWidget extends StatelessWidget {
     );
   }
 }
-
-/// Onboarding page data model
 class OnboardingPage {
   const OnboardingPage({
     required this.title,

@@ -11,12 +11,10 @@ import '../widgets/conversation_history_dialog.dart';
 import '../../services/navigation_service.dart';
 import '../themes/app_theme.dart';
 import 'dashboard_screen.dart';
-import 'discover_screen.dart';
+import 'discover/discover_screen.dart';
 import 'anchorwise_screen.dart';
 import 'alerts_screen.dart';
 import 'profile/profile_screen.dart';
-
-/// Main navigation screen that manages individual screen files using NavigationBloc with stack support
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -30,12 +28,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   void initState() {
     super.initState();
-    // No callback setup needed - NavigationService handles drawer closing directly
   }
 
   @override
   void dispose() {
-    // No cleanup needed
     super.dispose();
   }
 
@@ -75,11 +71,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         return [
           IconButton(
             onPressed: () {
-              // Load conversations and show history dialog
               final anchorWiseBloc = BlocProvider.of<AnchorWiseBloc>(context);
               anchorWiseBloc.add(const AnchorWiseLoadConversations());
-
-              // Show conversation history dialog
               showDialog(
                 context: context,
                 builder: (dialogContext) => BlocProvider.value(
@@ -93,7 +86,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
           IconButton(
             onPressed: () {
-              // Create new conversation using AnchorWise BLoC
               final anchorWiseBloc = BlocProvider.of<AnchorWiseBloc>(context);
               anchorWiseBloc.add(const AnchorWiseCreateNewConversation());
             },
@@ -110,14 +102,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listener: (context, authState) {
-        print(
-          '🔍 MainNavigationScreen: Auth state changed to ${authState.status}',
-        );
-        // If user is logged out, navigate back to login screen
         if (authState.status == AuthenticationStatus.unauthenticated) {
-          print('🚪 MainNavigationScreen: Navigating to login due to logout');
-          // Navigate immediately without showing snackbar to avoid widget tree issues
-          // Use WidgetsBinding to ensure navigation happens after the current frame
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.of(context).pushReplacementNamed('/login');
@@ -127,7 +112,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       },
       child: BlocListener<NavigationBloc, NavigationState>(
         listener: (context, state) {
-          // Close all drawers whenever navigation changes
           if (state is NavigationPageSelected) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               NavigationService.forceCloseDrawer();
@@ -149,7 +133,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   !canGoBack, // Prevent system back button if we have navigation stack
               onPopInvokedWithResult: (didPop, result) {
                 if (!didPop && canGoBack) {
-                  // Handle back navigation through our stack
                   NavigationService.goBack(context);
                 }
               },
@@ -199,3 +182,5 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 }
+
+

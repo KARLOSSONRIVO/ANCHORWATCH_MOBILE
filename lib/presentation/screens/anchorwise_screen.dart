@@ -4,8 +4,6 @@ import '../blocs/anchorwise/anchorwise.dart';
 import '../widgets/widgets.dart';
 import '../widgets/chat_bubble_widget.dart';
 import '../themes/app_theme.dart';
-
-/// AnchorWise AI chat screen using AnchorWiseBloc
 class AnchorWiseScreen extends StatefulWidget {
   const AnchorWiseScreen({super.key});
 
@@ -23,10 +21,7 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
     _scrollController.dispose();
     super.dispose();
   }
-
-  /// Convert ChatMessage from BLoC to ChatBubbleMessage for the widget
   ChatBubbleMessage _convertToChatBubbleMessage(ChatMessage message) {
-    print('🔍 Converting message - ID: ${message.id}, ConversationID: ${message.conversationId}, Sender: ${message.sender}');
     return ChatBubbleMessage(
       id: message.id,
       content: message.content,
@@ -44,7 +39,6 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
         if (state.error != null) {
           SnackBarHelper.showError(context, state.error!);
         }
-        // Auto-scroll to bottom when new messages arrive
         if (state.messages.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (_scrollController.hasClients) {
@@ -131,7 +125,6 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Large Logo
             Image.asset(
               'assets/images/LOGOnoBG.png',
               width: 200,
@@ -153,8 +146,6 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
               },
             ),
             const SizedBox(height: 40),
-
-            // Main title
             Text(
               'Your AI companion for\nstablecoin\nand macroeconomic\ninsights.',
               style: TextStyle(
@@ -167,8 +158,6 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-
-            // Subtitle
             Text(
               'Ask questions, explore trends, and get\ninstant summaries powered by intelligent\nfinancial analysis.',
               style: TextStyle(
@@ -233,7 +222,6 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
           ),
           const SizedBox(width: 12),
           if (isSending)
-            // Cancel button when sending
             Container(
               decoration: BoxDecoration(
                 color: Colors.red.shade600,
@@ -249,7 +237,6 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
               ),
             )
           else
-            // Send button when not sending
             Container(
               decoration: const BoxDecoration(
                 color: AppTheme.primaryColor,
@@ -279,63 +266,37 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
   void _handleCancelRequest() {
     context.read<AnchorWiseBloc>().add(const AnchorWiseCancelRequest());
   }
-
-  /// Handle positive feedback for AI messages
   Future<bool> _handlePositiveFeedback(ChatBubbleMessage message) async {
     try {
       if (!message.canReceiveFeedback) {
         throw Exception('This message cannot receive feedback');
       }
-
-      // Get conversation ID from current state if message doesn't have it
       final conversationId = message.conversationId ?? 
           context.read<AnchorWiseBloc>().state.currentConversationId;
 
       if (conversationId == null || conversationId.isEmpty) {
         throw Exception('Cannot send feedback: No conversation ID available');
       }
-
-      // Debug logging
-      print('🔍 Sending positive feedback - ConversationID: $conversationId, MessageID: ${message.id}');
-
-      // Send positive feedback event to BLoC
       context.read<AnchorWiseBloc>().add(AnchorWiseSendPositiveFeedback(message.id));
-      
-      // Return true to indicate the feedback was sent
-      // The actual success/failure will be handled by the BLoC and shown via snackbar
       return true;
     } catch (e) {
-      print('❌ Failed to send positive feedback: $e');
       return false;
     }
   }
-
-  /// Handle negative feedback for AI messages
   Future<bool> _handleNegativeFeedback(ChatBubbleMessage message) async {
     try {
       if (!message.canReceiveFeedback) {
         throw Exception('This message cannot receive feedback');
       }
-
-      // Get conversation ID from current state if message doesn't have it
       final conversationId = message.conversationId ?? 
           context.read<AnchorWiseBloc>().state.currentConversationId;
 
       if (conversationId == null || conversationId.isEmpty) {
         throw Exception('Cannot send feedback: No conversation ID available');
       }
-
-      // Debug logging
-      print('🔍 Sending negative feedback - ConversationID: $conversationId, MessageID: ${message.id}');
-
-      // Send negative feedback event to BLoC
       context.read<AnchorWiseBloc>().add(AnchorWiseSendNegativeFeedback(message.id));
-      
-      // Return true to indicate the feedback was sent
-      // The actual success/failure will be handled by the BLoC and shown via snackbar
       return true;
     } catch (e) {
-      print('❌ Failed to send negative feedback: $e');
       return false;
     }
   }
@@ -343,3 +304,4 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
 
 
 }
+

@@ -6,8 +6,6 @@ import '../blocs/signup/signup.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
 import '../../utils/validators/form_validators.dart';
-
-/// Sign up screen for new user registration using SignUpBloc
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -36,17 +34,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _handleSignUp() {
     if (_formKey.currentState!.validate()) {
-      // Only trigger BLoC if basic form validation passes
       context.read<SignUpBloc>().add(const SignUpFormSubmitted());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Check if keyboard is visible
     _isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-
-    // Set theme-aware system UI overlay
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -64,18 +58,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return BlocConsumer<SignUpBloc, SignUpState>(
       listener: (context, state) {
         if (state.status == SignUpStatus.success) {
-          // Trigger authentication success
           context.read<AuthenticationBloc>().add(
             AuthenticationStatusRequested(),
           );
-          // Navigate back to login immediately to avoid widget tree issues
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.pop(context);
             }
           });
         } else if (state.hasError) {
-          // Show customized toast for validation errors with shorter duration
           SnackBarHelper.showError(
             context,
             state.errorMessage!,
@@ -91,7 +82,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           body: SafeArea(
             child: Stack(
               children: [
-                // Main content
                 SingleChildScrollView(
                   physics: _isKeyboardVisible
                       ? const AlwaysScrollableScrollPhysics()
@@ -110,7 +100,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // Back Button
                             Align(
                               alignment: Alignment.centerLeft,
                               child: IconButton(
@@ -126,8 +115,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(height: 10),
 
                             const Spacer(),
-
-                            // Logo
                             Image.asset(
                               'assets/images/LOGOnoBG.png',
                               width: 120,
@@ -135,8 +122,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               fit: BoxFit.contain,
                             ),
                             const SizedBox(height: 40),
-
-                            // Title
                             Text(
                               'Welcome to AnchorWatch',
                               style: TextStyle(
@@ -148,8 +133,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
-
-                            // Subtitle
                             Text(
                               'Sign up',
                               style: TextStyle(
@@ -160,8 +143,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 40),
-
-                            // Username Field
                             TextFormField(
                               controller: _usernameController,
                               style: TextStyle(
@@ -216,8 +197,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               textInputAction: TextInputAction.next,
                             ),
                             const SizedBox(height: 16),
-
-                            // Email Field
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
@@ -273,8 +252,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               textInputAction: TextInputAction.next,
                             ),
                             const SizedBox(height: 16),
-
-                            // Password Field
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
@@ -339,11 +316,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               validator: (value) =>
                                   FormValidators.validatePassword(value),
                               onChanged: (password) {
-                                // Trigger BLoC password validation
                                 context.read<SignUpBloc>().add(
                                   SignUpPasswordChanged(password: password),
                                 );
-                                // Re-validate confirm password field when password changes
                                 if (_confirmPasswordController
                                     .text
                                     .isNotEmpty) {
@@ -353,8 +328,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               textInputAction: TextInputAction.next,
                             ),
                             const SizedBox(height: 16),
-
-                            // Confirm Password Field
                             TextFormField(
                               controller: _confirmPasswordController,
                               obscureText: _obscureConfirmPassword,
@@ -423,13 +396,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     _passwordController.text,
                                   ),
                               onChanged: (confirmPassword) {
-                                // Trigger BLoC confirm password validation
                                 context.read<SignUpBloc>().add(
                                   SignUpConfirmPasswordChanged(
                                     confirmPassword: confirmPassword,
                                   ),
                                 );
-                                // Re-validate password field when confirm password changes
                                 if (_passwordController.text.isNotEmpty) {
                                   _formKey.currentState!.validate();
                                 }
@@ -438,8 +409,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               onFieldSubmitted: (_) => _handleSignUp(),
                             ),
                             const SizedBox(height: 32),
-
-                            // Create Account Button
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -467,8 +436,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                             ),
                             const SizedBox(height: 20),
-
-                            // Login Link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -502,13 +469,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
-
-                // Loading Overlay
                 if (isLoading)
                   Container(
                     color: AppTheme.getBackgroundColor(
                       context,
-                    ).withOpacity(0.7),
+                    ).withValues(alpha: 0.7),
                     child: const Center(
                       child: LoadingWidget(
                         size: 48.0,
@@ -531,3 +496,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
+

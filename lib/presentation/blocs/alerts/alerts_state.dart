@@ -1,25 +1,17 @@
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/alert.dart';
-
-/// Base state for AlertsBloc
 abstract class AlertsState extends Equatable {
   const AlertsState();
 
   @override
   List<Object?> get props => [];
 }
-
-/// Initial state
 class AlertsInitial extends AlertsState {
   const AlertsInitial();
 }
-
-/// Loading state
 class AlertsLoading extends AlertsState {
   const AlertsLoading();
 }
-
-/// Loaded state
 class AlertsLoaded extends AlertsState {
   final List<Alert> alerts;
   final bool hasReachedMax;
@@ -66,8 +58,6 @@ class AlertsLoaded extends AlertsState {
     currentTypeFilter,
   ];
 }
-
-/// Error state
 class AlertsError extends AlertsState {
   final String message;
 
@@ -76,8 +66,6 @@ class AlertsError extends AlertsState {
   @override
   List<Object> get props => [message];
 }
-
-/// Alert acknowledged state
 class AlertAcknowledged extends AlertsState {
   final String alertId;
 
@@ -86,8 +74,6 @@ class AlertAcknowledged extends AlertsState {
   @override
   List<Object> get props => [alertId];
 }
-
-/// Alert resolved state
 class AlertResolved extends AlertsState {
   final String alertId;
 
@@ -96,8 +82,6 @@ class AlertResolved extends AlertsState {
   @override
   List<Object> get props => [alertId];
 }
-
-/// Dashboard loaded state
 class AlertsDashboardLoaded extends AlertsState {
   final AlertDashboard dashboard;
 
@@ -106,13 +90,9 @@ class AlertsDashboardLoaded extends AlertsState {
   @override
   List<Object> get props => [dashboard];
 }
-
-/// Alert detection triggered state
 class AlertDetectionTriggered extends AlertsState {
   const AlertDetectionTriggered();
 }
-
-/// Alert system test result state
 class AlertSystemTestCompleted extends AlertsState {
   final Map<String, dynamic> testResults;
 
@@ -121,3 +101,4 @@ class AlertSystemTestCompleted extends AlertsState {
   @override
   List<Object> get props => [testResults];
 }
+

@@ -1,4 +1,3 @@
-// Contact support request and response models
 
 class ContactSupportRequestModel {
   final String message;

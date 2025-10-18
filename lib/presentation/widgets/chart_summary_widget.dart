@@ -5,8 +5,6 @@ import '../../injection_container.dart';
 import 'data_quality_indicator.dart';
 import '../../data/models/chart_summary_model.dart';
 import '../../data/models/data_quality_model.dart';
-
-/// Widget for displaying chart summary with generate button
 class ChartSummaryWidget extends StatelessWidget {
   final String chartType;
   final String chartTitle;
@@ -66,17 +64,12 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
   @override
   void didUpdateWidget(_ChartSummaryContent oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
-    // Check if timeFrame or chartData has changed
     final currentTimeFrame = widget.timeFrame;
     final currentChartDataHash = _generateChartDataHash(widget.chartData);
     
     if (_lastTimeFrame != currentTimeFrame || _lastChartDataHash != currentChartDataHash) {
       _lastTimeFrame = currentTimeFrame;
       _lastChartDataHash = currentChartDataHash;
-      
-      // Clear existing summary when data changes, but don't auto-regenerate
-      // Let user manually trigger regeneration to avoid overloading device
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           context.read<ChartSummaryBloc>().add(const ChartSummaryClearRequested());
@@ -87,8 +80,6 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
 
   String? _generateChartDataHash(List<Map<String, dynamic>>? chartData) {
     if (chartData == null || chartData.isEmpty) return null;
-    
-    // Create a simple hash based on data length and first few entries
     final dataString = chartData.length.toString() + 
                       (chartData.isNotEmpty ? chartData.first.toString() : '');
     return dataString.hashCode.toString();
@@ -107,7 +98,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                 : const Color(0xFF1A2A2A), // Dark teal background
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFF00D4AA).withOpacity(0.3),
+              color: const Color(0xFF00D4AA).withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -169,7 +160,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: state.summary == null 
                             ? const Color(0xFF00D4AA) 
-                            : const Color(0xFF00D4AA).withOpacity(0.8),
+                            : const Color(0xFF00D4AA).withValues(alpha: 0.8),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         minimumSize: Size.zero,
@@ -191,7 +182,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                         : const Color(0xFF1A2A2A), // Dark teal background
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF00D4AA).withOpacity(0.3),
+                      color: const Color(0xFF00D4AA).withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -238,18 +229,18 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Theme.of(context).brightness == Brightness.light
-                        ? const Color(0xFFF0F8F7).withOpacity(0.5)
-                        : const Color(0xFF1A2A2A).withOpacity(0.5),
+                        ? const Color(0xFFF0F8F7).withValues(alpha: 0.5)
+                        : const Color(0xFF1A2A2A).withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF00D4AA).withOpacity(0.2),
+                      color: const Color(0xFF00D4AA).withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.info_outline,
-                        color: const Color(0xFF00D4AA).withOpacity(0.7),
+                        color: const Color(0xFF00D4AA).withValues(alpha: 0.7),
                         size: 16,
                       ),
                       const SizedBox(width: 8),
@@ -257,7 +248,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                         child: Text(
                           'Click Generate to get AI analysis for this chart',
                           style: TextStyle(
-                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                            color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
                             fontSize: 12,
                           ),
                         ),
@@ -276,13 +267,12 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                         : const Color(0xFF2A2A2A),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Theme.of(context).dividerColor.withOpacity(0.5),
+                      color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Data Quality Indicator
                       if (state.summary is ChartSummaryModel && 
                           (state.summary as ChartSummaryModel).dataQuality != null) ...[
                         Row(
@@ -327,7 +317,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00D4AA).withOpacity(0.1),
+                                color: const Color(0xFF00D4AA).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -350,10 +340,10 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.red.withOpacity(0.3),
+                      color: Colors.red.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Column(
@@ -441,3 +431,4 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
     );
   }
 }
+

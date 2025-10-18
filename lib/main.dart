@@ -11,11 +11,7 @@ import 'services/storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize services
   await StorageService.init();
-  
-  // Initialize dependency injection with Injectable
   await configureDependencies();
   
   runApp(const MyApp());
@@ -68,33 +64,24 @@ class MyApp extends StatelessWidget {
           builder: (context, onboardingState) {
             return BlocBuilder<AuthenticationBloc, AuthenticationState>(
               builder: (context, authState) {
-                print('🏗️ Building app - Onboarding: ${onboardingState.status}, Auth: ${authState.status}');
-                print('🔍 AuthState details: ${authState.toString()}');
-                
-                // Check onboarding first - only show splash on initial load
                 if (onboardingState.status == OnboardingStatus.loading) {
                   return const _SplashScreen();
                 }
                 
-                // If onboarding not completed, show onboarding
                 if (onboardingState.status == OnboardingStatus.notCompleted) {
                   return const OnboardingScreen();
                 }
                 
-                // Onboarding completed, check authentication
                 switch (authState.status) {
                   case AuthenticationStatus.authenticated:
-                    print('🔐 Navigating to MainNavigationScreen (authenticated)');
                     return const MainNavigationScreen();
                   case AuthenticationStatus.unauthenticated:
-                    print('🚪 Navigating to LoginScreen (unauthenticated)');
                     return const LoginScreen();
                   case AuthenticationStatus.loading:
                     return const LoginScreen(); // Stay on login during loading
                   case AuthenticationStatus.signUpSuccess:
                     return const LoginScreen(); // Redirect to login after successful signup
                   case AuthenticationStatus.unknown:
-                    // Only show splash on app startup, not during login
                     if (onboardingState.status == OnboardingStatus.loading) {
                       return const _SplashScreen();
                     } else {
@@ -109,8 +96,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-/// Splash screen shown while checking authentication status
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
 
@@ -118,7 +103,6 @@ class _SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      // No FAB in splash screen (debug tester removed)
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

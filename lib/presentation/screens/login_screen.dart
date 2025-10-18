@@ -5,10 +5,7 @@ import '../blocs/authentication/authentication.dart';
 import '../routes/routes.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
-import '../widgets/custom_snackbar.dart';
 import '../../utils/validators/form_validators.dart';
-
-/// Login screen that handles user authentication
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -42,7 +39,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Set dark theme for status bar
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -62,15 +58,11 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) {
-            // Clear any existing snackbars when starting authentication
             if (state.status == AuthenticationStatus.loading) {
               ScaffoldMessenger.of(context).clearSnackBars();
             }
-            // Navigate on successful authentication
             else if (state.status == AuthenticationStatus.authenticated) {
               ScaffoldMessenger.of(context).clearSnackBars();
-              // Navigate immediately to avoid widget tree issues
-              // The success message will be shown in the main navigation screen if needed
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
                   Navigator.of(
@@ -79,7 +71,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
               });
             }
-            // Show error message only when authentication fails
             else if (state.status == AuthenticationStatus.unauthenticated &&
                 state.error != null) {
               SnackBarHelper.showError(context, state.error!);
@@ -93,7 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               return Stack(
                 children: [
-                  // Main content
                   SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -106,8 +96,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const SizedBox(height: 60),
-
-                            // Logo
                             Image.asset(
                               'assets/images/LOGOnoBG.png',
                               width: 120,
@@ -115,8 +103,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               fit: BoxFit.contain,
                             ),
                             const SizedBox(height: 40),
-
-                            // Title
                             Text(
                               'Welcome to AnchorWatch',
                               style: TextStyle(
@@ -128,8 +114,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
-
-                            // Subtitle
                             Text(
                               'Log in',
                               style: TextStyle(
@@ -140,8 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 40),
-
-                            // Username/Email Field
                             TextFormField(
                               controller: _usernameController,
                               style: TextStyle(
@@ -184,8 +166,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               textInputAction: TextInputAction.next,
                             ),
                             const SizedBox(height: 16),
-
-                            // Password Field
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
@@ -249,8 +229,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               onFieldSubmitted: (_) => _handleLogin(),
                             ),
                             const SizedBox(height: 8),
-
-                            // Forgot Password
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
@@ -273,8 +251,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             const SizedBox(height: 24),
-
-                            // Sign In Button
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -302,8 +278,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             const SizedBox(height: 40),
-
-                            // Sign Up Link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -339,13 +313,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-
-                  // Loading Overlay
                   if (isLoading)
                     Container(
                       color: AppTheme.getBackgroundColor(
                         context,
-                      ).withOpacity(0.7),
+                      ).withValues(alpha: 0.7),
                       child: const Center(
                         child: LoadingWidget(
                           size: 48.0,
@@ -369,3 +341,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

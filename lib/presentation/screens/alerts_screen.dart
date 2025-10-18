@@ -1,11 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../injection_container.dart';
 import '../blocs/alerts/alerts.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
-
-/// Alerts page with comprehensive alert management
 class AlertsScreen extends StatelessWidget {
   const AlertsScreen({super.key});
 
@@ -147,7 +145,6 @@ class _AlertsView extends StatelessWidget {
         break;
       case 'all':
       default:
-        // Clear filters
         break;
     }
 
@@ -645,3 +642,4 @@ class _AlertsView extends StatelessWidget {
     }
   }
 }
+

@@ -6,8 +6,6 @@ import '../../../domain/usecases/alerts/resolve_alert_usecase.dart';
 import '../../../domain/repositories/alert_repository.dart';
 import 'alerts_event.dart';
 import 'alerts_state.dart';
-
-/// BLoC for managing alerts state
 @injectable
 class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
   final GetAlertHistoryUseCase _getAlertHistoryUseCase;
@@ -31,8 +29,6 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
     on<AlertDetectionTriggerRequested>(_onAlertDetectionTriggerRequested);
     on<AlertSystemTestRequested>(_onAlertSystemTestRequested);
   }
-
-  /// Load alerts with optional filters
   void _onAlertsLoadRequested(
     AlertsLoadRequested event,
     Emitter<AlertsState> emit,
@@ -62,14 +58,11 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
       emit(AlertsError(error.toString()));
     }
   }
-
-  /// Refresh alerts
   void _onAlertsRefreshRequested(
     AlertsRefreshRequested event,
     Emitter<AlertsState> emit,
   ) async {
     try {
-      // If currently loaded, get current filters
       String? severityFilter;
       String? statusFilter;
       String? typeFilter;
@@ -103,8 +96,6 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
       emit(AlertsError(error.toString()));
     }
   }
-
-  /// Load more alerts for pagination
   void _onAlertsLoadMoreRequested(
     AlertsLoadMoreRequested event,
     Emitter<AlertsState> emit,
@@ -135,8 +126,6 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
       }
     }
   }
-
-  /// Load alert dashboard
   void _onAlertsDashboardLoadRequested(
     AlertsDashboardLoadRequested event,
     Emitter<AlertsState> emit,
@@ -148,8 +137,6 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
       emit(AlertsError(error.toString()));
     }
   }
-
-  /// Acknowledge an alert
   void _onAlertAcknowledgeRequested(
     AlertAcknowledgeRequested event,
     Emitter<AlertsState> emit,
@@ -157,15 +144,11 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
     try {
       await _acknowledgeAlertUseCase.call(event.alertId);
       emit(AlertAcknowledged(event.alertId));
-
-      // Refresh alerts to show updated status
       add(const AlertsRefreshRequested());
     } catch (error) {
       emit(AlertsError(error.toString()));
     }
   }
-
-  /// Resolve an alert
   void _onAlertResolveRequested(
     AlertResolveRequested event,
     Emitter<AlertsState> emit,
@@ -173,15 +156,11 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
     try {
       await _resolveAlertUseCase.call(event.alertId);
       emit(AlertResolved(event.alertId));
-
-      // Refresh alerts to show updated status
       add(const AlertsRefreshRequested());
     } catch (error) {
       emit(AlertsError(error.toString()));
     }
   }
-
-  /// Filter alerts
   void _onAlertsFilterChanged(
     AlertsFilterChanged event,
     Emitter<AlertsState> emit,
@@ -211,8 +190,6 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
       emit(AlertsError(error.toString()));
     }
   }
-
-  /// Trigger alert detection (admin)
   void _onAlertDetectionTriggerRequested(
     AlertDetectionTriggerRequested event,
     Emitter<AlertsState> emit,
@@ -224,8 +201,6 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
       emit(AlertsError(error.toString()));
     }
   }
-
-  /// Test alert system (admin)
   void _onAlertSystemTestRequested(
     AlertSystemTestRequested event,
     Emitter<AlertsState> emit,
@@ -238,3 +213,4 @@ class AlertsBloc extends Bloc<AlertsEvent, AlertsState> {
     }
   }
 }
+

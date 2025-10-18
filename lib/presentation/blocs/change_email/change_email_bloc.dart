@@ -6,8 +6,6 @@ import '../../../domain/usecases/profile/request_change_email_usecase.dart';
 import '../../../domain/usecases/profile/confirm_change_email_usecase.dart';
 import '../../../domain/entities/change_email/request_change_email_result.dart';
 import '../../../domain/entities/change_email/confirm_change_email_result.dart';
-
-// Events
 abstract class ChangeEmailEvent extends Equatable {
   const ChangeEmailEvent();
 
@@ -40,8 +38,6 @@ class ConfirmChangeEmailSubmitted extends ChangeEmailEvent {
 }
 
 class ChangeEmailReset extends ChangeEmailEvent {}
-
-// States
 abstract class ChangeEmailState extends Equatable {
   const ChangeEmailState();
 
@@ -91,8 +87,6 @@ class ChangeEmailConfirmFailure extends ChangeEmailState {
   @override
   List<Object> get props => [error];
 }
-
-// BLoC
 @injectable
 class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
   final RequestChangeEmailUseCase _requestChangeEmailUseCase;
@@ -111,17 +105,14 @@ class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
     RequestChangeEmailSubmitted event,
     Emitter<ChangeEmailState> emit,
   ) async {
-    print('[CHANGE_EMAIL_BLOC] Requesting email change for: ${event.newEmail}');
     emit(ChangeEmailRequestLoading());
 
     try {
       final result = await _requestChangeEmailUseCase.execute(
         newEmail: event.newEmail,
       );
-      print('[CHANGE_EMAIL_BLOC] Email change request successful');
       emit(ChangeEmailRequestSuccess(result, event.newEmail));
     } catch (e) {
-      print('[CHANGE_EMAIL_BLOC] Email change request failed: $e');
       emit(ChangeEmailRequestFailure(e.toString()));
     }
   }
@@ -150,3 +141,4 @@ class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
     emit(ChangeEmailInitial());
   }
 }
+

@@ -9,8 +9,7 @@ import '../../../utils/validators/form_validators.dart';
 class ConfirmChangeEmailScreen extends StatelessWidget {
   final String newEmail;
 
-  const ConfirmChangeEmailScreen({Key? key, required this.newEmail})
-    : super(key: key);
+  const ConfirmChangeEmailScreen({super.key, required this.newEmail});
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +23,7 @@ class ConfirmChangeEmailScreen extends StatelessWidget {
 class _ConfirmChangeEmailView extends StatefulWidget {
   final String newEmail;
 
-  const _ConfirmChangeEmailView({Key? key, required this.newEmail})
-    : super(key: key);
+  const _ConfirmChangeEmailView({required this.newEmail});
 
   @override
   State<_ConfirmChangeEmailView> createState() =>
@@ -46,14 +44,11 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
   Widget build(BuildContext context) {
     return BlocConsumer<ChangeEmailBloc, ChangeEmailState>(
       listenWhen: (previous, current) {
-        // Only listen when the state type actually changes to avoid repeated snackbars
         return previous.runtimeType != current.runtimeType;
       },
       listener: (context, state) {
         if (state is ChangeEmailConfirmSuccess) {
-          // Dismiss keyboard early to avoid jank overlapping IME hide animation
           FocusScope.of(context).unfocus();
-          // Pass back the verified new email for optimistic update
           Navigator.pop(context, widget.newEmail);
         } else if (state is ChangeEmailConfirmFailure) {
           SnackBarHelper.showError(context, state.error);
@@ -95,7 +90,7 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                         fontSize: 14,
                         color: Theme.of(
                           context,
-                        ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                         fontFamily: 'Inter',
                       ),
                     ),
@@ -122,7 +117,7 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                         hintStyle: TextStyle(
                           color: Theme.of(
                             context,
-                          ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                          ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
                           fontFamily: 'Inter',
                         ),
                         filled: true,
@@ -185,7 +180,7 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                           ),
                           disabledBackgroundColor: const Color(
                             0xFF00E5CC,
-                          ).withOpacity(0.5),
+                          ).withValues(alpha: 0.5),
                         ),
                         child: state is ChangeEmailConfirmLoading
                             ? const SizedBox(
@@ -229,3 +224,4 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
     }
   }
 }
+

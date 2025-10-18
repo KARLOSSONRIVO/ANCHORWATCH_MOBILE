@@ -88,8 +88,9 @@ class AlertRepositoryImpl implements AlertRepository {
       if (name != null) data['name'] = name;
       if (isEnabled != null) data['is_enabled'] = isEnabled;
       if (conditions != null) data['conditions'] = conditions;
-      if (notificationSettings != null)
+      if (notificationSettings != null) {
         data['notification_settings'] = notificationSettings;
+      }
 
       final model = await _remoteDataSource.updateAlertRule(ruleId, data);
       return model.toEntity();

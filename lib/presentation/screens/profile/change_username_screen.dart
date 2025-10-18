@@ -12,7 +12,7 @@ import '../../widgets/loading_widget.dart';
 import '../../../utils/validators/form_validators.dart';
 
 class ChangeUsernameScreen extends StatelessWidget {
-  const ChangeUsernameScreen({Key? key}) : super(key: key);
+  const ChangeUsernameScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class ChangeUsernameScreen extends StatelessWidget {
 }
 
 class _ChangeUsernameView extends StatefulWidget {
-  const _ChangeUsernameView({Key? key}) : super(key: key);
+  const _ChangeUsernameView();
 
   @override
   State<_ChangeUsernameView> createState() => _ChangeUsernameViewState();
@@ -62,21 +62,13 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
           BlocListener<ChangeUsernameBloc, ChangeUsernameState>(
             listener: (context, state) {
               if (state is ChangeUsernameSuccess) {
-                // Show success snackbar using custom widget
                 SnackBarHelper.showSuccess(context, state.message);
-
-                // Extract new username from the success state
                 final newUsername = state.newUsername;
-
-                // Update authentication state with new username
                 context.read<AuthenticationBloc>().add(
                   AuthenticationUsernameUpdated(newUsername: newUsername),
                 );
-
-                // Navigate back and pass the new username as result
                 Navigator.of(context).pop(newUsername);
               } else if (state is ChangeUsernameFailure) {
-                // Show error snackbar using custom widget
                 SnackBarHelper.showError(context, state.error);
               }
             },
@@ -89,7 +81,6 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Logo at the top center
                 Center(
                   child: Image.asset(
                     'assets/images/LOGOnoBG.png',
@@ -125,8 +116,6 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // New Username Field
                 Text(
                   'New Username',
                   style: TextStyle(
@@ -176,8 +165,6 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                   onFieldSubmitted: (_) => _onSubmit(),
                 ),
                 const SizedBox(height: 24),
-
-                // Info text
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -207,8 +194,6 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                   ),
                 ),
                 const SizedBox(height: 32),
-
-                // Submit Button
                 BlocBuilder<ChangeUsernameBloc, ChangeUsernameState>(
                   builder: (context, state) {
                     return SizedBox(
@@ -261,3 +246,4 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
     }
   }
 }
+

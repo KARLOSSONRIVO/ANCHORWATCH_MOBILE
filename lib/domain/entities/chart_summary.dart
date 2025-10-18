@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Chart summary entity
 class ChartSummary extends Equatable {
   final String chartType;
   final String summary;
@@ -19,3 +17,4 @@ class ChartSummary extends Equatable {
   @override
   List<Object> get props => [chartType, summary, source, cacheHit, timestamp];
 }
+

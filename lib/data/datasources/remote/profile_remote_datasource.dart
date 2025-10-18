@@ -33,10 +33,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       return ChangePasswordResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Change password failed: $e');
     }
   }
@@ -51,10 +49,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       return ChangeUsernameResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Change username failed: $e');
     }
   }
@@ -69,10 +65,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       return GenerateProfileUploadURLResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Generate profile upload URL failed: $e');
     }
   }
@@ -87,10 +81,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       return RequestChangeEmailResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Request change email failed: $e');
     }
   }
@@ -105,10 +97,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       return ConfirmProfileImageResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Confirm profile image failed: $e');
     }
   }
@@ -123,10 +113,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       return ConfirmChangeEmailResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Confirm change email failed: $e');
     }
   }

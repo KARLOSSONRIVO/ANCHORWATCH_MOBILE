@@ -1,18 +1,5 @@
-/// Centralized form validation utilities
-///
-/// This class provides reusable validation methods for all forms in the app.
-/// All validators return null if valid, or an error message string if invalid.
 class FormValidators {
-  // Private constructor to prevent instantiation
   FormValidators._();
-
-  /// Validates username input
-  ///
-  /// Rules:
-  /// - Cannot be empty
-  /// - Must be at least 3 characters
-  /// - Cannot exceed 30 characters
-  /// - Can only contain letters, numbers, and underscores
   static String? validateUsername(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter a username';
@@ -35,12 +22,6 @@ class FormValidators {
 
     return null;
   }
-
-  /// Validates email input
-  ///
-  /// Rules:
-  /// - Cannot be empty
-  /// - Must match email format
   static String? validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter an email';
@@ -55,12 +36,6 @@ class FormValidators {
 
     return null;
   }
-
-  /// Validates password input
-  ///
-  /// Rules:
-  /// - Cannot be empty
-  /// - Must be at least [minLength] characters (default: 8)
   static String? validatePassword(String? value, {int minLength = 8}) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter a password';
@@ -72,12 +47,6 @@ class FormValidators {
 
     return null;
   }
-
-  /// Validates password confirmation
-  ///
-  /// Rules:
-  /// - Cannot be empty
-  /// - Must match the original password
   static String? validateConfirmPassword(String? value, String password) {
     if (value == null || value.trim().isEmpty) {
       return 'Please confirm your password';
@@ -89,12 +58,6 @@ class FormValidators {
 
     return null;
   }
-
-  /// Validates OTP/verification code input
-  ///
-  /// Rules:
-  /// - Cannot be empty
-  /// - Must be exactly [length] digits (default: 6)
   static String? validateOtp(String? value, {int length = 6}) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter the verification code';
@@ -105,42 +68,24 @@ class FormValidators {
     if (trimmedValue.length != length) {
       return 'Verification code must be $length digits';
     }
-
-    // Optionally check if it's all digits
     if (!RegExp(r'^\d+$').hasMatch(trimmedValue)) {
       return 'Verification code must contain only numbers';
     }
 
     return null;
   }
-
-  /// Generic required field validator
-  ///
-  /// Rules:
-  /// - Cannot be empty
   static String? validateRequired(String? value, String fieldName) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter $fieldName';
     }
     return null;
   }
-
-  /// Validates that username or email is provided (for login)
-  ///
-  /// Rules:
-  /// - Cannot be empty
   static String? validateUsernameOrEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter your username or email';
     }
     return null;
   }
-
-  /// Validates a message/text field with minimum length
-  ///
-  /// Rules:
-  /// - Cannot be empty
-  /// - Must be at least [minLength] characters
   static String? validateMessage(String? value, {int minLength = 10}) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter a message';
@@ -153,3 +98,4 @@ class FormValidators {
     return null;
   }
 }
+

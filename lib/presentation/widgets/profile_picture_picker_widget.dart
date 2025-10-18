@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../injection_container.dart';
 import '../blocs/profile_picture/profile_picture.dart';
 import '../themes/app_theme.dart';
-
-/// Widget for picking and uploading profile pictures
 class ProfilePicturePickerWidget extends StatelessWidget {
   final String? currentImageUrl;
   final double size;
@@ -46,15 +44,11 @@ class _ProfilePicturePickerView extends StatelessWidget {
     return BlocConsumer<ProfilePictureBloc, ProfilePictureState>(
       listener: (context, state) {
         if (state.status == ProfilePictureStatus.imagePicked && state.selectedImage != null) {
-          // Automatically start upload when image is picked
           context.read<ProfilePictureBloc>().add(
             ProfilePictureUploadRequested(imageFile: state.selectedImage!),
           );
         } else if (state.status == ProfilePictureStatus.confirmed) {
-          // Notify parent that image has changed
           onImageChanged?.call();
-          
-          // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Profile picture updated successfully!'),
@@ -62,7 +56,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
             ),
           );
         } else if (state.status == ProfilePictureStatus.error) {
-          // Show error message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error ?? 'An error occurred'),
@@ -74,7 +67,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
       builder: (context, state) {
         return Stack(
           children: [
-            // Profile picture container
             GestureDetector(
               onTap: () => _showImagePickerOptions(context),
               child: Container(
@@ -93,15 +85,13 @@ class _ProfilePicturePickerView extends StatelessWidget {
                 ),
               ),
             ),
-            
-            // Loading overlay
             if (state.status == ProfilePictureStatus.uploading ||
                 state.status == ProfilePictureStatus.confirming)
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                   ),
                   child: Center(
                     child: Column(
@@ -134,8 +124,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
                   ),
                 ),
               ),
-            
-            // Camera icon overlay
             Positioned(
               bottom: 0,
               right: 0,
@@ -164,7 +152,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
   }
 
   Widget _buildImageContent(BuildContext context, ProfilePictureState state) {
-    // Show selected image if available
     if (state.selectedImage != null) {
       return Image.file(
         state.selectedImage!,
@@ -173,8 +160,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
         height: double.infinity,
       );
     }
-    
-    // Show current profile image
     if (currentImageUrl != null && currentImageUrl!.isNotEmpty) {
       return Image.network(
         currentImageUrl!,
@@ -201,8 +186,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
         },
       );
     }
-    
-    // Show default avatar
     return _buildDefaultAvatar(context);
   }
 
@@ -234,7 +217,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle bar
               Container(
                 width: 40,
                 height: 4,
@@ -255,8 +237,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              
-              // Gallery option
               ListTile(
                 leading: Icon(
                   Icons.photo_library,
@@ -276,8 +256,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
                   );
                 },
               ),
-              
-              // Camera option
               ListTile(
                 leading: Icon(
                   Icons.camera_alt,
@@ -297,8 +275,6 @@ class _ProfilePicturePickerView extends StatelessWidget {
                   );
                 },
               ),
-              
-              // Remove option (only if there's a current image)
               if (currentImageUrl != null && currentImageUrl!.isNotEmpty)
                 ListTile(
                   leading: Icon(
@@ -326,3 +302,4 @@ class _ProfilePicturePickerView extends StatelessWidget {
     );
   }
 }
+

@@ -7,9 +7,6 @@ import '../../routes/app_routes.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/profile_picture_picker_widget.dart';
-
-
-/// Profile page content with dark theme using BLoC architecture
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -38,26 +35,19 @@ class _ProfileView extends StatelessWidget {
       color: AppTheme.getBackgroundColor(context),
       child: BlocConsumer<ProfileBloc, ProfileState>(
         listenWhen: (previous, current) {
-          // Only listen when status actually changes to avoid stuck navigation states
           return previous.status != current.status;
         },
         listener: (context, state) {
-          // Handle navigation based on state
           if (state.status == ProfileStatus.navigatingToEditAccount) {
-            // Navigate to edit account screen
             Navigator.of(context).pushNamed('/edit-account');
           } else if (state.status == ProfileStatus.navigatingToContactSupport) {
-            // Navigate to contact support screen
             Navigator.of(context).pushNamed('/contact').then((_) {
-              // Reset status after navigation to allow re-navigation
               if (context.mounted) {
                 context.read<ProfileBloc>().add(const ProfileLoadRequested());
               }
             });
           } else if (state.status == ProfileStatus.navigatingToFAQs) {
-            // Navigate to FAQs screen
             Navigator.of(context).pushNamed('/faq').then((_) {
-              // Reset status after navigation to allow re-navigation
               if (context.mounted) {
                 context.read<ProfileBloc>().add(const ProfileLoadRequested());
               }
@@ -106,15 +96,12 @@ class _ProfileView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Profile Header Section
                 Center(
                   child: Column(
                     children: [
-                      // Profile Picture Picker
                       BlocListener<ProfilePictureBloc, ProfilePictureState>(
                         listener: (context, profilePictureState) {
                           if (profilePictureState.status == ProfilePictureStatus.confirmed) {
-                            // Refresh profile data to get updated image URL
                             context.read<ProfileBloc>().add(const ProfileLoadRequested());
                           }
                         },
@@ -122,13 +109,10 @@ class _ProfileView extends StatelessWidget {
                           currentImageUrl: state.avatar,
                           size: 80.0,
                           onImageChanged: () {
-                            // Profile will be refreshed automatically via listener
                           },
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
-                      // Name
                       Text(
                         state.name,
                         style: TextStyle(
@@ -139,8 +123,6 @@ class _ProfileView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      
-                      // Email
                       Text(
                         state.email,
                         style: TextStyle(
@@ -154,8 +136,6 @@ class _ProfileView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
-                
-                // Account Section
                 Text(
                   'Account',
                   style: TextStyle(
@@ -166,8 +146,6 @@ class _ProfileView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
-                // Menu Items in Single Card
                 Container(
                   decoration: BoxDecoration(
                     color: AppTheme.getCardBackgroundColor(context),
@@ -207,8 +185,6 @@ class _ProfileView extends StatelessWidget {
     );
   }
 }
-
-/// Profile menu item widget for use within a card
 class _ProfileMenuItemInCard extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
@@ -263,8 +239,6 @@ class _ProfileMenuItemInCard extends StatelessWidget {
     );
   }
 }
-
-/// Edit Account dropdown menu item
 class _EditAccountDropdownItem extends StatefulWidget {
   @override
   _EditAccountDropdownItemState createState() => _EditAccountDropdownItemState();
@@ -277,7 +251,6 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Main Edit Account item
         InkWell(
           onTap: () {
             setState(() {
@@ -311,7 +284,6 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
             ),
           ),
         ),
-        // Dropdown options
         AnimatedCrossFade(
           duration: const Duration(milliseconds: 200),
           crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
@@ -334,10 +306,7 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
                     context,
                     AppRoutes.changeUsername,
                   );
-                  
-                  // If username was successfully changed, refresh the profile
-                  if (result != null && result is String && result.isNotEmpty) {
-                    // Refresh profile data to show updated username
+                  if (context.mounted && result != null && result is String && result.isNotEmpty) {
                     context.read<ProfileBloc>().add(const ProfileLoadRequested());
                   }
                 },
@@ -364,10 +333,7 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
                     context,
                     AppRoutes.requestChangeEmail,
                   );
-                  
-                  // If email was successfully changed, refresh the profile
-                  if (result != null && result is String && result.isNotEmpty) {
-                    // Refresh profile data to show updated email
+                  if (context.mounted && result != null && result is String && result.isNotEmpty) {
                     context.read<ProfileBloc>().add(const ProfileLoadRequested());
                   }
                 },
@@ -376,7 +342,6 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
             ],
           ),
         ),
-        // Bottom divider (always show)
         Container(
           height: 1,
           color: AppTheme.getBorderColor(context),
@@ -387,8 +352,6 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
   }
 
 }
-
-/// Individual dropdown option widget
 class _DropdownOption extends StatelessWidget {
   final String title;
   final VoidCallback onTap;

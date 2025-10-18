@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Request model for requesting email change
 class RequestChangeEmailRequestModel extends Equatable {
   final String newEmail;
 
@@ -23,8 +21,6 @@ class RequestChangeEmailRequestModel extends Equatable {
   @override
   List<Object> get props => [newEmail];
 }
-
-/// Response model for requesting email change
 class RequestChangeEmailResponseModel extends Equatable {
   final String message;
 
@@ -47,8 +43,6 @@ class RequestChangeEmailResponseModel extends Equatable {
   @override
   List<Object> get props => [message];
 }
-
-/// Request model for confirming email change
 class ConfirmChangeEmailRequestModel extends Equatable {
   final String otp;
   final String newEmail;
@@ -75,8 +69,6 @@ class ConfirmChangeEmailRequestModel extends Equatable {
   @override
   List<Object> get props => [otp, newEmail];
 }
-
-/// Response model for confirming email change
 class ConfirmChangeEmailResponseModel extends Equatable {
   final String message;
 

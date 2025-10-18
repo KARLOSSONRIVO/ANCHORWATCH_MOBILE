@@ -5,8 +5,6 @@ import '../../routes/app_router.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../widgets/loading_widget.dart';
-
-/// Screen for entering email to reset password
 class ResetPasswordEmailScreen extends StatefulWidget {
   const ResetPasswordEmailScreen({super.key});
 
@@ -53,7 +51,6 @@ class _ResetPasswordEmailScreenState extends State<ResetPasswordEmailScreen> {
       body: BlocConsumer<PasswordResetBloc, PasswordResetState>(
         listener: (context, state) {
           if (state.status == PasswordResetStatus.emailSent) {
-            // Navigate to OTP screen
             Navigator.of(context).pushReplacementNamed(
               '/reset-password/otp',
               arguments: state.email,
@@ -75,8 +72,6 @@ class _ResetPasswordEmailScreenState extends State<ResetPasswordEmailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  
-                  // Logo
                   Container(
                     width: 100,
                     height: 100,
@@ -85,7 +80,7 @@ class _ResetPasswordEmailScreenState extends State<ResetPasswordEmailScreen> {
                       color: const Color(0xFF00BCD4),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00BCD4).withOpacity(0.3),
+                          color: const Color(0xFF00BCD4).withValues(alpha: 0.3),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -99,8 +94,6 @@ class _ResetPasswordEmailScreenState extends State<ResetPasswordEmailScreen> {
                   ),
                   
                   const SizedBox(height: 32),
-                  
-                  // Title
                   Text(
                     'Reset Password',
                     style: TextStyle(
@@ -113,8 +106,6 @@ class _ResetPasswordEmailScreenState extends State<ResetPasswordEmailScreen> {
                   ),
                   
                   const SizedBox(height: 12),
-                  
-                  // Subtitle
                   Text(
                     'Enter your email address and we\'ll send you a verification code to reset your password.',
                     style: TextStyle(
@@ -127,8 +118,6 @@ class _ResetPasswordEmailScreenState extends State<ResetPasswordEmailScreen> {
                   ),
                   
                   const SizedBox(height: 48),
-                  
-                  // Email Input
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -224,8 +213,6 @@ class _ResetPasswordEmailScreenState extends State<ResetPasswordEmailScreen> {
                   ),
                   
                   const Spacer(),
-                  
-                  // Send Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

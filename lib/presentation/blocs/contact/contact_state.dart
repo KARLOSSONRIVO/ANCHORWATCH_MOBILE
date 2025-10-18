@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-/// Status enum for contact state
 enum ContactStatus { initial, loading, success, failure, submitting, submitted, navigatingToFaq }
-
-/// State for ContactBloc
 class ContactState extends Equatable {
   const ContactState({
     this.status = ContactStatus.initial,

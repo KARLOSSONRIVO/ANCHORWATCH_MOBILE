@@ -4,8 +4,6 @@ import '../../../../domain/usecases/stablecoin/get_stablecoin_chart_data_usecase
 import '../../../../domain/entities/stablecoin_chart_data.dart';
 import 'stablecoin_event.dart';
 import 'stablecoin_state.dart';
-
-/// BLoC for managing stablecoin state
 @injectable
 class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
   final GetStablecoinChartDataUseCase _getStablecoinChartDataUseCase;
@@ -15,8 +13,6 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
     on<StablecoinRefreshRequested>(_onStablecoinRefreshRequested);
     on<StablecoinAggregationPeriodChanged>(_onAggregationPeriodChanged);
   }
-
-  /// Handle initializing stablecoin data
   void _onStablecoinInitializeRequested(
     StablecoinInitializeRequested event,
     Emitter<StablecoinState> emit,
@@ -27,8 +23,6 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
       final chartData = await _getStablecoinChartDataUseCase.execute(
         aggregationPeriod: state.selectedPeriod,
       );
-      
-      // Convert domain entities to display format
       final chartDisplayData = _convertToDisplayData(chartData);
       
       emit(state.copyWith(
@@ -42,8 +36,6 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
       ));
     }
   }
-
-  /// Handle refreshing stablecoin data
   void _onStablecoinRefreshRequested(
     StablecoinRefreshRequested event,
     Emitter<StablecoinState> emit,
@@ -52,8 +44,6 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
       final chartData = await _getStablecoinChartDataUseCase.execute(
         aggregationPeriod: state.selectedPeriod,
       );
-      
-      // Convert domain entities to display format
       final chartDisplayData = _convertToDisplayData(chartData);
       
       emit(state.copyWith(
@@ -67,8 +57,6 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
       ));
     }
   }
-
-  /// Handle changing aggregation period
   void _onAggregationPeriodChanged(
     StablecoinAggregationPeriodChanged event,
     Emitter<StablecoinState> emit,
@@ -82,8 +70,6 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
       final chartData = await _getStablecoinChartDataUseCase.execute(
         aggregationPeriod: event.period,
       );
-      
-      // Convert domain entities to display format
       final chartDisplayData = _convertToDisplayData(chartData);
       
       emit(state.copyWith(
@@ -97,12 +83,8 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
       ));
     }
   }
-
-  /// Convert domain entities to display format for charts
   List<Map<String, dynamic>> _convertToDisplayData(StablecoinChartData chartData) {
     final allDates = <DateTime>{};
-    
-    // Collect all unique dates from different data sources
     allDates.addAll(chartData.totalSupplyOverTime.map((d) => d.date));
     allDates.addAll(chartData.mintBurnActivity.map((d) => d.date));
     allDates.addAll(chartData.netChangeInSupply.map((d) => d.date));
@@ -111,7 +93,6 @@ class StablecoinBloc extends Bloc<StablecoinEvent, StablecoinState> {
     final sortedDates = allDates.toList()..sort();
     
     return sortedDates.map((date) {
-      // Find corresponding data for this date
       final supplyData = chartData.totalSupplyOverTime
           .where((d) => d.date.isAtSameMomentAs(date))
           .firstOrNull;

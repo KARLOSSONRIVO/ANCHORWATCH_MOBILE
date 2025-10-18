@@ -1,6 +1,4 @@
 import '../../domain/entities/macro_trends.dart';
-
-// Data models for API response mapping
 class MacroTrendsModel {
   final List<InflationRateModel> annualInflationRates;
   final List<InflationSupplyModel> inflationVsSupplyGrowth;
@@ -77,7 +75,6 @@ class InflationRateModel {
   InflationRateModel({required this.year, this.period, required this.inflationRate});
 
   factory InflationRateModel.fromJson(Map<String, dynamic> json) {
-    // Handle both 'year' (yearly) and 'period' (monthly) fields
     int yearValue = 0;
     String? periodValue;
     
@@ -85,7 +82,6 @@ class InflationRateModel {
       yearValue = json['year'] as int;
     } else if (json['period'] != null) {
       periodValue = json['period'] as String;
-      // Extract year from period string (e.g., "2023-01" -> 2023)
       try {
         yearValue = int.parse(periodValue.split('-')[0]);
       } catch (e) {
@@ -119,7 +115,6 @@ class InflationSupplyModel {
   });
 
   factory InflationSupplyModel.fromJson(Map<String, dynamic> json) {
-    // Handle both 'year' (yearly) and 'period' (monthly) fields
     int yearValue = 0;
     String? periodValue;
     
@@ -127,7 +122,6 @@ class InflationSupplyModel {
       yearValue = json['year'] as int;
     } else if (json['period'] != null) {
       periodValue = json['period'] as String;
-      // Extract year from period string (e.g., "2023-01" -> 2023)
       try {
         yearValue = int.parse(periodValue.split('-')[0]);
       } catch (e) {
@@ -192,3 +186,4 @@ class CorrelationModel {
     );
   }
 }
+

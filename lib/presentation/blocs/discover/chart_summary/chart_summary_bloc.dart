@@ -3,8 +3,6 @@ import 'package:injectable/injectable.dart';
 import '../../../../domain/usecases/chart_summary/get_chart_summary_usecase.dart';
 import 'chart_summary_event.dart';
 import 'chart_summary_state.dart';
-
-/// BLoC for managing chart summary state
 @injectable
 class ChartSummaryBloc extends Bloc<ChartSummaryEvent, ChartSummaryState> {
   final GetChartSummaryUseCase _getChartSummaryUseCase;
@@ -13,8 +11,6 @@ class ChartSummaryBloc extends Bloc<ChartSummaryEvent, ChartSummaryState> {
     on<ChartSummaryGenerateRequested>(_onChartSummaryGenerateRequested);
     on<ChartSummaryClearRequested>(_onChartSummaryClearRequested);
   }
-
-  /// Handle generating chart summary
   void _onChartSummaryGenerateRequested(
     ChartSummaryGenerateRequested event,
     Emitter<ChartSummaryState> emit,
@@ -39,8 +35,6 @@ class ChartSummaryBloc extends Bloc<ChartSummaryEvent, ChartSummaryState> {
       ));
     }
   }
-
-  /// Handle clearing chart summary
   void _onChartSummaryClearRequested(
     ChartSummaryClearRequested event,
     Emitter<ChartSummaryState> emit,
@@ -48,3 +42,4 @@ class ChartSummaryBloc extends Bloc<ChartSummaryEvent, ChartSummaryState> {
     emit(const ChartSummaryState());
   }
 }
+

@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Result for password reset operation
 class ResetPasswordResult extends Equatable {
   final String message;
 

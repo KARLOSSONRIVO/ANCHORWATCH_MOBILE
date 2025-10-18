@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-
-/// Simple test screen to debug the contact support API call
 class ContactSupportDebugScreen extends StatefulWidget {
-  const ContactSupportDebugScreen({Key? key}) : super(key: key);
+  const ContactSupportDebugScreen({super.key});
 
   @override
   State<ContactSupportDebugScreen> createState() => _ContactSupportDebugScreenState();
@@ -28,12 +26,9 @@ class _ContactSupportDebugScreenState extends State<ContactSupportDebugScreen> {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // You'll need to add your actual Bearer token here
           'Authorization': 'Bearer YOUR_ACTUAL_TOKEN_HERE',
         },
       ));
-
-      // Add logging
       dio.interceptors.add(LogInterceptor(
         requestBody: true,
         responseBody: true,

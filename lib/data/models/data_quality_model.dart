@@ -1,4 +1,3 @@
-/// Data quality model for analytics data validation
 class DataQualityModel {
   final double overallScore;
   final double completenessScore;
@@ -27,8 +26,6 @@ class DataQualityModel {
     required this.issues,
     required this.warnings,
   });
-
-  /// Create from JSON
   factory DataQualityModel.fromJson(Map<String, dynamic> json) {
     return DataQualityModel(
       overallScore: (json['overall_score'] as num?)?.toDouble() ?? 0.0,
@@ -45,8 +42,6 @@ class DataQualityModel {
       warnings: (json['warnings'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
-
-  /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
       'overall_score': overallScore,
@@ -63,8 +58,6 @@ class DataQualityModel {
       'warnings': warnings,
     };
   }
-
-  /// Get quality status color
   String get qualityStatusColor {
     switch (qualityStatus.toLowerCase()) {
       case 'excellent':
@@ -81,8 +74,6 @@ class DataQualityModel {
         return '#9E9E9E'; // Grey
     }
   }
-
-  /// Get quality status icon
   String get qualityStatusIcon {
     switch (qualityStatus.toLowerCase()) {
       case 'excellent':
@@ -99,14 +90,8 @@ class DataQualityModel {
         return 'help_outline';
     }
   }
-
-  /// Check if data quality is acceptable for analysis
   bool get isAcceptableForAnalysis => overallScore >= 0.7;
-
-  /// Check if data quality is excellent
   bool get isExcellent => overallScore >= 0.9;
-
-  /// Get formatted data age
   String get formattedDataAge {
     if (dataAgeHours < 1) {
       return 'Just updated';
@@ -117,8 +102,6 @@ class DataQualityModel {
       return '$days day${days == 1 ? '' : 's'} ago';
     }
   }
-
-  /// Get quality recommendations
   List<String> get recommendations {
     final recommendations = <String>[];
     
@@ -144,8 +127,6 @@ class DataQualityModel {
     
     return recommendations;
   }
-
-  /// Create a copy with updated fields
   DataQualityModel copyWith({
     double? overallScore,
     double? completenessScore,
@@ -195,3 +176,4 @@ class DataQualityModel {
     return overallScore.hashCode ^ qualityStatus.hashCode ^ hasIssues.hashCode;
   }
 }
+

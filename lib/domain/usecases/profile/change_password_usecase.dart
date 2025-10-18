@@ -1,21 +1,16 @@
 import 'package:injectable/injectable.dart';
 import '../../repositories/profile_repository.dart';
 import '../../entities/profile/change_password_result.dart';
-
-/// Use case for changing user password
 @injectable
 class ChangePasswordUseCase {
   final ProfileRepository _repository;
 
   ChangePasswordUseCase(this._repository);
-
-  /// Execute the change password use case
   Future<ChangePasswordResult> execute({
     required String oldPassword,
     required String newPassword,
     required String confirmPassword,
   }) async {
-    // Validate inputs
     if (oldPassword.trim().isEmpty) {
       throw Exception('Current password cannot be empty');
     }

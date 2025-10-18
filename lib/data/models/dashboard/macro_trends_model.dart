@@ -8,7 +8,6 @@ class InflationRateModel {
   InflationRateModel({required this.year, this.period, this.inflationRate});
 
   factory InflationRateModel.fromJson(Map<String, dynamic> json) {
-    // Handle both 'year' (yearly) and 'period' (monthly) fields
     int yearValue = 0;
     String? periodValue;
     
@@ -16,7 +15,6 @@ class InflationRateModel {
       yearValue = json['year'] as int;
     } else if (json['period'] != null) {
       periodValue = json['period'] as String;
-      // Extract year from period string (e.g., "2023-01" -> 2023)
       try {
         yearValue = int.parse(periodValue.split('-')[0]);
       } catch (e) {
@@ -44,7 +42,6 @@ class MacroTrendsModel {
   MacroTrendsModel({required this.annualInflationRates});
 
   factory MacroTrendsModel.fromJson(Map<String, dynamic> json) {
-    // Handle the API response wrapper - data is nested under 'data' key
     final data = json['data'] as Map<String, dynamic>? ?? {};
 
     return MacroTrendsModel(
@@ -74,3 +71,4 @@ class MacroTrendsModel {
     );
   }
 }
+

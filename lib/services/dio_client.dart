@@ -5,31 +5,21 @@ import 'dart:io';
 
 @lazySingleton
 class DioClient {
-  // Dynamic base URL based on platform
   static String get _baseUrl {
     if (kIsWeb) {
-      return 'http://172.20.10.2:8000';  // Web can use localhost directly
+      return 'http://10.0.2.2:8000';  // Web can use localhost directly
     } else if (Platform.isAndroid) {
-      // For Android emulator: 10.0.2.2 maps to host machine's localhost
-      // For physical device: Use your computer's local network IP
-      return 'http://172.20.10.2:8000';   // Android emulator special IP
+      return 'http://10.0.2.2:8000';   // Android emulator special IP
     } else if (Platform.isIOS) {
-      // For iOS simulator: 127.0.0.1 works
-      // For physical device: Use your computer's local network IP
-      return 'http://172.20.10.2:8000';  // iOS simulator can use localhost
+      return 'http://10.0.2.2:8000';  // iOS simulator can use localhost
     } else {
-      return 'http://172.20.10.2:8000';  // Default for other platforms
+      return 'http://10.0.2.2:8000';  // Default for other platforms
     }
   }
-
-  /// Get the base URL for physical devices
-  /// This method can be used to dynamically detect the correct IP
   static Future<String> getPhysicalDeviceBaseUrl() async {
     try {
-      // Get network interfaces to find the correct IP
       for (var interface in await NetworkInterface.list()) {
         for (var addr in interface.addresses) {
-          // Look for IPv4 addresses that are not localhost
           if (addr.type == InternetAddressType.IPv4 && 
               !addr.isLoopback && 
               addr.address.startsWith('192.168.')) {
@@ -37,10 +27,8 @@ class DioClient {
           }
         }
       }
-      // Fallback to localhost if no suitable IP found
       return 'http://127.0.0.1:8000';
     } catch (e) {
-      // Fallback to localhost on error
       return 'http://127.0.0.1:8000';
     }
   }
@@ -63,51 +51,26 @@ class DioClient {
   }
 
   void _setupInterceptors() {
-    // Request interceptor
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          if (kDebugMode) {
-            print('[DIO REQUEST] ${options.method} ${options.path}');
-            print('[DIO REQUEST] Headers: ${options.headers}');
-            if (options.data != null) {
-              print('[DIO REQUEST] Body: ${options.data}');
-            }
-          }
           handler.next(options);
         },
         onResponse: (response, handler) {
-          if (kDebugMode) {
-            print('[DIO RESPONSE] ${response.statusCode} ${response.requestOptions.path}');
-            print('[DIO RESPONSE] Data: ${response.data}');
-          }
           handler.next(response);
         },
         onError: (error, handler) {
-          if (kDebugMode) {
-            print('[DIO ERROR] ${error.type} ${error.message}');
-            if (error.response != null) {
-              print('[DIO ERROR] Status: ${error.response?.statusCode}');
-              print('[DIO ERROR] Data: ${error.response?.data}');
-            }
-          }
           handler.next(error);
         },
       ),
     );
   }
-
-  /// Add authorization header with Bearer token
   void setAuthToken(String token) {
     _dio.options.headers['Authorization'] = 'Bearer $token';
   }
-
-  /// Remove authorization header
   void clearAuthToken() {
     _dio.options.headers.remove('Authorization');
   }
-
-  /// GET request
   Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -123,8 +86,6 @@ class DioClient {
       throw _handleDioException(e);
     }
   }
-
-  /// POST request
   Future<Response<T>> post<T>(
     String path, {
     dynamic data,
@@ -142,8 +103,6 @@ class DioClient {
       throw _handleDioException(e);
     }
   }
-
-  /// PUT request
   Future<Response<T>> put<T>(
     String path, {
     dynamic data,
@@ -161,8 +120,6 @@ class DioClient {
       throw _handleDioException(e);
     }
   }
-
-  /// DELETE request
   Future<Response<T>> delete<T>(
     String path, {
     dynamic data,
@@ -180,8 +137,6 @@ class DioClient {
       throw _handleDioException(e);
     }
   }
-
-  /// Handle Dio exceptions and convert to custom exceptions
   Exception _handleDioException(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
@@ -207,13 +162,10 @@ class DioClient {
     if (response == null) {
       return ServerException('Server error occurred.');
     }
-
-    // Extract error message from API response
     String? errorMessage;
     if (response.data != null) {
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
-        // Check for common error message fields
         errorMessage = data['error'] ?? data['message'] ?? data['detail'];
       } else if (response.data is String) {
         errorMessage = response.data as String;
@@ -252,8 +204,6 @@ class DioClient {
     }
   }
 }
-
-/// Custom exception classes
 abstract class AppException implements Exception {
   final String message;
   const AppException(this.message);

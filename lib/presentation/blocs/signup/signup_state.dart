@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Status enum for signup flow
 enum SignUpStatus {
   initial,
   loading,
@@ -8,8 +6,6 @@ enum SignUpStatus {
   failure,
   validating,
 }
-
-/// State for signup form validation
 class SignUpState extends Equatable {
   const SignUpState({
     this.status = SignUpStatus.initial,
@@ -42,22 +38,14 @@ class SignUpState extends Equatable {
   final bool passwordsMatch;
   final String? lastShownError;
   final bool isSubmissionError; // Track if this is a submission error
-
-  /// Check if form is valid
   bool get isFormValid => 
       isUsernameValid && 
       isEmailValid && 
       isPasswordValid && 
       isConfirmPasswordValid && 
       passwordsMatch;
-
-  /// Check if loading
   bool get isLoading => status == SignUpStatus.loading;
-
-  /// Check if there's an error that should show toast
   bool get hasError => status == SignUpStatus.failure && errorMessage != null && isSubmissionError;
-
-  /// Get password validation error for display
   String? get passwordValidationError => validationErrors['password'];
 
   SignUpState copyWith({

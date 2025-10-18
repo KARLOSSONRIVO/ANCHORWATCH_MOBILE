@@ -1,4 +1,3 @@
-/// Change password result entity
 class ChangePasswordResult {
   final bool success;
   final String message;

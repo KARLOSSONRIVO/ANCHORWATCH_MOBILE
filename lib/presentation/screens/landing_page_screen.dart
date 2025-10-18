@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/onboarding/onboarding.dart';
-
-/// Landing page screen with slider for first-time users
 class LandingPageScreen extends StatefulWidget {
   const LandingPageScreen({super.key});
 
@@ -50,7 +48,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Skip button
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -69,8 +66,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                 ],
               ),
             ),
-
-            // Page view
             Expanded(
               child: PageView(
                 controller: _pageController,
@@ -87,13 +82,10 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                 ],
               ),
             ),
-
-            // Bottom section with dots and buttons
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  // Page indicators
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(4, (index) {
@@ -112,8 +104,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                   ),
 
                   const SizedBox(height: 32),
-
-                  // Navigation buttons
                   Row(
                     children: [
                       if (_currentPage > 0)
@@ -170,8 +160,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
     );
   }
 }
-
-/// Slide 1: Introduction/Welcome
 class LandingSlide1 extends StatelessWidget {
   const LandingSlide1({super.key});
 
@@ -190,8 +178,8 @@ class LandingSlide1 extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.black.withOpacity(0.3),
-              Colors.black.withOpacity(0.7),
+              Colors.black.withValues(alpha: 0.3),
+              Colors.black.withValues(alpha: 0.7),
             ],
           ),
         ),
@@ -200,12 +188,9 @@ class LandingSlide1 extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
               Image.asset('assets/images/LOGOnoBG.png', width: 80, height: 80),
 
               const SizedBox(height: 40),
-
-              // Title
               Text(
                 'Track stablecoin flows.\nDecode the economy.\nStay ahead with AnchorWatch.',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -223,8 +208,6 @@ class LandingSlide1 extends StatelessWidget {
     );
   }
 }
-
-/// Slide 2: Digital Economy Overview
 class LandingSlide2 extends StatelessWidget {
   const LandingSlide2({super.key});
 
@@ -243,8 +226,8 @@ class LandingSlide2 extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.black.withOpacity(0.3),
-              Colors.black.withOpacity(0.7),
+              Colors.black.withValues(alpha: 0.3),
+              Colors.black.withValues(alpha: 0.7),
             ],
           ),
         ),
@@ -253,12 +236,9 @@ class LandingSlide2 extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
               Image.asset('assets/images/LOGOnoBG.png', width: 60, height: 60),
 
               const SizedBox(height: 40),
-
-              // Title
               Text(
                 'Discover the Pulse of\nthe Digital Economy',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -271,8 +251,6 @@ class LandingSlide2 extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-
-              // Description
               Text(
                 'AnchorWatch gives you a clear view of global economic trends and stablecoin activity—all in one intuitive app. Stay informed, stay empowered.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -289,8 +267,6 @@ class LandingSlide2 extends StatelessWidget {
     );
   }
 }
-
-/// Slide 3: Real-Time Data
 class LandingSlide3 extends StatelessWidget {
   const LandingSlide3({super.key});
 
@@ -309,8 +285,8 @@ class LandingSlide3 extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.black.withOpacity(0.3),
-              Colors.black.withOpacity(0.7),
+              Colors.black.withValues(alpha: 0.3),
+              Colors.black.withValues(alpha: 0.7),
             ],
           ),
         ),
@@ -319,12 +295,9 @@ class LandingSlide3 extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
               Image.asset('assets/images/LOGOnoBG.png', width: 60, height: 60),
 
               const SizedBox(height: 40),
-
-              // Title
               Text(
                 'Real-Time Data at\nYour Fingertips',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -337,8 +310,6 @@ class LandingSlide3 extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-
-              // Description
               Text(
                 'From inflation and interest rates to on-chain USDC stable coin flows, AnchorWatch delivers live insights to help you make informed decisions anytime, anywhere.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -355,8 +326,6 @@ class LandingSlide3 extends StatelessWidget {
     );
   }
 }
-
-/// Slide 4: AI-Powered Analysis
 class LandingSlide4 extends StatelessWidget {
   const LandingSlide4({super.key});
 
@@ -375,8 +344,8 @@ class LandingSlide4 extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.black.withOpacity(0.3),
-              Colors.black.withOpacity(0.7),
+              Colors.black.withValues(alpha: 0.3),
+              Colors.black.withValues(alpha: 0.7),
             ],
           ),
         ),
@@ -385,12 +354,9 @@ class LandingSlide4 extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
               Image.asset('assets/images/LOGOnoBG.png', width: 60, height: 60),
 
               const SizedBox(height: 40),
-
-              // Title
               Text(
                 'Smarter Analysis with\nAI-Powered Intelligence',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -403,8 +369,6 @@ class LandingSlide4 extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-
-              // Description
               Text(
                 'Powered by AI, our platform detects anomalies and patterns in economic and crypto data—giving you the edge to act before the market does.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -421,3 +385,4 @@ class LandingSlide4 extends StatelessWidget {
     );
   }
 }
+

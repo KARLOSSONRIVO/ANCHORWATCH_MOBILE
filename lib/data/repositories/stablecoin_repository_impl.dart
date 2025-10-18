@@ -17,8 +17,6 @@ class StablecoinRepositoryImpl implements StablecoinRepository {
       final model = await _remoteDataSource.getStablecoinChartData(
         aggregationPeriod: aggregationPeriod,
       );
-      
-      // Convert models to entities
       return StablecoinChartData(
         totalSupplyOverTime: model.totalSupplyOverTime
             .map((m) => SupplyDataPoint(

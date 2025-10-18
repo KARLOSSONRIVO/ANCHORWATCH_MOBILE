@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../data/models/data_quality_model.dart';
-
-/// Widget to display data quality indicators
 class DataQualityIndicator extends StatelessWidget {
   final DataQualityModel? dataQuality;
   final bool showDetails;
@@ -25,10 +23,10 @@ class DataQualityIndicator extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: _getQualityColor(dataQuality!.qualityStatus).withOpacity(0.1),
+          color: _getQualityColor(dataQuality!.qualityStatus).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: _getQualityColor(dataQuality!.qualityStatus).withOpacity(0.3),
+            color: _getQualityColor(dataQuality!.qualityStatus).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -114,8 +112,6 @@ class DataQualityIndicator extends StatelessWidget {
     }
   }
 }
-
-/// Detailed data quality widget with full metrics
 class DataQualityDetails extends StatelessWidget {
   final DataQualityModel dataQuality;
 
@@ -151,8 +147,6 @@ class DataQualityDetails extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
-            // Quality Scores
             _buildScoreRow('Overall Score', dataQuality.overallScore),
             _buildScoreRow('Completeness', dataQuality.completenessScore),
             _buildScoreRow('Freshness', dataQuality.freshnessScore),
@@ -160,8 +154,6 @@ class DataQualityDetails extends StatelessWidget {
             _buildScoreRow('Accuracy', dataQuality.accuracyScore),
             
             const SizedBox(height: 16),
-            
-            // Data Age
             Row(
               children: [
                 const Icon(Icons.access_time, size: 16, color: Colors.grey),
@@ -174,8 +166,6 @@ class DataQualityDetails extends StatelessWidget {
                 ),
               ],
             ),
-            
-            // Issues and Warnings
             if (dataQuality.issues.isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildIssuesSection(context, 'Issues', dataQuality.issues, Colors.red),
@@ -185,8 +175,6 @@ class DataQualityDetails extends StatelessWidget {
               const SizedBox(height: 8),
               _buildIssuesSection(context, 'Warnings', dataQuality.warnings, Colors.orange),
             ],
-            
-            // Recommendations
             if (dataQuality.recommendations.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
@@ -326,3 +314,4 @@ class DataQualityDetails extends StatelessWidget {
     return const Color(0xFFF44336);
   }
 }
+

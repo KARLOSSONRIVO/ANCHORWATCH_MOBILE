@@ -4,8 +4,6 @@ import '../../../data/models/anchorwise/chat_models.dart';
 import '../blocs/anchorwise/anchorwise_bloc.dart';
 import '../blocs/anchorwise/anchorwise_event.dart';
 import '../blocs/anchorwise/anchorwise_state.dart';
-
-/// Dialog to show conversation history
 class ConversationHistoryDialog extends StatelessWidget {
   const ConversationHistoryDialog({super.key});
 
@@ -18,7 +16,6 @@ class ConversationHistoryDialog extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -35,7 +32,6 @@ class ConversationHistoryDialog extends StatelessWidget {
               ],
             ),
             const Divider(),
-            // Conversations list
             Expanded(
               child: BlocBuilder<AnchorWiseBloc, AnchorWiseState>(
                 builder: (context, state) {
@@ -58,11 +54,9 @@ class ConversationHistoryDialog extends StatelessWidget {
                       return _ConversationTile(
                         conversation: conversation,
                         onTap: () {
-                          // Select the conversation
                           context
                               .read<AnchorWiseBloc>()
                               .add(AnchorWiseSelectConversation(conversation.conversationId));
-                          // Close the dialog
                           Navigator.of(context).pop();
                         },
                       );
@@ -77,8 +71,6 @@ class ConversationHistoryDialog extends StatelessWidget {
     );
   }
 }
-
-/// Individual conversation tile widget
 class _ConversationTile extends StatelessWidget {
   final ConversationItem conversation;
   final VoidCallback onTap;
@@ -139,15 +131,10 @@ class _ConversationTile extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Delete the conversation
                 context
                     .read<AnchorWiseBloc>()
                     .add(AnchorWiseDeleteConversation(conversation.conversationId));
-                
-                // Close the confirmation dialog
                 Navigator.of(dialogContext).pop();
-                
-                // Show success message
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Conversation "${conversation.title}" deleted'),

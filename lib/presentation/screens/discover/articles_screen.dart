@@ -36,7 +36,6 @@ class _ArticlesView extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Filter Section
                 Row(
                   children: [
                     Expanded(
@@ -63,7 +62,6 @@ class _ArticlesView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Articles List
                 Expanded(
                   child: _buildArticlesList(context, state),
                 ),
@@ -94,8 +92,8 @@ class _ArticlesView extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black.withOpacity(0.25)
-                : Colors.grey.withOpacity(0.15),
+                ? Colors.black.withValues(alpha: 0.25)
+                : Colors.grey.withValues(alpha: 0.15),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -277,7 +275,6 @@ class _ArticlesView extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () async {
-          // Show loading indicator
           SnackBarHelper.showInfo(
             context, 
             'Opening article...',
@@ -291,7 +288,6 @@ class _ArticlesView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Article header
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -322,7 +318,6 @@ class _ArticlesView extends StatelessWidget {
                   ),
                 ],
               ),
-              // Article summary
               if (article.summary.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
@@ -334,7 +329,6 @@ class _ArticlesView extends StatelessWidget {
                   ),
                 ),
               ],
-              // Key Topics - using TagColors for dynamic coloring
               if (article.keyTopics.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Wrap(
@@ -377,10 +371,6 @@ class _ArticlesView extends StatelessWidget {
       ),
     );
   }
-
-
-
-  /// Opens article URL in external browser
   Future<void> _openArticleUrl(BuildContext context, String url, String title) async {
     try {
       final Uri uri = Uri.parse(url);
@@ -398,11 +388,13 @@ class _ArticlesView extends StatelessWidget {
             actionLabel: 'Copy URL',
             onActionPressed: () async {
               await Clipboard.setData(ClipboardData(text: url));
-              SnackBarHelper.showSuccess(
+              if (context.mounted) {
+                SnackBarHelper.showSuccess(
                 context,
                 'URL copied to clipboard',
                 duration: const Duration(seconds: 2),
               );
+            }
             },
           );
         }

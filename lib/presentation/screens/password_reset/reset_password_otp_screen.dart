@@ -5,8 +5,6 @@ import '../../blocs/password_reset/password_reset.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../widgets/loading_widget.dart';
-
-/// Screen for verifying OTP sent to email
 class ResetPasswordOtpScreen extends StatefulWidget {
   const ResetPasswordOtpScreen({
     super.key,
@@ -32,7 +30,6 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
   @override
   void initState() {
     super.initState();
-    // Auto focus first field
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _otpFocusNodes[0].requestFocus();
     });
@@ -77,7 +74,6 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
       body: BlocConsumer<PasswordResetBloc, PasswordResetState>(
         listener: (context, state) {
           if (state.status == PasswordResetStatus.otpVerified) {
-            // Navigate to confirm password screen
             Navigator.of(context).pushReplacementNamed('/reset-password/confirm');
           }
           
@@ -96,8 +92,6 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  
-                  // Logo
                   Container(
                     width: 100,
                     height: 100,
@@ -106,7 +100,7 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                       color: const Color(0xFF00BCD4),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00BCD4).withOpacity(0.3),
+                          color: const Color(0xFF00BCD4).withValues(alpha: 0.3),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -120,8 +114,6 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                   ),
                   
                   const SizedBox(height: 32),
-                  
-                  // Title
                   Text(
                     'Verify OTP',
                     style: TextStyle(
@@ -134,8 +126,6 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                   ),
                   
                   const SizedBox(height: 12),
-                  
-                  // Subtitle
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
@@ -159,8 +149,6 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                   ),
                   
                   const SizedBox(height: 48),
-                  
-                  // OTP Input Fields
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -197,19 +185,14 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                               ],
                               onChanged: (value) {
                                 if (value.isNotEmpty) {
-                                  // Move to next field
                                   if (index < 5) {
                                     _otpFocusNodes[index + 1].requestFocus();
                                   } else {
-                                    // Last field, unfocus
                                     _otpFocusNodes[index].unfocus();
                                   }
                                 } else if (value.isEmpty && index > 0) {
-                                  // Move to previous field on backspace
                                   _otpFocusNodes[index - 1].requestFocus();
                                 }
-                                
-                                // Update OTP in BLoC
                                 final otp = _otpControllers
                                     .map((controller) => controller.text)
                                     .join();
@@ -264,8 +247,6 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                   ),
                   
                   const SizedBox(height: 32),
-                  
-                  // Resend OTP
                   if (state.canResendOtp)
                     TextButton(
                       onPressed: () {
@@ -293,8 +274,6 @@ class _ResetPasswordOtpScreenState extends State<ResetPasswordOtpScreen> {
                     ),
                   
                   const Spacer(),
-                  
-                  // Verify Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

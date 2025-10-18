@@ -5,8 +5,6 @@ import '../blocs/onboarding/onboarding.dart';
 import '../widgets/widgets.dart';
 import 'app_router.dart';
 import 'app_routes.dart';
-
-/// Route guard that handles authentication-based navigation
 class RouteGuard extends StatelessWidget {
   const RouteGuard({
     super.key,
@@ -22,10 +20,7 @@ class RouteGuard extends StatelessWidget {
         BlocListener<OnboardingBloc, OnboardingState>(
           listener: (context, state) {
             final currentRoute = ModalRoute.of(context)?.settings.name;
-            
-            // Handle onboarding completion
             if (state.status == OnboardingStatus.completed) {
-              // If onboarding completed and we're on onboarding screen, navigate to login
               if (currentRoute == AppRoutes.onboarding) {
                 AppRouter.navigateToLogin(context);
               }
@@ -35,36 +30,29 @@ class RouteGuard extends StatelessWidget {
         BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) {
             final currentRoute = ModalRoute.of(context)?.settings.name;
-            
-            // Handle authentication state changes
             switch (state.status) {
               case AuthenticationStatus.authenticated:
-                // If user is authenticated but on login screen, navigate to home
                 if (currentRoute == AppRoutes.login || currentRoute == AppRoutes.splash) {
                   AppRouter.navigateToHome(context);
                 }
                 break;
                 
               case AuthenticationStatus.unauthenticated:
-                // If user is unauthenticated and on a protected route, navigate to login
                 if (AppRouter.isProtectedRoute(currentRoute)) {
                   AppRouter.navigateToLogin(context);
                 }
                 break;
                 
               case AuthenticationStatus.loading:
-                // Handle loading states - stay on current screen
                 break;
                 
               case AuthenticationStatus.signUpSuccess:
-                // After successful signup, navigate to login
                 if (currentRoute != AppRoutes.login) {
                   AppRouter.navigateToLogin(context);
                 }
                 break;
                 
               case AuthenticationStatus.unknown:
-                // Handle unknown states if needed
                 break;
             }
           },
@@ -74,42 +62,23 @@ class RouteGuard extends StatelessWidget {
     );
   }
 }
-
-/// Navigation wrapper that provides easy access to navigation methods
 class NavigationHelper {
-  /// Show snackbar message using custom snackbar
   static void showMessage(BuildContext context, String message, {bool isError = false}) {
     SnackBarHelper.show(context, message, isError: isError);
   }
-
-  /// Show success message
   static void showSuccess(BuildContext context, String message) {
     SnackBarHelper.showSuccess(context, message);
   }
-
-  /// Show error message
   static void showError(BuildContext context, String message) {
     SnackBarHelper.showError(context, message);
   }
-
-  /// Show warning message
   static void showWarning(BuildContext context, String message) {
     SnackBarHelper.showWarning(context, message);
   }
-
-  /// Show info message
   static void showInfo(BuildContext context, String message) {
     SnackBarHelper.showInfo(context, message);
   }
-
-  /// DEPRECATED: Handle complete logout process with confirmation, loading screen and success message
-  /// This method is no longer used - logout is now handled directly in NavigationService
-  @deprecated
-  static Future<void> handleLogout(BuildContext context) async {
-    throw UnimplementedError('This method is deprecated. Use NavigationService._handleLogout instead.');
-  }
-
-  /// Show logout loading dialog with specific styling
+ 
   static void showLogoutLoading(BuildContext context) {
     showDialog(
       context: context,
@@ -152,13 +121,9 @@ class NavigationHelper {
       ),
     );
   }
-  
-  /// Hide loading dialog
   static void hideLoading(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop();
   }
-  
-  /// Confirm logout action
   static Future<bool> confirmLogout(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,

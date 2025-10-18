@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-/// Authentication status enum
 enum AuthenticationStatus { unknown, authenticated, unauthenticated, loading, signUpSuccess }
-
-/// Authentication state
 class AuthenticationState extends Equatable {
   const AuthenticationState({
     this.status = AuthenticationStatus.unknown,
@@ -16,8 +12,6 @@ class AuthenticationState extends Equatable {
   final String? user;
   final String? error;
   final bool isLoading;
-
-  /// Creates a copy with new values
   AuthenticationState copyWith({
     AuthenticationStatus? status,
     String? user,

@@ -22,8 +22,6 @@ class MacroTrendsRemoteDataSource {
       
       if (response.statusCode == 200) {
         final jsonData = response.data as Map<String, dynamic>;
-        
-        // Extract the actual data from the success response structure
         final chartData = jsonData['data'] as Map<String, dynamic>;
         
         final model = MacroTrendsModel.fromJson(chartData);

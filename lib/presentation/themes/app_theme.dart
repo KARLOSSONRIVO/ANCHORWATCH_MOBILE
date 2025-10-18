@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Brand colors
   static const Color primaryColor = Color(0xFF00BCD4);
   static const Color secondaryColor = Color(0xFF1A1A1A);
-  
-  // Light theme colors
   static const Color lightBackground = Color(0xFFF8F8F8);
   static const Color lightSurface = Color(0xFFFFFFFF);
   static const Color lightCardBackground = Color(0xFFF5F5F5);
   static const Color lightTextPrimary = Color(0xFF1A1A1A);
   static const Color lightTextSecondary = Color(0xFF666666);
   static const Color lightBorder = Color(0xFFE0E0E0);
-  
-  // Dark theme colors
   static const Color darkBackground = Color(0xFF000000);
   static const Color darkSurface = Color(0xFF121212);
   static const Color darkCardBackground = Color(0xFF1A1A1A);
   static const Color darkTextPrimary = Color(0xFFFFFFFF);
   static const Color darkTextSecondary = Color(0xFFB3B3B3);
   static const Color darkBorder = Color(0xFF333333);
-
-  // Light Theme
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -29,20 +22,14 @@ class AppTheme {
       primarySwatch: _createMaterialColor(primaryColor),
       primaryColor: primaryColor,
       scaffoldBackgroundColor: lightBackground,
-      
-      // Color scheme
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
         secondary: secondaryColor,
-        background: lightBackground,
         surface: lightSurface,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
-        onBackground: lightTextPrimary,
         onSurface: lightTextPrimary,
       ),
-      
-      // App Bar Theme
       appBarTheme: const AppBarTheme(
         backgroundColor: lightBackground,
         foregroundColor: lightTextPrimary,
@@ -56,8 +43,6 @@ class AppTheme {
         ),
         iconTheme: IconThemeData(color: lightTextPrimary),
       ),
-      
-      // Card Theme
       cardTheme: CardThemeData(
         color: lightCardBackground,
         elevation: 2,
@@ -66,8 +51,6 @@ class AppTheme {
           side: BorderSide(color: lightBorder, width: 1),
         ),
       ),
-      
-      // Text Theme
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontFamily: 'Inter',
@@ -124,8 +107,6 @@ class AppTheme {
           color: lightTextSecondary,
         ),
       ),
-      
-      // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: lightSurface,
@@ -150,8 +131,6 @@ class AppTheme {
           color: lightTextSecondary,
         ),
       ),
-      
-      // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
@@ -166,8 +145,6 @@ class AppTheme {
           elevation: 2,
         ),
       ),
-      
-      // Bottom Navigation Bar Theme
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: lightSurface,
         selectedItemColor: primaryColor,
@@ -175,21 +152,15 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
-      
-      // Drawer Theme
       drawerTheme: const DrawerThemeData(
         backgroundColor: lightSurface,
       ),
-      
-      // Divider Theme
       dividerTheme: DividerThemeData(
         color: lightBorder,
         thickness: 1,
       ),
     );
   }
-
-  // Dark Theme
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -197,20 +168,14 @@ class AppTheme {
       primarySwatch: _createMaterialColor(primaryColor),
       primaryColor: primaryColor,
       scaffoldBackgroundColor: darkBackground,
-      
-      // Color scheme
       colorScheme: const ColorScheme.dark(
         primary: primaryColor,
         secondary: secondaryColor,
-        background: darkBackground,
         surface: darkSurface,
         onPrimary: Colors.black,
         onSecondary: Colors.white,
-        onBackground: darkTextPrimary,
         onSurface: darkTextPrimary,
       ),
-      
-      // App Bar Theme
       appBarTheme: const AppBarTheme(
         backgroundColor: darkSurface,
         foregroundColor: darkTextPrimary,
@@ -224,8 +189,6 @@ class AppTheme {
         ),
         iconTheme: IconThemeData(color: darkTextPrimary),
       ),
-      
-      // Card Theme
       cardTheme: CardThemeData(
         color: darkCardBackground,
         elevation: 4,
@@ -234,8 +197,6 @@ class AppTheme {
           side: BorderSide(color: darkBorder, width: 1),
         ),
       ),
-      
-      // Text Theme
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontFamily: 'Inter',
@@ -292,8 +253,6 @@ class AppTheme {
           color: darkTextSecondary,
         ),
       ),
-      
-      // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: darkSurface,
@@ -318,8 +277,6 @@ class AppTheme {
           color: darkTextSecondary,
         ),
       ),
-      
-      // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
@@ -334,8 +291,6 @@ class AppTheme {
           elevation: 2,
         ),
       ),
-      
-      // Bottom Navigation Bar Theme
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: darkSurface,
         selectedItemColor: primaryColor,
@@ -343,25 +298,21 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
-      
-      // Drawer Theme
       drawerTheme: const DrawerThemeData(
         backgroundColor: darkSurface,
       ),
-      
-      // Divider Theme
       dividerTheme: DividerThemeData(
         color: darkBorder,
         thickness: 1,
       ),
     );
   }
-
-  // Helper method to create MaterialColor
   static MaterialColor _createMaterialColor(Color color) {
     List strengths = <double>[.05];
     final Map<int, Color> swatch = {};
-    final int r = color.red, g = color.green, b = color.blue;
+    final int r = (color.r * 255.0).round() & 0xff;
+    final int g = (color.g * 255.0).round() & 0xff;
+    final int b = (color.b * 255.0).round() & 0xff;
 
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
@@ -375,10 +326,8 @@ class AppTheme {
         1,
       );
     }
-    return MaterialColor(color.value, swatch);
+    return MaterialColor(color.toARGB32(), swatch);
   }
-
-  // Helper methods for getting theme-specific colors
   static Color getBackgroundColor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.light 
         ? lightBackground 
@@ -414,8 +363,6 @@ class AppTheme {
         ? lightBorder 
         : darkBorder;
   }
-
-  // Chart colors that work in both themes
   static Color getChartBackgroundColor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.light 
         ? lightSurface 

@@ -11,8 +11,6 @@ import '../../../services/dio_client.dart';
 abstract class AuthRemoteDataSource {
   Future<LoginResponseModel> login(LoginRequestModel request);
   Future<RegisterResponseModel> register(RegisterRequestModel request);
-  
-  // Password reset methods
   Future<ForgotPasswordResponseModel> forgotPassword(ForgotPasswordRequestModel request);
   Future<VerifyOtpResponseModel> verifyOtp(VerifyOtpRequestModel request);
   Future<ResetPasswordResponseModel> resetPassword(ResetPasswordRequestModel request);
@@ -36,10 +34,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return LoginResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Login failed: $e');
     }
   }
@@ -54,10 +50,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return RegisterResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Registration failed: $e');
     }
   }
@@ -72,10 +66,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return ForgotPasswordResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Forgot password failed: $e');
     }
   }
@@ -90,10 +82,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return VerifyOtpResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('OTP verification failed: $e');
     }
   }
@@ -108,10 +98,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return ResetPasswordResponseModel.fromJson(response.data as Map<String, dynamic>);
     } on AppException {
-      // Re-throw custom exceptions (these contain the actual API error messages)
       rethrow;
     } catch (e) {
-      // Handle any other unexpected errors
       throw ServerException('Password reset failed: $e');
     }
   }

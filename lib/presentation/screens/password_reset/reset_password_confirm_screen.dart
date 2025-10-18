@@ -5,8 +5,6 @@ import '../../routes/app_router.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../widgets/loading_widget.dart';
-
-/// Screen for setting new password after OTP verification
 class ResetPasswordConfirmScreen extends StatefulWidget {
   const ResetPasswordConfirmScreen({super.key});
 
@@ -68,8 +66,6 @@ class _ResetPasswordConfirmScreenState
       body: BlocConsumer<PasswordResetBloc, PasswordResetState>(
         listener: (context, state) {
           if (state.status == PasswordResetStatus.passwordReset) {
-            // Navigate back to login screen immediately to avoid widget tree issues
-            // Clear BLoC and navigate safely using PostFrameCallback
             AppRouter.clearPasswordResetBloc();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) {
@@ -92,8 +88,6 @@ class _ResetPasswordConfirmScreenState
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-
-                  // Logo
                   Container(
                     width: 100,
                     height: 100,
@@ -102,7 +96,7 @@ class _ResetPasswordConfirmScreenState
                       color: const Color(0xFF00BCD4),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00BCD4).withOpacity(0.3),
+                          color: const Color(0xFF00BCD4).withValues(alpha: 0.3),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -116,8 +110,6 @@ class _ResetPasswordConfirmScreenState
                   ),
 
                   const SizedBox(height: 32),
-
-                  // Title
                   Text(
                     'New Password',
                     style: TextStyle(
@@ -130,8 +122,6 @@ class _ResetPasswordConfirmScreenState
                   ),
 
                   const SizedBox(height: 12),
-
-                  // Subtitle
                   Text(
                     'Create a new secure password for your account.',
                     style: TextStyle(
@@ -144,8 +134,6 @@ class _ResetPasswordConfirmScreenState
                   ),
 
                   const SizedBox(height: 48),
-
-                  // New Password Input
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -253,8 +241,6 @@ class _ResetPasswordConfirmScreenState
                   ),
 
                   const SizedBox(height: 24),
-
-                  // Confirm Password Input
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -368,8 +354,6 @@ class _ResetPasswordConfirmScreenState
                   ),
 
                   const Spacer(),
-
-                  // Confirm Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -428,3 +412,4 @@ class _ResetPasswordConfirmScreenState
     );
   }
 }
+

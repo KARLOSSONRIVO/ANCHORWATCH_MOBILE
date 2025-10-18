@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-
-/// Custom snackbar widget with modern styling
 class CustomSnackBar extends SnackBar {
   CustomSnackBar({
     super.key,
     required String message,
     SnackBarType type = SnackBarType.info,
-    Duration duration = const Duration(seconds: 3),
+    super.duration = const Duration(seconds: 3),
     VoidCallback? onActionPressed,
     String? actionLabel,
   }) : super(
@@ -17,7 +15,6 @@ class CustomSnackBar extends SnackBar {
           backgroundColor: Colors.transparent,
           elevation: 0,
           behavior: SnackBarBehavior.floating,
-          duration: duration,
           margin: const EdgeInsets.all(16),
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
@@ -45,8 +42,6 @@ class CustomSnackBar extends SnackBar {
     }
   }
 }
-
-/// Content widget for the custom snackbar
 class _SnackBarContent extends StatelessWidget {
   const _SnackBarContent({
     required this.message,
@@ -65,7 +60,7 @@ class _SnackBarContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: _getColor(type).withOpacity(0.3),
+            color: _getColor(type).withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -128,7 +123,7 @@ class _SnackBarContent extends StatelessWidget {
       end: Alignment.bottomRight,
       colors: [
         color,
-        color.withOpacity(0.8),
+        color.withValues(alpha: 0.8),
       ],
     );
   }
@@ -155,18 +150,13 @@ class _SnackBarContent extends StatelessWidget {
     }
   }
 }
-
-/// Enum for different snackbar types
 enum SnackBarType {
   success,
   error,
   warning,
   info,
 }
-
-/// Helper class for showing custom snackbars
 class SnackBarHelper {
-  /// Show a success snackbar
   static void showSuccess(
     BuildContext context,
     String message, {
@@ -184,8 +174,6 @@ class SnackBarHelper {
       ),
     );
   }
-
-  /// Show an error snackbar
   static void showError(
     BuildContext context,
     String message, {
@@ -203,8 +191,6 @@ class SnackBarHelper {
       ),
     );
   }
-
-  /// Show a warning snackbar
   static void showWarning(
     BuildContext context,
     String message, {
@@ -222,8 +208,6 @@ class SnackBarHelper {
       ),
     );
   }
-
-  /// Show an info snackbar
   static void showInfo(
     BuildContext context,
     String message, {
@@ -241,8 +225,6 @@ class SnackBarHelper {
       ),
     );
   }
-
-  /// Show a general snackbar (backward compatibility)
   static void show(
     BuildContext context,
     String message, {

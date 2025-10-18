@@ -18,24 +18,16 @@ import '../screens/profile/change_email_screen.dart';
 import '../screens/profile/confirm_change_email_screen.dart';
 import '../../injection_container.dart';
 import 'app_routes.dart';
-
-/// Main app router that handles navigation and route generation
 class AppRouter {
   static PasswordResetBloc? _passwordResetBloc;
-  
-  /// Get shared password reset BLoC instance
   static PasswordResetBloc _getPasswordResetBloc() {
     _passwordResetBloc ??= getIt<PasswordResetBloc>();
     return _passwordResetBloc!;
   }
-  
-  /// Clear password reset BLoC when flow is complete
   static void clearPasswordResetBloc() {
     _passwordResetBloc?.close();
     _passwordResetBloc = null;
   }
-  
-  /// Generate routes based on settings and authentication state
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.splash:
@@ -64,8 +56,6 @@ class AppRouter {
           ),
           settings: settings,
         );
-        
-      // All main navigation routes point to the same screen
       case AppRoutes.dashboard:
       case AppRoutes.discover:
       case AppRoutes.anchorwise:
@@ -148,8 +138,6 @@ class AppRouter {
         );
     }
   }
-  
-  /// Navigate to route based on authentication status
   static String getInitialRoute(AuthenticationStatus status) {
     switch (status) {
       case AuthenticationStatus.authenticated:
@@ -164,13 +152,9 @@ class AppRouter {
         return AppRoutes.splash;
     }
   }
-  
-  /// Check if route requires authentication
   static bool isProtectedRoute(String? route) {
     return AppRoutes.protectedRoutes.contains(route);
   }
-  
-  /// Navigation helpers
   static void navigateToOnboarding(BuildContext context) {
     Navigator.of(context).pushNamedAndRemoveUntil(
       AppRoutes.onboarding,
@@ -192,8 +176,6 @@ class AppRouter {
     );
   }
 }
-
-/// Splash screen widget (moved from main.dart for better organization)
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
 
@@ -225,8 +207,6 @@ class _SplashScreen extends StatelessWidget {
     );
   }
 }
-
-/// Screen shown for unknown/unhandled routes
 class _UnknownRouteScreen extends StatelessWidget {
   const _UnknownRouteScreen({required this.routeName});
   

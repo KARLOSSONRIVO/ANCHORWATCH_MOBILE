@@ -5,8 +5,6 @@ import '../../../services/authentication_service.dart';
 import '../../../services/dio_client.dart';
 import 'signup_event.dart';
 import 'signup_state.dart';
-
-/// BLoC for handling signup form validation and submission
 @injectable
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final RegisterUseCase _registerUseCase;
@@ -23,8 +21,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     on<SignUpFormSubmitted>(_onFormSubmitted);
     on<SignUpValidationReset>(_onValidationReset);
   }
-
-  /// Handle username input change
   void _onUsernameChanged(
     SignUpUsernameChanged event,
     Emitter<SignUpState> emit,
@@ -38,8 +34,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       isSubmissionError: false,
     ));
   }
-
-  /// Handle email input change
   void _onEmailChanged(
     SignUpEmailChanged event,
     Emitter<SignUpState> emit,
@@ -53,8 +47,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       isSubmissionError: false,
     ));
   }
-
-  /// Handle password input change
   void _onPasswordChanged(
     SignUpPasswordChanged event,
     Emitter<SignUpState> emit,
@@ -66,9 +58,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     final passwordsMatch = event.password == state.confirmPassword;
     
     final updatedErrors = Map<String, String>.from(state.validationErrors);
-    
-    // Only store password validation error if passwords don't match or confirm password is empty
-    // This way we show toast only when passwords match but validation fails
     if (errorMessage != null && (state.confirmPassword.isEmpty || passwordsMatch)) {
       updatedErrors['password'] = errorMessage;
     } else {
@@ -85,16 +74,12 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       isSubmissionError: false,
     ));
   }
-
-  /// Handle confirm password input change
   void _onConfirmPasswordChanged(
     SignUpConfirmPasswordChanged event,
     Emitter<SignUpState> emit,
   ) {
     final isValid = event.confirmPassword.isNotEmpty;
     final passwordsMatch = state.password == event.confirmPassword;
-    
-    // Re-validate password with detailed validation when passwords match
     final updatedErrors = Map<String, String>.from(state.validationErrors);
     if (passwordsMatch && state.password.isNotEmpty) {
       final validationResult = _validatePasswordWithDetails(state.password);
@@ -107,7 +92,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         updatedErrors.remove('password');
       }
     } else {
-      // Remove password errors when passwords don't match
       updatedErrors.remove('password');
     }
     
@@ -121,17 +105,12 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       isSubmissionError: false,
     ));
   }
-
-  /// Handle form submission
   void _onFormSubmitted(
     SignUpFormSubmitted event,
     Emitter<SignUpState> emit,
   ) async {
     if (!state.isFormValid) {
-      // Generate validation error to show in snackbar
       final errorMessage = _getFirstValidationError();
-      
-      // Only emit error if it's different from the last shown error
       if (errorMessage != state.lastShownError) {
         emit(state.copyWith(
           status: SignUpStatus.failure,
@@ -178,8 +157,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       ));
     }
   }
-
-  /// Handle validation reset
   void _onValidationReset(
     SignUpValidationReset event,
     Emitter<SignUpState> emit,
@@ -190,21 +167,15 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       validationErrors: {},
     ));
   }
-
-  /// Validate username
   bool _validateUsername(String username) {
     return username.isNotEmpty && username.length >= 3;
   }
-
-  /// Validate email format
   bool _validateEmail(String email) {
     return email.isNotEmpty && 
            email.contains('@') && 
            email.contains('.') &&
            RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
-
-  /// Validate password with detailed error messages
   Map<String, dynamic> _validatePasswordWithDetails(String password) {
     if (password.isEmpty) {
       return {'isValid': false, 'error': 'Please enter your password'};
@@ -228,9 +199,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 
     return {'isValid': true, 'error': null};
   }
-
-  /// Get the first validation error for snackbar display
-  /// NOTE: Excludes "Passwords do not match" - that should only show as inline text
   String _getFirstValidationError() {
     if (!state.isUsernameValid) {
       return 'Please enter a valid username (at least 3 characters)';
@@ -243,11 +211,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     if (!state.isPasswordValid && state.validationErrors['password'] != null) {
       return state.validationErrors['password']!;
     }
-    
-    // Do NOT show toast for password mismatch - only inline validation
-    // if (!state.passwordsMatch) {
-    //   return 'Passwords do not match';
-    // }
     
     return 'Please fill in all required fields correctly';
   }

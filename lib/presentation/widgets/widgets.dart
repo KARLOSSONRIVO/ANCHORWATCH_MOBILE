@@ -1,4 +1,3 @@
-// Widgets exports
 export 'loading_widget.dart';
 export 'custom_snackbar.dart';
 export 'navigation_drawer_widget.dart';

@@ -7,6 +7,7 @@ import '../../../utils/number_formatter.dart';
 import '../../../domain/entities/macro_trends.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/chart_summary_widget.dart';
+import '../../themes/app_theme.dart';
 
 class MacroTrendsView extends StatelessWidget {
   const MacroTrendsView({super.key});
@@ -73,7 +74,7 @@ class _MacroTrendsView extends StatelessWidget {
             child: Text(
               'No data available',
               style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70,
+                color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7) ?? Colors.white70,
                 fontSize: 16,
               ),
             ),
@@ -81,10 +82,8 @@ class _MacroTrendsView extends StatelessWidget {
         }
 
         return Container(
-          color: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-              : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
-          child: RefreshIndicator(
+          color: AppTheme.getBackgroundColor(context),
+      child: RefreshIndicator(
             color: const Color(0xFF00D4AA),
             onRefresh: () async {
               context.read<MacroTrendsBloc>().add(const MacroTrendsRefreshRequested());
@@ -128,9 +127,7 @@ class _MacroTrendsView extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: 16),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Theme.of(context).brightness == Brightness.light
-          ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-          : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
+      color: AppTheme.getCardBackgroundColor(context),
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: Theme.of(context).dividerColor),
     ),
@@ -158,7 +155,7 @@ class _MacroTrendsView extends StatelessWidget {
                 child: Text(
                   subtitle,
                   style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                    color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                     fontSize: 12,
                   ),
                 ),
@@ -167,7 +164,6 @@ class _MacroTrendsView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         child,
-        // Add chart summary widget
         ChartSummaryWidget(
           chartType: chartType,
           chartTitle: title,
@@ -177,8 +173,6 @@ class _MacroTrendsView extends StatelessWidget {
       ],
     ),
   );
-
-  // Annual Inflation Rates Timeline Chart
   Widget _inflationTimelineChart(MacroTrendsState state) {
     final data = state.macroTrendsData?.inflationTimeline ?? [];
 
@@ -193,8 +187,6 @@ class _MacroTrendsView extends StatelessWidget {
         ),
       );
     }
-
-    // Filter out null inflation rates
     final validData = data.where((item) => item.inflationRate != null).toList();
 
     if (validData.isEmpty) {
@@ -208,15 +200,13 @@ class _MacroTrendsView extends StatelessWidget {
         ),
       );
     }
-
-    // Check if we have monthly data (period field) or yearly data
     final isMonthly = validData.isNotEmpty && validData.first.period != null;
     final xAxisTitle = isMonthly ? 'Month' : 'Year';
 
     return Builder(
       builder: (context) {
-        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.54) ?? Colors.white54;
-        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70;
+        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.54) ?? Colors.white54;
+        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7) ?? Colors.white70;
 
         return SfCartesianChart(
           plotAreaBorderWidth: 0,
@@ -265,8 +255,6 @@ class _MacroTrendsView extends StatelessWidget {
       },
     );
   }
-
-  // Inflation vs Supply Growth Dual Axis Chart
   Widget _inflationVsSupplyChart(MacroTrendsState state) {
     final data = state.macroTrendsData?.inflationVsSupplyGrowth ?? [];
 
@@ -281,15 +269,13 @@ class _MacroTrendsView extends StatelessWidget {
         ),
       );
     }
-
-    // Filter out null values for inflation rate and supply growth
     final validInflationData = data.where((item) => item.inflationRate != null).toList();
     final validSupplyData = data.where((item) => item.supplyGrowthPct != null).toList();
 
     return Builder(
       builder: (context) {
-        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.54) ?? Colors.white54;
-        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70;
+        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.54) ?? Colors.white54;
+        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7) ?? Colors.white70;
 
         return SfCartesianChart(
           plotAreaBorderWidth: 0,
@@ -338,15 +324,13 @@ class _MacroTrendsView extends StatelessWidget {
               xValueMapper: (InflationSupplyData data, _) => data.year,
               yValueMapper: (InflationSupplyData data, _) => data.supplyGrowthPct,
               yAxisName: 'secondaryY',
-              color: const Color(0xFFFF6B9D).withOpacity(0.7),
+              color: const Color(0xFFFF6B9D).withValues(alpha: 0.7),
             ),
           ],
         );
       },
     );
   }
-
-  // Enhanced Correlation Matrix Heatmap
   Widget _correlationHeatmap(MacroTrendsState state) {
     final correlationData = state.macroTrendsData?.correlationTable ?? [];
 
@@ -361,12 +345,8 @@ class _MacroTrendsView extends StatelessWidget {
         ),
       );
     }
-
-    // Extract variable names and build correlation matrix
     final List<String> variables = ['Inflation', 'Price', 'Market Cap', 'Supply', 'Net Change'];
     final List<List<double>> correlationMatrix = [];
-
-    // Build correlation matrix from API data
     for (final data in correlationData) {
       correlationMatrix.add([
         data.inflationRate,
@@ -381,31 +361,24 @@ class _MacroTrendsView extends StatelessWidget {
       builder: (context) {
         return Column(
           children: [
-            // Header row with variable names
-            Container(
+            SizedBox(
               height: 30,
               child: Row(
                 children: [
-                  // Empty corner cell
                   Expanded(
                     child: Container(
                       margin: const EdgeInsets.all(1),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-                            : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
-                        borderRadius: BorderRadius.circular(4),
+                        color: AppTheme.getBackgroundColor(context),
+                        borderRadius: BorderRadius.circular(4)
                       ),
                     ),
                   ),
-                  // Variable name headers
                   ...variables.map((variable) => Expanded(
                     child: Container(
                       margin: const EdgeInsets.all(1),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-                            : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
+                        color: AppTheme.getBackgroundColor(context),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Center(
@@ -426,20 +399,16 @@ class _MacroTrendsView extends StatelessWidget {
                 ],
               ),
             ),
-            // Data rows
             ...List.generate(variables.length, (rowIndex) {
-              return Container(
+              return SizedBox(
                 height: 40,
                 child: Row(
                   children: [
-                    // Row variable name
                     Expanded(
                       child: Container(
                         margin: const EdgeInsets.all(1),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.light
-                              ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-                              : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
+                          color: AppTheme.getBackgroundColor(context),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Center(
@@ -457,11 +426,8 @@ class _MacroTrendsView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Correlation values
                     ...List.generate(variables.length, (colIndex) {
                       final value = correlationMatrix[rowIndex][colIndex];
-
-                      // Color mapping based on correlation strength
                       Color getCorrelationColor(double corr) {
                         if (corr > 0.8) {
                           return const Color(0xFF00D4AA); // Strong positive - bright teal
@@ -512,7 +478,6 @@ class _MacroTrendsView extends StatelessWidget {
                 ),
               );
             }),
-            // Legend
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -546,7 +511,7 @@ class _MacroTrendsView extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+            color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
             fontSize: 9,
           ),
         ),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../utils/time_formatter.dart';
-
-/// Model class for chat bubble widget messages
 class ChatBubbleMessage {
   final String id;
   final String content;
@@ -41,8 +39,6 @@ class ChatBubbleMessage {
     );
   }
 }
-
-/// A customizable chat bubble widget that supports both user and AI messages
 class ChatBubbleWidget extends StatefulWidget {
   final ChatBubbleMessage message;
   final Function(ChatBubbleMessage)? onPositiveFeedback;
@@ -131,7 +127,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -162,17 +158,13 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // AI Logo
           _buildAILogo(),
-          // Message content and feedback
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // AI name label
                 _buildAINameLabel(),
                 const SizedBox(height: 4),
-                // Message bubble
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
@@ -180,7 +172,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -188,9 +180,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
                   ),
                   child: _buildMessageContent(),
                 ),
-                // Timestamp
                 if (widget.showTimestamp) _buildTimestamp(isUser: false),
-                // Feedback buttons - only show for completed AI messages
                 if (!widget.message.isLoading &&
                     widget.message.canReceiveFeedback &&
                     widget.showFeedbackButtons) ...[
@@ -214,7 +204,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -327,7 +317,6 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
 
     return Row(
       children: [
-        // Thumbs up button
         _buildFeedbackButton(
           icon: Icons.thumb_up_outlined,
           feedbackType: 'positive',
@@ -337,7 +326,6 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
           onTap: () => _sendFeedback('positive'),
         ),
         const SizedBox(width: 8),
-        // Thumbs down button
         _buildFeedbackButton(
           icon: Icons.thumb_down_outlined,
           feedbackType: 'negative',
@@ -346,7 +334,6 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
           iconColor: iconColor,
           onTap: () => _sendFeedback('negative'),
         ),
-        // Feedback confirmation text
         if (_feedbackSent) ...[
           const SizedBox(width: 12),
           Text(
@@ -380,7 +367,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isSelected ? selectedColor.withOpacity(0.1) : Colors.transparent,
+          color: isSelected ? selectedColor.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: isSelected ? selectedColor : borderColor,
@@ -417,9 +404,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
         success = true;
       }
     } catch (e) {
-      success = false;
-      debugPrint('Feedback error: $e');
-    }
+      success = false;    }
 
     if (mounted) {
       setState(() {
@@ -428,8 +413,6 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
           _selectedFeedback = null; // Reset selection if failed
         }
       });
-
-      // Show feedback confirmation
       final snackBar = SnackBar(
         content: Text(
           success
@@ -450,3 +433,4 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
     }
   }
 }
+

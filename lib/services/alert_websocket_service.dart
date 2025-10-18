@@ -30,8 +30,6 @@ class AlertWebSocketService {
       _alertController ??= StreamController<Alert>.broadcast();
       _dashboardController ??= StreamController<AlertDashboard>.broadcast();
       _connectionController ??= StreamController<bool>.broadcast();
-
-      // Convert HTTP/HTTPS URL to WebSocket URL
       final wsUrl = baseUrl.replaceFirst('http', 'ws');
 
       _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/ws/alerts/'));
@@ -43,18 +41,15 @@ class AlertWebSocketService {
           _handleWebSocketMessage(data);
         },
         onError: (error) {
-          print('WebSocket error: $error');
           _connectionController?.add(false);
           _reconnect(baseUrl);
         },
         onDone: () {
-          print('WebSocket connection closed');
           _connectionController?.add(false);
           _reconnect(baseUrl);
         },
       );
     } catch (e) {
-      print('Failed to connect to WebSocket: $e');
       _connectionController?.add(false);
     }
   }
@@ -68,39 +63,19 @@ class AlertWebSocketService {
         final alert = alertModel.toEntity();
         _alertController?.add(alert);
 
-        // Attempt to send the alert to the user's email in background.
-        // This will try a backend send first and fall back to opening mail app if needed.
         try {
-          // fire-and-forget; do not await to avoid blocking websocket handling
           _emailService.sendAlertEmail(alert).then((result) {
-            if (result.success) {
-              // Optionally log or handle success
-              // keep lightweight to avoid spamming logs
-              print('Alert email sent successfully');
-            } else {
-              print('Alert email send fallback/result: ${result.message}');
-            }
           }).catchError((e) {
-            print('EmailService.sendAlertEmail error: $e');
           });
-        } catch (e) {
-          // Swallow any errors to avoid disrupting the websocket flow
-          print('EmailService.sendAlertEmail error: $e');
-        }
+        } catch (_) {}
       } else if (jsonData['type'] == 'dashboard') {
-        // Handle dashboard updates if needed
-        // final dashboard = AlertDashboardModel.fromJson(jsonData['data']).toEntity();
-        // _dashboardController?.add(dashboard);
       }
-    } catch (e) {
-      print('Error parsing WebSocket message: $e');
-    }
+    } catch (_) {}
   }
 
   void _reconnect(String baseUrl) {
     Timer(const Duration(seconds: 5), () {
       if (!isConnected) {
-        print('Attempting to reconnect to WebSocket...');
         connect(baseUrl: baseUrl);
       }
     });
@@ -136,3 +111,4 @@ class AlertWebSocketService {
     _connectionController = null;
   }
 }
+

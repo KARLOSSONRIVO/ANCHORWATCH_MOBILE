@@ -4,8 +4,6 @@ import 'package:equatable/equatable.dart';
 
 import '../../../domain/usecases/contact/contact_support_usecase.dart';
 import '../../../domain/entities/contact/contact_support_result.dart';
-
-// Events
 abstract class ContactSupportEvent extends Equatable {
   const ContactSupportEvent();
 
@@ -23,8 +21,6 @@ class ContactSupportSubmitted extends ContactSupportEvent {
   @override
   List<Object> get props => [message];
 }
-
-// States
 abstract class ContactSupportState extends Equatable {
   const ContactSupportState();
 
@@ -53,8 +49,6 @@ class ContactSupportFailure extends ContactSupportState {
   @override
   List<Object> get props => [error];
 }
-
-// BLoC
 @injectable
 class ContactSupportBloc extends Bloc<ContactSupportEvent, ContactSupportState> {
   final ContactSupportUseCase _contactSupportUseCase;
@@ -67,19 +61,16 @@ class ContactSupportBloc extends Bloc<ContactSupportEvent, ContactSupportState> 
     ContactSupportSubmitted event,
     Emitter<ContactSupportState> emit,
   ) async {
-    print('[CONTACT_SUPPORT_BLOC] Starting contact support submission');
     emit(ContactSupportLoading());
 
     try {
-      print('[CONTACT_SUPPORT_BLOC] Calling use case with message: ${event.message}');
       final result = await _contactSupportUseCase.execute(
         message: event.message,
       );
-      print('[CONTACT_SUPPORT_BLOC] Success: ${result.message}');
       emit(ContactSupportSuccess(result));
     } catch (e) {
-      print('[CONTACT_SUPPORT_BLOC] Error: $e');
       emit(ContactSupportFailure(e.toString()));
     }
   }
 }
+

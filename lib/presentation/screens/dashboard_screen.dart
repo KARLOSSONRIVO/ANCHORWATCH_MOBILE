@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
@@ -16,8 +15,6 @@ import '../blocs/dashboard/dashboard.dart';
 import '../blocs/discover/articles/articles.dart';
 import '../themes/app_theme.dart';
 import '../../utils/number_formatter.dart';
-
-/// Dashboard page content only (no navigation)
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -356,7 +353,7 @@ class _DashboardView extends StatelessWidget {
           border: Border.all(color: AppTheme.getBorderColor(context)),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
+              color: Colors.grey.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -494,9 +491,6 @@ class _DashboardView extends StatelessWidget {
       ),
     );
   }
-
-
-  // Correlation Heatmap
   Widget _buildCorrelationHeatmap(BuildContext context, DashboardLoadedState state) {
     final size = state.heatVars.length;
     if (size == 0 || state.heatCells.isEmpty) {
@@ -515,7 +509,6 @@ class _DashboardView extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          // Legend at the top
           Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: Row(
@@ -692,18 +685,15 @@ class _DashboardView extends StatelessWidget {
 
   Widget _buildMintBurnChart(BuildContext context, DashboardLoadedState state) {
     final textColor = AppTheme.getTextSecondaryColor(context);
-    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withValues(alpha: 0.7);
 
     final mintPoints = <Map<String, dynamic>>[];
     final burnPoints = <Map<String, dynamic>>[];
-
-    // Use unified data approach like reference
     for (final unified in state.unified) {
       double mint = 0.0;
       double burn = 0.0;
 
       if (state.selectedTimePeriod.toLowerCase() == 'monthly') {
-        // For monthly view, derive mint/burn from net change
         if (unified.netChange > 0) {
           mint = unified.netChange;
           burn = 0.0;
@@ -712,7 +702,6 @@ class _DashboardView extends StatelessWidget {
           burn = -unified.netChange;
         }
       } else {
-        // For yearly view, use aggregated data from mint burn chart data
         final matchingData = state.mintBurnChartData.where((data) => data.x.year.toString() == unified.timeId);
         if (matchingData.isNotEmpty) {
           mint = matchingData.fold(0.0, (sum, data) => sum + data.mint);
@@ -768,7 +757,7 @@ class _DashboardView extends StatelessWidget {
   }
 
   Widget _buildCorrelationScatterChart(BuildContext context, DashboardLoadedState state) {
-    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withValues(alpha: 0.7);
     final textColor = AppTheme.getTextSecondaryColor(context);
 
     return SizedBox(
@@ -815,7 +804,7 @@ class _DashboardView extends StatelessWidget {
 
   Widget _buildPriceMarketCapChart(BuildContext context, DashboardLoadedState state) {
     final textColor = AppTheme.getTextSecondaryColor(context);
-    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withValues(alpha: 0.7);
 
     return SizedBox(
       height: 250,
@@ -875,7 +864,7 @@ class _DashboardView extends StatelessWidget {
 
   Widget _buildSupplyInflationChart(BuildContext context, DashboardLoadedState state) {
     final textColor = AppTheme.getTextSecondaryColor(context);
-    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withValues(alpha: 0.7);
 
     return SizedBox(
       height: 250,
@@ -934,7 +923,7 @@ class _DashboardView extends StatelessWidget {
   }
 
   Widget _buildRollingCorrelationChart(BuildContext context, DashboardLoadedState state) {
-    final labelColor = AppTheme.getTextSecondaryColor(context).withOpacity(0.7);
+    final labelColor = AppTheme.getTextSecondaryColor(context).withValues(alpha: 0.7);
     final textColor = AppTheme.getTextSecondaryColor(context);
 
     return SizedBox(
@@ -975,8 +964,6 @@ class _DashboardView extends StatelessWidget {
       ),
     );
   }
-
-  /// Build Recent Articles card for dashboard
   Widget _buildRecentArticlesCard(BuildContext context) {
     return BlocBuilder<ArticlesBloc, ArticlesState>(
       builder: (context, state) {
@@ -988,8 +975,6 @@ class _DashboardView extends StatelessWidget {
       },
     );
   }
-
-  /// Build the recent articles list
   Widget _buildRecentArticlesList(BuildContext context, ArticlesState state) {
     if (state.status == ArticlesStatus.loading) {
       return const SizedBox(
@@ -1040,8 +1025,6 @@ class _DashboardView extends StatelessWidget {
         ),
       );
     }
-
-    // Get up to 10 recent articles for horizontal scrolling
     final recentArticles = state.filteredArticles.take(10).toList();
 
     if (recentArticles.isEmpty) {
@@ -1073,8 +1056,6 @@ class _DashboardView extends StatelessWidget {
 
     return _buildHorizontalArticlesView(context, recentArticles);
   }
-
-  /// Build horizontal articles view with page indicators
   Widget _buildHorizontalArticlesView(BuildContext context, List<Article> articles) {
     final brightness = Theme.of(context).brightness;
     final pageController = PageController(viewportFraction: 0.85);
@@ -1117,8 +1098,8 @@ class _DashboardView extends StatelessWidget {
                       boxShadow: [
                         BoxShadow(
                           color: brightness == Brightness.light
-                              ? Colors.grey.withOpacity(0.1)
-                              : Colors.black.withOpacity(0.2),
+                              ? Colors.grey.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.2),
                           blurRadius: 6,
                           offset: const Offset(0, 3),
                         ),
@@ -1204,8 +1185,8 @@ class _DashboardView extends StatelessWidget {
                                 ),
                                 elevation: 2,
                                 shadowColor: brightness == Brightness.light
-                                    ? Colors.grey.withOpacity(0.3)
-                                    : Colors.black.withOpacity(0.4),
+                                    ? Colors.grey.withValues(alpha: 0.3)
+                                    : Colors.black.withValues(alpha: 0.4),
                               );
                             }).toList(),
                           ),

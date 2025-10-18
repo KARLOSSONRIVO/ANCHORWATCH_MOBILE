@@ -13,7 +13,6 @@ class ConfirmChangeEmailUseCase {
     required String otp,
     required String newEmail,
   }) async {
-    // Validate inputs
     if (otp.trim().isEmpty) {
       throw Exception('OTP cannot be empty');
     }

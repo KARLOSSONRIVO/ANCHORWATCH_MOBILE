@@ -4,8 +4,6 @@ import '../../services/navigation_service.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_state.dart';
 import '../themes/app_theme.dart';
-
-/// Reusable navigation drawer widget matching the provided design
 class NavigationDrawerWidget extends StatelessWidget {
   const NavigationDrawerWidget({super.key});
 
@@ -23,12 +21,10 @@ class NavigationDrawerWidget extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // Header with Logo
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: Row(
                 children: [
-                  // Logo
                   Image.asset(
                     'assets/images/LOGOnoBG.png',
                     height: 50,
@@ -36,7 +32,6 @@ class NavigationDrawerWidget extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 12),
-                  // AnchorWatch Text
                   Text(
                     'AnchorWatch',
                     style: TextStyle(
@@ -49,8 +44,6 @@ class NavigationDrawerWidget extends StatelessWidget {
                 ],
               ),
             ),
-            
-            // Divider line
             Container(
               height: 1,
               color: AppTheme.getBorderColor(context),
@@ -58,13 +51,10 @@ class NavigationDrawerWidget extends StatelessWidget {
             ),
             
             const SizedBox(height: 8),
-            
-            // Menu Items
             Expanded(
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  // Main navigation items (matching bottom nav bar order)
                   _buildMenuItem(
                     context,
                     iconPath: 'assets/images/Navigation_Icons/Home.png',
@@ -115,15 +105,11 @@ class NavigationDrawerWidget extends StatelessWidget {
                       NavigationService.handleMainNavigation(context, NavigationIndex.profile);
                     },
                   ),
-                  
-                  // Separator
                   Container(
                     height: 1,
                     color: AppTheme.getBorderColor(context),
                     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   ),
-                  
-                  // Additional navigation items
                   _buildMenuItem(
                     context,
                     iconPath: 'assets/images/Navigation_Icons/Phone.png',
@@ -147,15 +133,12 @@ class NavigationDrawerWidget extends StatelessWidget {
                 ],
               ),
             ),
-            
-            // Logout Button at the bottom
             Container(
               padding: const EdgeInsets.all(16),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Use a simple synchronous call to avoid context issues
                     NavigationService.handleSpecialNavigation(context, 'logout');
                   },
                   style: ElevatedButton.styleFrom(
@@ -189,8 +172,6 @@ class NavigationDrawerWidget extends StatelessWidget {
       },
     );
   }
-
-  /// Build individual menu item matching the design with active state indicator
   Widget _buildMenuItem(
     BuildContext context, {
     required String iconPath,
@@ -208,17 +189,16 @@ class NavigationDrawerWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: isActive ? BoxDecoration(
-            color: const Color(0xFF00BCD4).withOpacity(0.15),
+            color: const Color(0xFF00BCD4).withValues(alpha: 0.15),
             border: const Border(
               right: BorderSide(
-                color: const Color(0xFF00BCD4),
+                color: Color(0xFF00BCD4),
                 width: 3,
               ),
             ),
           ) : null,
           child: Row(
             children: [
-              // Custom icon from assets
               Image.asset(
                 iconPath,
                 width: 28,
@@ -227,7 +207,6 @@ class NavigationDrawerWidget extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
               const SizedBox(width: 16),
-              // Menu title
               Text(
                 title,
                 style: TextStyle(
@@ -244,3 +223,4 @@ class NavigationDrawerWidget extends StatelessWidget {
     );
   }
 }
+

@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Result entity for requesting email change
 class RequestChangeEmailResult extends Equatable {
   final String message;
 

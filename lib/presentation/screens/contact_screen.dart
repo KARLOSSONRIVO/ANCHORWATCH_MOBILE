@@ -5,17 +5,13 @@ import '../themes/app_theme.dart';
 import '../widgets/loading_widget.dart';
 import '../widgets/custom_snackbar.dart';
 import '../../injection_container.dart';
-
-/// Contact screen with BLoC architecture
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    print('[CONTACT_SCREEN] ContactScreen build called');
     return BlocProvider(
       create: (context) {
-        print('[CONTACT_SCREEN] Creating ContactBloc and adding load event');
         return getIt<ContactBloc>()..add(const ContactLoadRequested());
       },
       child: const _ContactView(),
@@ -62,37 +58,26 @@ class _ContactViewState extends State<_ContactView> {
       ),
       body: BlocConsumer<ContactBloc, ContactState>(
         listenWhen: (previous, current) {
-          // Only listen when status actually changes to avoid repeated snackbars
           return previous.status != current.status;
         },
         listener: (context, state) {
           if (state.status == ContactStatus.submitted) {
-            // Clear the text field when form is successfully submitted
             _questionController.clear();
-            
-            // Show success message
             SnackBarHelper.showSuccess(
               context,
               'Your question has been submitted successfully!',
               duration: const Duration(seconds: 3),
             );
-            
-            // Reset status to prevent repeated snackbars
             context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.failure) {
-            // Show error message
             SnackBarHelper.showError(
               context,
               state.errorMessage,
               duration: const Duration(seconds: 3),
             );
-            
-            // Reset status to prevent repeated snackbars
             context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.navigatingToFaq) {
-            // Navigate to FAQ (use regular push instead of replacement)
             Navigator.of(context).pushNamed('/faq').then((_) {
-              // Reset status after navigation
               if (context.mounted) {
                 context.read<ContactBloc>().add(const ContactStatusReset());
               }
@@ -105,7 +90,6 @@ class _ContactViewState extends State<_ContactView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header section
                 Text(
                   'Your Questions, Answered.',
                   style: TextStyle(
@@ -126,8 +110,6 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
-                // Description
                 Text(
                   'Our Help Desk is here to provide clear guidance and practical solutions to dedicated support to empower your financial decisions. Whether you\'re exploring strategic market moves, need help with your account, or want better insights into advanced trading strategies, we\'re here to help, making your AnchorWatch experience intuitive, secure, and precision trading.',
                   style: TextStyle(
@@ -139,8 +121,6 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
-                // How can we help section
                 Text(
                   'How can we help?',
                   style: TextStyle(
@@ -151,8 +131,6 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
-                // Question input field
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
@@ -192,8 +170,6 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
-                // Send button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -241,12 +217,9 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
-                // Go to FAQs link
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      // Trigger FAQ navigation through BLoC
                       context.read<ContactBloc>().add(const ContactNavigateToFaq());
                     },
                     child: const Text(
@@ -269,3 +242,4 @@ class _ContactViewState extends State<_ContactView> {
     );
   }
 }
+

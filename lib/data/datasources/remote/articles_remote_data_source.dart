@@ -17,8 +17,6 @@ class ArticlesRemoteDataSource {
       
       if (response.statusCode == 200) {
         final jsonData = response.data as Map<String, dynamic>;
-        
-        // Extract the articles array from the response structure
         final articlesJson = jsonData['articles'] as List<dynamic>? ?? [];
         
         final articles = articlesJson

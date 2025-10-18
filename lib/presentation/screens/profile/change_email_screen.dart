@@ -8,7 +8,7 @@ import 'confirm_change_email_screen.dart';
 import '../../../utils/validators/form_validators.dart';
 
 class ChangeEmailScreen extends StatelessWidget {
-  const ChangeEmailScreen({Key? key}) : super(key: key);
+  const ChangeEmailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class ChangeEmailScreen extends StatelessWidget {
 }
 
 class _ChangeEmailView extends StatefulWidget {
-  const _ChangeEmailView({Key? key}) : super(key: key);
+  const _ChangeEmailView();
 
   @override
   State<_ChangeEmailView> createState() => _ChangeEmailViewState();
@@ -40,12 +40,10 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
   Widget build(BuildContext context) {
     return BlocConsumer<ChangeEmailBloc, ChangeEmailState>(
       listenWhen: (previous, current) {
-        // Only listen when the state type actually changes to avoid repeated snackbars
         return previous.runtimeType != current.runtimeType;
       },
       listener: (context, state) {
         if (state is ChangeEmailRequestSuccess) {
-          // Navigate to OTP screen immediately to avoid timing issues
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.push(
@@ -64,7 +62,6 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
           });
         } else if (state is ChangeEmailRequestFailure) {
           SnackBarHelper.showError(context, state.error);
-          // Do NOT navigate to OTP screen on failure
         }
       },
       builder: (context, state) {
@@ -125,7 +122,7 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                       hintStyle: TextStyle(
                         color: Theme.of(
                           context,
-                        ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
                         fontFamily: 'Inter',
                       ),
                       filled: true,
@@ -188,7 +185,7 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                         ),
                         disabledBackgroundColor: const Color(
                           0xFF00E5CC,
-                        ).withOpacity(0.5),
+                        ).withValues(alpha: 0.5),
                       ),
                       child: state is ChangeEmailRequestLoading
                           ? const SizedBox(
@@ -228,3 +225,4 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
     }
   }
 }
+

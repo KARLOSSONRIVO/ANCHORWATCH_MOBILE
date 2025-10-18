@@ -9,8 +9,6 @@ class ChartSummaryRemoteDataSource {
   final DioClient _dioClient;
 
   ChartSummaryRemoteDataSource(this._dioClient);
-
-  /// Get chart summary from backend
   Future<ChartSummaryModel> getChartSummary({
     required String chartType,
     String? timeFrame,
@@ -20,13 +18,9 @@ class ChartSummaryRemoteDataSource {
       final requestData = <String, dynamic>{
         'chart_type': chartType,
       };
-      
-      // Add timeframe if provided
       if (timeFrame != null) {
         requestData['timeframe'] = timeFrame;
       }
-      
-      // Add chart data if provided
       if (chartData != null) {
         requestData['chart_data'] = chartData;
       }
@@ -44,10 +38,7 @@ class ChartSummaryRemoteDataSource {
 
       if (response.statusCode == 200) {
         final jsonData = response.data as Map<String, dynamic>;
-
-        // Check if the response indicates success
         if (jsonData['success'] == true) {
-          // Extract the nested data object and add timestamp from root level
           final nestedData = jsonData['data'] as Map<String, dynamic>;
           nestedData['timestamp'] =
               jsonData['timestamp']; // Add timestamp from root level
@@ -67,3 +58,4 @@ class ChartSummaryRemoteDataSource {
     }
   }
 }
+

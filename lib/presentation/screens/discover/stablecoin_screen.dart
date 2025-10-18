@@ -6,6 +6,7 @@ import '../../../injection_container.dart';
 import '../../blocs/discover/stablecoin/stablecoin.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/chart_summary_widget.dart';
+import '../../themes/app_theme.dart';
 
 class StablecoinView extends StatelessWidget {
   const StablecoinView({super.key});
@@ -77,10 +78,8 @@ class _StablecoinView extends StatelessWidget {
         }
 
         return Container(
-          color: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-              : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
-          child: RefreshIndicator(
+          color: AppTheme.getBackgroundColor(context),
+      child: RefreshIndicator(
             color: const Color(0xFF00D4AA),
             onRefresh: () async {
               context.read<StablecoinBloc>().add(const StablecoinRefreshRequested());
@@ -90,7 +89,6 @@ class _StablecoinView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Column(
                 children: [
-                  // Dropdown positioned outside and above the first card
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Row(
@@ -157,10 +155,8 @@ class _StablecoinView extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-              : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
-          borderRadius: BorderRadius.circular(12),
+          color: AppTheme.getCardBackgroundColor(context),
+        borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Theme.of(context).dividerColor),
         ),
         child: Column(
@@ -181,7 +177,7 @@ class _StablecoinView extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00D4AA).withOpacity(0.1),
+                      color: const Color(0xFF00D4AA).withValues(alpha: 0.1),
                       border: Border.all(color: const Color(0xFF00D4AA)),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -201,7 +197,6 @@ class _StablecoinView extends StatelessWidget {
               height: 240,
               child: child,
             ),
-            // Add chart summary widget
             ChartSummaryWidget(
               chartType: chartType,
               chartTitle: title,
@@ -313,13 +308,11 @@ class _StablecoinView extends StatelessWidget {
       ),
     );
   }
-
-  // Total Supply Over Time Chart
   Widget _totalSupplyChart(StablecoinState state) {
     return Builder(
       builder: (context) {
-        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.54) ?? Colors.white54;
-        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70;
+        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.54) ?? Colors.white54;
+        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7) ?? Colors.white70;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -353,13 +346,13 @@ class _StablecoinView extends StatelessWidget {
                   dataSource: state.chartData ?? [],
                   xValueMapper: (Map<String, dynamic> data, _) => DateTime.parse(data['date']),
                   yValueMapper: (Map<String, dynamic> data, _) => data['totalSupply'],
-                  color: const Color(0xFF00D4AA).withOpacity(0.3),
+                  color: const Color(0xFF00D4AA).withValues(alpha: 0.3),
                   borderColor: const Color(0xFF00D4AA),
                   borderWidth: 2,
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFF00D4AA).withOpacity(0.4),
-                      const Color(0xFF00D4AA).withOpacity(0.1),
+                      const Color(0xFF00D4AA).withValues(alpha: 0.4),
+                      const Color(0xFF00D4AA).withValues(alpha: 0.1),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -372,13 +365,11 @@ class _StablecoinView extends StatelessWidget {
       },
     );
   }
-
-  // Mint vs Burn Activity Chart
   Widget _mintBurnChart(StablecoinState state) {
     return Builder(
       builder: (context) {
-        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.54) ?? Colors.white54;
-        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70;
+        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.54) ?? Colors.white54;
+        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7) ?? Colors.white70;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -438,13 +429,11 @@ class _StablecoinView extends StatelessWidget {
       },
     );
   }
-
-  // Net Change in Supply Chart
   Widget _netChangeChart(StablecoinState state) {
     return Builder(
       builder: (context) {
-        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.54) ?? Colors.white54;
-        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70;
+        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.54) ?? Colors.white54;
+        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7) ?? Colors.white70;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -497,13 +486,11 @@ class _StablecoinView extends StatelessWidget {
       },
     );
   }
-
-  // Rolling Average Supply Changes Chart
   Widget _rollingAverageChart(StablecoinState state) {
     return Builder(
       builder: (context) {
-        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.54) ?? Colors.white54;
-        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70;
+        final labelColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.54) ?? Colors.white54;
+        final titleColor = Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7) ?? Colors.white70;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -579,8 +566,6 @@ class _StablecoinView extends StatelessWidget {
       },
     );
   }
-
-  /// Get chart-specific data for AI summary generation
   List<Map<String, dynamic>>? _getChartDataForType(StablecoinState state, String chartType) {
     if (state.chartData == null) return null;
     
@@ -612,3 +597,4 @@ class _StablecoinView extends StatelessWidget {
     }
   }
 }
+

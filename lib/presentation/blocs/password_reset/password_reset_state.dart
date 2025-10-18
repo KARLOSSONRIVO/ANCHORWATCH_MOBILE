@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Status enum for password reset flow
 enum PasswordResetStatus {
   initial,
   loading,
@@ -9,15 +7,11 @@ enum PasswordResetStatus {
   passwordReset,
   failure,
 }
-
-/// Steps in the password reset flow
 enum PasswordResetStep {
   email,
   otp,
   newPassword,
 }
-
-/// State for password reset flow
 class PasswordResetState extends Equatable {
   const PasswordResetState({
     this.status = PasswordResetStatus.initial,
@@ -50,8 +44,6 @@ class PasswordResetState extends Equatable {
   final bool passwordsMatch;
   final bool canResendOtp;
   final int otpResendCooldown;
-
-  /// Check if current step form is valid
   bool get isCurrentStepValid {
     switch (step) {
       case PasswordResetStep.email:
@@ -62,11 +54,7 @@ class PasswordResetState extends Equatable {
         return isNewPasswordValid && isConfirmPasswordValid && passwordsMatch;
     }
   }
-
-  /// Check if loading
   bool get isLoading => status == PasswordResetStatus.loading;
-
-  /// Check if there's an error
   bool get hasError => status == PasswordResetStatus.failure && errorMessage != null;
 
   PasswordResetState copyWith({
@@ -121,3 +109,4 @@ class PasswordResetState extends Equatable {
         otpResendCooldown,
       ];
 }
+

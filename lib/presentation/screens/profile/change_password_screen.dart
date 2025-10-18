@@ -7,7 +7,7 @@ import '../../../injection_container.dart';
 import '../../../utils/validators/form_validators.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
-  const ChangePasswordScreen({Key? key}) : super(key: key);
+  const ChangePasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class ChangePasswordScreen extends StatelessWidget {
 }
 
 class _ChangePasswordView extends StatefulWidget {
-  const _ChangePasswordView({Key? key}) : super(key: key);
+  const _ChangePasswordView();
 
   @override
   State<_ChangePasswordView> createState() => _ChangePasswordViewState();
@@ -48,7 +48,6 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     return BlocConsumer<ChangePasswordBloc, ChangePasswordState>(
       listener: (context, state) {
         if (state is ChangePasswordSuccess) {
-          // Navigate back immediately to avoid widget tree issues
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.of(context).pop();
@@ -98,8 +97,6 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                         ),
                       ),
                       const SizedBox(height: 32),
-
-                      // Current Password Field
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -129,8 +126,6 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // New Password Field
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -157,8 +152,6 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // Confirm Password Field
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -190,8 +183,6 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                         ),
                       ),
                       const SizedBox(height: 32),
-
-                      // Submit Button
                       SizedBox(
                         width: double.infinity,
                         height: 56,
@@ -210,7 +201,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                             ),
                             disabledBackgroundColor: const Color(
                               0xFF00E5CC,
-                            ).withOpacity(0.5),
+                            ).withValues(alpha: 0.5),
                           ),
                           child: const Text(
                             'Change Password',
@@ -226,11 +217,9 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                   ),
                 ),
               ),
-
-              // Loading overlay
               if (state is ChangePasswordLoading)
                 Container(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   child: const Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
@@ -255,7 +244,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     return InputDecoration(
       hintText: hintText,
       hintStyle: TextStyle(
-        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+        color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
         fontFamily: 'Inter',
       ),
       suffixIcon: IconButton(
@@ -263,7 +252,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
           obscureText ? Icons.visibility : Icons.visibility_off,
           color: Theme.of(
             context,
-          ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+          ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
         ),
         onPressed: onToggle,
       ),
@@ -307,3 +296,4 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     }
   }
 }
+

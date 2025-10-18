@@ -4,8 +4,6 @@ import 'package:equatable/equatable.dart';
 
 import '../../../domain/usecases/profile/change_password_usecase.dart';
 import '../../../domain/entities/profile/change_password_result.dart';
-
-// Events
 abstract class ChangePasswordEvent extends Equatable {
   const ChangePasswordEvent();
 
@@ -27,8 +25,6 @@ class ChangePasswordSubmitted extends ChangePasswordEvent {
   @override
   List<Object> get props => [oldPassword, newPassword, confirmPassword];
 }
-
-// States
 abstract class ChangePasswordState extends Equatable {
   const ChangePasswordState();
 
@@ -57,8 +53,6 @@ class ChangePasswordFailure extends ChangePasswordState {
   @override
   List<Object> get props => [error];
 }
-
-// BLoC
 @injectable
 class ChangePasswordBloc extends Bloc<ChangePasswordEvent, ChangePasswordState> {
   final ChangePasswordUseCase _changePasswordUseCase;

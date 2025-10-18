@@ -1,4 +1,3 @@
-// Profile-related request and response models
 
 class ChangePasswordRequestModel {
   final String oldPassword;

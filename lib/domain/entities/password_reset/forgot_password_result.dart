@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Result for forgot password operation
 class ForgotPasswordResult extends Equatable {
   final String message;
 
