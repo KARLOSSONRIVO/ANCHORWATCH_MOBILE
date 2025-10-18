@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'macro_trends_screen.dart';
-import 'stablecoin_screen.dart';
-import 'articles_screen.dart';
-import '../../themes/app_theme.dart';
+import 'discover/macro_trends_screen.dart';
+import 'discover/stablecoin_screen.dart';
+import 'discover/articles_screen.dart';
+import '../themes/app_theme.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
