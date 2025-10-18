@@ -8,17 +8,17 @@ class DioClient {
   // Dynamic base URL based on platform
   static String get _baseUrl {
     if (kIsWeb) {
-      return 'http://127.0.0.1:8000';  // Web can use localhost directly
+      return 'http://172.20.10.2:8000';  // Web can use localhost directly
     } else if (Platform.isAndroid) {
       // For Android emulator: 10.0.2.2 maps to host machine's localhost
       // For physical device: Use your computer's local network IP
-      return 'http://10.0.2.2:8000';   // Android emulator special IP
+      return 'http://172.20.10.2:8000';   // Android emulator special IP
     } else if (Platform.isIOS) {
       // For iOS simulator: 127.0.0.1 works
       // For physical device: Use your computer's local network IP
-      return 'http://127.0.0.1:8000';  // iOS simulator can use localhost
+      return 'http://172.20.10.2:8000';  // iOS simulator can use localhost
     } else {
-      return 'http://127.0.0.1:8000';  // Default for other platforms
+      return 'http://172.20.10.2:8000';  // Default for other platforms
     }
   }
 
