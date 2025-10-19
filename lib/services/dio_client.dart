@@ -200,6 +200,18 @@ class DioClient {
       }
     }
 
+    // Check for rate limiting in any response (regardless of status code)
+    if (response.data != null &&
+        response.data is Map<String, dynamic> &&
+        response.data['retry_after_seconds'] != null) {
+      // This is a rate limiting error, include the retry time in the message
+      final retrySeconds = response.data['retry_after_seconds'] as int;
+      final formattedTime = _formatTimeRemaining(retrySeconds);
+      return BadRequestException(
+        'Please wait $formattedTime before sending another message.',
+      );
+    }
+
     switch (response.statusCode) {
       case 400:
         return BadRequestException(errorMessage ?? 'Bad request.');
@@ -218,6 +230,23 @@ class DioClient {
           errorMessage ??
               'Server error with status code: ${response.statusCode}',
         );
+    }
+  }
+
+  String _formatTimeRemaining(int seconds) {
+    if (seconds < 60) {
+      return '$seconds seconds';
+    } else if (seconds < 3600) {
+      final minutes = (seconds / 60).ceil();
+      return '$minutes minute${minutes == 1 ? '' : 's'}';
+    } else {
+      final hours = (seconds / 3600).floor();
+      final minutes = ((seconds % 3600) / 60).ceil();
+      if (minutes == 0) {
+        return '$hours hour${hours == 1 ? '' : 's'}';
+      } else {
+        return '$hours hour${hours == 1 ? '' : 's'} $minutes minute${minutes == 1 ? '' : 's'}';
+      }
     }
   }
 }

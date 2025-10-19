@@ -5,6 +5,7 @@ import '../themes/app_theme.dart';
 import '../widgets/loading_widget.dart';
 import '../widgets/custom_snackbar.dart';
 import '../../injection_container.dart';
+
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
 
@@ -52,7 +53,10 @@ class _ContactViewState extends State<_ContactView> {
         ),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppTheme.getTextPrimaryColor(context)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppTheme.getTextPrimaryColor(context),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -66,15 +70,10 @@ class _ContactViewState extends State<_ContactView> {
             SnackBarHelper.showSuccess(
               context,
               'Your question has been submitted successfully!',
-              duration: const Duration(seconds: 3),
             );
             context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.failure) {
-            SnackBarHelper.showError(
-              context,
-              state.errorMessage,
-              duration: const Duration(seconds: 3),
-            );
+            SnackBarHelper.showError(context, state.errorMessage);
             context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.navigatingToFaq) {
             Navigator.of(context).pushNamed('/faq').then((_) {
@@ -173,25 +172,29 @@ class _ContactViewState extends State<_ContactView> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: state.isFormValid && state.status != ContactStatus.submitting
+                    onPressed:
+                        state.isFormValid &&
+                            state.status != ContactStatus.submitting
                         ? () {
-                            context.read<ContactBloc>().add(const ContactFormSubmitted());
+                            context.read<ContactBloc>().add(
+                              const ContactFormSubmitted(),
+                            );
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: state.isFormValid 
-                          ? const Color(0xFF4CAF50) 
+                      backgroundColor: state.isFormValid
+                          ? const Color(0xFF4CAF50)
                           : const Color(0xFF424242),
-                      foregroundColor: state.isFormValid 
-                          ? Colors.white 
+                      foregroundColor: state.isFormValid
+                          ? Colors.white
                           : const Color(0xFFBBBBBB),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
-                        side: state.isFormValid 
-                            ? BorderSide.none 
+                        side: state.isFormValid
+                            ? BorderSide.none
                             : const BorderSide(
-                                color: Color(0xFF666666), 
+                                color: Color(0xFF666666),
                                 width: 1,
                               ),
                       ),
@@ -209,7 +212,7 @@ class _ContactViewState extends State<_ContactView> {
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
-                              color: state.isFormValid 
+                              color: state.isFormValid
                                   ? AppTheme.getTextPrimaryColor(context)
                                   : AppTheme.getTextSecondaryColor(context),
                             ),
@@ -220,7 +223,9 @@ class _ContactViewState extends State<_ContactView> {
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      context.read<ContactBloc>().add(const ContactNavigateToFaq());
+                      context.read<ContactBloc>().add(
+                        const ContactNavigateToFaq(),
+                      );
                     },
                     child: const Text(
                       'Go to FAQs',
@@ -242,4 +247,3 @@ class _ContactViewState extends State<_ContactView> {
     );
   }
 }
-
