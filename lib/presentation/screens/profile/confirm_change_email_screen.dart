@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/change_email/change_email_bloc.dart';
+import '../../blocs/change_email/change_email.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../../injection_container.dart';
 import '../../../utils/validators/form_validators.dart';
@@ -224,4 +224,3 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
     }
   }
 }
-

@@ -5,7 +5,7 @@ import '../../../domain/usecases/profile/change_password_usecase.dart';
 import 'change_password_event.dart';
 import 'change_password_state.dart';
 
-// Export events and states for use in screens
+// Export events and states for proper BLoC architecture
 export 'change_password_event.dart';
 export 'change_password_state.dart';
 

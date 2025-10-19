@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/change_password/change_password_bloc.dart';
+import '../../blocs/change_password/change_password.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../../injection_container.dart';
 

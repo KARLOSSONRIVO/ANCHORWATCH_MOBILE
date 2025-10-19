@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/change_username/change_username_bloc.dart';
+import '../../blocs/change_username/change_username.dart';
 import '../../blocs/authentication/authentication.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../themes/app_theme.dart';

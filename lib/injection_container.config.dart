@@ -78,7 +78,6 @@ import 'presentation/blocs/change_email/change_email_bloc.dart' as _i625;
 import 'presentation/blocs/change_password/change_password_bloc.dart' as _i192;
 import 'presentation/blocs/change_username/change_username_bloc.dart' as _i673;
 import 'presentation/blocs/contact/contact_bloc.dart' as _i945;
-import 'presentation/blocs/contact_support/contact_support_bloc.dart' as _i688;
 import 'presentation/blocs/dashboard/dashboard_bloc.dart' as _i37;
 import 'presentation/blocs/discover/articles/articles_bloc.dart' as _i100;
 import 'presentation/blocs/discover/chart_summary/chart_summary_bloc.dart'
@@ -352,9 +351,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i945.ContactBloc>(
       () => _i945.ContactBloc(gh<_i364.ContactSupportUseCase>()),
-    );
-    gh.factory<_i688.ContactSupportBloc>(
-      () => _i688.ContactSupportBloc(gh<_i364.ContactSupportUseCase>()),
     );
     return this;
   }
