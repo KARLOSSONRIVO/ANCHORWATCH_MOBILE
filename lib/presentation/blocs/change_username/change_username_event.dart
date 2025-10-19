@@ -10,9 +10,16 @@ abstract class ChangeUsernameEvent extends Equatable {
 class ChangeUsernameSubmitted extends ChangeUsernameEvent {
   final String newUsername;
 
-  const ChangeUsernameSubmitted({
-    required this.newUsername,
-  });
+  const ChangeUsernameSubmitted({required this.newUsername});
+
+  @override
+  List<Object> get props => [newUsername];
+}
+
+class ChangeUsernameValidationRequested extends ChangeUsernameEvent {
+  final String newUsername;
+
+  const ChangeUsernameValidationRequested({required this.newUsername});
 
   @override
   List<Object> get props => [newUsername];

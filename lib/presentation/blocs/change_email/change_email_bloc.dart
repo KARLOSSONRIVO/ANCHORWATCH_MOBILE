@@ -6,6 +6,7 @@ import '../../../domain/usecases/profile/request_change_email_usecase.dart';
 import '../../../domain/usecases/profile/confirm_change_email_usecase.dart';
 import '../../../domain/entities/change_email/request_change_email_result.dart';
 import '../../../domain/entities/change_email/confirm_change_email_result.dart';
+
 abstract class ChangeEmailEvent extends Equatable {
   const ChangeEmailEvent();
 
@@ -16,9 +17,7 @@ abstract class ChangeEmailEvent extends Equatable {
 class RequestChangeEmailSubmitted extends ChangeEmailEvent {
   final String newEmail;
 
-  const RequestChangeEmailSubmitted({
-    required this.newEmail,
-  });
+  const RequestChangeEmailSubmitted({required this.newEmail});
 
   @override
   List<Object> get props => [newEmail];
@@ -38,6 +37,7 @@ class ConfirmChangeEmailSubmitted extends ChangeEmailEvent {
 }
 
 class ChangeEmailReset extends ChangeEmailEvent {}
+
 abstract class ChangeEmailState extends Equatable {
   const ChangeEmailState();
 
@@ -87,6 +87,7 @@ class ChangeEmailConfirmFailure extends ChangeEmailState {
   @override
   List<Object> get props => [error];
 }
+
 @injectable
 class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
   final RequestChangeEmailUseCase _requestChangeEmailUseCase;
@@ -111,7 +112,16 @@ class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
       final result = await _requestChangeEmailUseCase.execute(
         newEmail: event.newEmail,
       );
-      emit(ChangeEmailRequestSuccess(result, event.newEmail));
+
+      if (result.success) {
+        emit(ChangeEmailRequestSuccess(result, event.newEmail));
+      } else {
+        emit(
+          ChangeEmailRequestFailure(
+            result.error ?? 'Request change email failed',
+          ),
+        );
+      }
     } catch (e) {
       emit(ChangeEmailRequestFailure(e.toString()));
     }
@@ -128,7 +138,16 @@ class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
         otp: event.otp,
         newEmail: event.newEmail,
       );
-      emit(ChangeEmailConfirmSuccess(result));
+
+      if (result.success) {
+        emit(ChangeEmailConfirmSuccess(result));
+      } else {
+        emit(
+          ChangeEmailConfirmFailure(
+            result.error ?? 'Confirm change email failed',
+          ),
+        );
+      }
     } catch (e) {
       emit(ChangeEmailConfirmFailure(e.toString()));
     }
@@ -141,4 +160,3 @@ class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
     emit(ChangeEmailInitial());
   }
 }
-

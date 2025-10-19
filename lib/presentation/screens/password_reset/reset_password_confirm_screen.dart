@@ -5,6 +5,7 @@ import '../../routes/app_router.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../widgets/loading_widget.dart';
+
 class ResetPasswordConfirmScreen extends StatefulWidget {
   const ResetPasswordConfirmScreen({super.key});
 
@@ -412,4 +413,3 @@ class _ResetPasswordConfirmScreenState
     );
   }
 }
-

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/change_password/change_password_bloc.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../../injection_container.dart';
-import '../../../utils/validators/form_validators.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   const ChangePasswordScreen({super.key});
@@ -26,7 +25,6 @@ class _ChangePasswordView extends StatefulWidget {
 }
 
 class _ChangePasswordViewState extends State<_ChangePasswordView> {
-  final _formKey = GlobalKey<FormState>();
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -34,6 +32,11 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
   bool _obscureOldPassword = true;
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
+  bool _hasInteractedWithOldPassword = false;
+  bool _hasInteractedWithNewPassword = false;
+  bool _hasInteractedWithConfirmPassword = false;
+  String? _lastShownError;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -47,14 +50,26 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
   Widget build(BuildContext context) {
     return BlocConsumer<ChangePasswordBloc, ChangePasswordState>(
       listener: (context, state) {
-        if (state is ChangePasswordSuccess) {
+        if (state is ChangePasswordLoading) {
+          _isSubmitting = true;
+          _lastShownError =
+              null; // Clear last error when starting new submission
+        } else if (state is ChangePasswordSuccess) {
+          _isSubmitting = false;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.of(context).pop();
             }
           });
         } else if (state is ChangePasswordFailure) {
-          SnackBarHelper.showError(context, state.error);
+          _isSubmitting = false;
+          // Only show error if it's different from the last shown error
+          if (_lastShownError != state.error) {
+            _lastShownError = state.error;
+            SnackBarHelper.showError(context, state.error);
+          }
+        } else if (state is ChangePasswordValidationState) {
+          _isSubmitting = false;
         }
       },
       builder: (context, state) {
@@ -73,148 +88,178 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
             children: [
               SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 16),
-                      Image.asset(
-                        'assets/images/LOGOnoBG.png',
-                        width: 200,
-                        height: 200,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 16),
+                    Image.asset(
+                      'assets/images/LOGOnoBG.png',
+                      width: 200,
+                      height: 200,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Change Password',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).textTheme.headlineLarge?.color,
+                        fontFamily: 'Inter',
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Change Password',
+                    ),
+                    const SizedBox(height: 32),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Current Password',
                         style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(
-                            context,
-                          ).textTheme.headlineLarge?.color,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                           fontFamily: 'Inter',
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Current Password',
+                    ),
+                    const SizedBox(height: 4),
+                    BlocBuilder<ChangePasswordBloc, ChangePasswordState>(
+                      builder: (context, state) {
+                        String? errorText;
+                        if (state is ChangePasswordValidationState &&
+                            !state.isOldPasswordValid &&
+                            state.hasInteractedWithOldPassword) {
+                          errorText = state.oldPasswordError;
+                        }
+
+                        return TextFormField(
+                          controller: _oldPasswordController,
+                          obscureText: _obscureOldPassword,
+                          onChanged: (value) {
+                            _hasInteractedWithOldPassword = true;
+                            _triggerValidation();
+                          },
+                          decoration: _buildPasswordInputDecoration(
+                            'Enter current password',
+                            _obscureOldPassword,
+                            () => setState(
+                              () => _obscureOldPassword = !_obscureOldPassword,
+                            ),
+                          ).copyWith(errorText: errorText),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'New Password',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontFamily: 'Inter',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    BlocBuilder<ChangePasswordBloc, ChangePasswordState>(
+                      builder: (context, state) {
+                        String? errorText;
+                        if (state is ChangePasswordValidationState &&
+                            !state.isNewPasswordValid &&
+                            state.hasInteractedWithNewPassword) {
+                          errorText = state.newPasswordError;
+                        }
+
+                        return TextFormField(
+                          controller: _newPasswordController,
+                          obscureText: _obscureNewPassword,
+                          onChanged: (value) {
+                            _hasInteractedWithNewPassword = true;
+                            _triggerValidation();
+                          },
+                          decoration: _buildPasswordInputDecoration(
+                            'Enter new password',
+                            _obscureNewPassword,
+                            () => setState(
+                              () => _obscureNewPassword = !_obscureNewPassword,
+                            ),
+                          ).copyWith(errorText: errorText),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Confirm Password',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontFamily: 'Inter',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    BlocBuilder<ChangePasswordBloc, ChangePasswordState>(
+                      builder: (context, state) {
+                        String? errorText;
+                        if (state is ChangePasswordValidationState &&
+                            !state.isConfirmPasswordValid &&
+                            state.hasInteractedWithConfirmPassword) {
+                          errorText = state.confirmPasswordError;
+                        }
+
+                        return TextFormField(
+                          controller: _confirmPasswordController,
+                          obscureText: _obscureConfirmPassword,
+                          onChanged: (value) {
+                            _hasInteractedWithConfirmPassword = true;
+                            _triggerValidation();
+                          },
+                          decoration: _buildPasswordInputDecoration(
+                            'Confirm new password',
+                            _obscureConfirmPassword,
+                            () => setState(
+                              () => _obscureConfirmPassword =
+                                  !_obscureConfirmPassword,
+                            ),
+                          ).copyWith(errorText: errorText),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: state is ChangePasswordLoading
+                            ? null
+                            : _onSubmit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF00E5CC,
+                          ), // Consistent with app branding
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          disabledBackgroundColor: const Color(
+                            0xFF00E5CC,
+                          ).withValues(alpha: 0.5),
+                        ),
+                        child: const Text(
+                          'Change Password',
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                            fontWeight: FontWeight.w600,
                             fontFamily: 'Inter',
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        controller: _oldPasswordController,
-                        obscureText: _obscureOldPassword,
-                        validator: (value) => FormValidators.validateRequired(
-                          value,
-                          'current password',
-                        ),
-                        decoration: _buildPasswordInputDecoration(
-                          'Enter current password',
-                          _obscureOldPassword,
-                          () => setState(
-                            () => _obscureOldPassword = !_obscureOldPassword,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'New Password',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                            fontFamily: 'Inter',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        controller: _newPasswordController,
-                        obscureText: _obscureNewPassword,
-                        validator: FormValidators.validatePassword,
-                        decoration: _buildPasswordInputDecoration(
-                          'Enter new password',
-                          _obscureNewPassword,
-                          () => setState(
-                            () => _obscureNewPassword = !_obscureNewPassword,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Confirm Password',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                            fontFamily: 'Inter',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: _obscureConfirmPassword,
-                        validator: (value) =>
-                            FormValidators.validateConfirmPassword(
-                              value,
-                              _newPasswordController.text,
-                            ),
-                        decoration: _buildPasswordInputDecoration(
-                          'Confirm new password',
-                          _obscureConfirmPassword,
-                          () => setState(
-                            () => _obscureConfirmPassword =
-                                !_obscureConfirmPassword,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: state is ChangePasswordLoading
-                              ? null
-                              : _onSubmit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFF00E5CC,
-                            ), // Consistent with app branding
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            disabledBackgroundColor: const Color(
-                              0xFF00E5CC,
-                            ).withValues(alpha: 0.5),
-                          ),
-                          child: const Text(
-                            'Change Password',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Inter',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               if (state is ChangePasswordLoading)
@@ -244,7 +289,9 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     return InputDecoration(
       hintText: hintText,
       hintStyle: TextStyle(
-        color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
+        color: Theme.of(
+          context,
+        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
         fontFamily: 'Inter',
       ),
       suffixIcon: IconButton(
@@ -285,15 +332,41 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
   }
 
   void _onSubmit() {
-    if (_formKey.currentState?.validate() == true) {
-      context.read<ChangePasswordBloc>().add(
-        ChangePasswordSubmitted(
-          oldPassword: _oldPasswordController.text.trim(),
-          newPassword: _newPasswordController.text.trim(),
-          confirmPassword: _confirmPasswordController.text.trim(),
-        ),
-      );
-    }
+    // Prevent multiple submissions
+    if (_isSubmitting) return;
+
+    // Mark all fields as interacted with so validation errors will show
+    _hasInteractedWithOldPassword = true;
+    _hasInteractedWithNewPassword = true;
+    _hasInteractedWithConfirmPassword = true;
+
+    // Trigger validation first to show any errors
+    _triggerValidation();
+
+    // Then submit after a short delay to allow validation to complete
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        context.read<ChangePasswordBloc>().add(
+          ChangePasswordSubmitted(
+            oldPassword: _oldPasswordController.text.trim(),
+            newPassword: _newPasswordController.text.trim(),
+            confirmPassword: _confirmPasswordController.text.trim(),
+          ),
+        );
+      }
+    });
+  }
+
+  void _triggerValidation() {
+    context.read<ChangePasswordBloc>().add(
+      ChangePasswordValidationRequested(
+        oldPassword: _oldPasswordController.text.trim(),
+        newPassword: _newPasswordController.text.trim(),
+        confirmPassword: _confirmPasswordController.text.trim(),
+        hasInteractedWithOldPassword: _hasInteractedWithOldPassword,
+        hasInteractedWithNewPassword: _hasInteractedWithNewPassword,
+        hasInteractedWithConfirmPassword: _hasInteractedWithConfirmPassword,
+      ),
+    );
   }
 }
-

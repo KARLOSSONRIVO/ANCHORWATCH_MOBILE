@@ -6,6 +6,7 @@ import '../blocs/signup/signup.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
 import '../../utils/validators/form_validators.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -496,4 +497,3 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
-

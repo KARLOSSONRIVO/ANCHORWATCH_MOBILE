@@ -1,4 +1,3 @@
-
 class ChangePasswordRequestModel {
   final String oldPassword;
   final String newPassword;
@@ -29,30 +28,26 @@ class ChangePasswordRequestModel {
 
 class ChangePasswordResponseModel {
   final String message;
+  final bool? success;
 
-  const ChangePasswordResponseModel({
-    required this.message,
-  });
+  const ChangePasswordResponseModel({required this.message, this.success});
 
   factory ChangePasswordResponseModel.fromJson(Map<String, dynamic> json) {
     return ChangePasswordResponseModel(
-      message: json['message'] as String,
+      message: json['message']?.toString() ?? 'Password updated successfully',
+      success: json['success'] as bool?,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'message': message,
-    };
+    return {'message': message, if (success != null) 'success': success};
   }
 }
 
 class ChangeUsernameRequestModel {
   final String newUsername;
 
-  const ChangeUsernameRequestModel({
-    required this.newUsername,
-  });
+  const ChangeUsernameRequestModel({required this.newUsername});
 
   factory ChangeUsernameRequestModel.fromJson(Map<String, dynamic> json) {
     return ChangeUsernameRequestModel(
@@ -61,28 +56,20 @@ class ChangeUsernameRequestModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'new_username': newUsername,
-    };
+    return {'new_username': newUsername};
   }
 }
 
 class ChangeUsernameResponseModel {
   final String message;
 
-  const ChangeUsernameResponseModel({
-    required this.message,
-  });
+  const ChangeUsernameResponseModel({required this.message});
 
   factory ChangeUsernameResponseModel.fromJson(Map<String, dynamic> json) {
-    return ChangeUsernameResponseModel(
-      message: json['message'] as String,
-    );
+    return ChangeUsernameResponseModel(message: json['message'] as String);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'message': message,
-    };
+    return {'message': message};
   }
 }

@@ -7,21 +7,22 @@ import 'dart:io';
 class DioClient {
   static String get _baseUrl {
     if (kIsWeb) {
-      return 'http://10.0.2.2:8000';  // Web can use localhost directly
+      return 'http://10.0.2.2:8000'; // Web can use localhost directly
     } else if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000';   // Android emulator special IP
+      return 'http://10.0.2.2:8000'; // Android emulator special IP
     } else if (Platform.isIOS) {
-      return 'http://10.0.2.2:8000';  // iOS simulator can use localhost
+      return 'http://10.0.2.2:8000'; // iOS simulator can use localhost
     } else {
-      return 'http://10.0.2.2:8000';  // Default for other platforms
+      return 'http://10.0.2.2:8000'; // Default for other platforms
     }
   }
+
   static Future<String> getPhysicalDeviceBaseUrl() async {
     try {
       for (var interface in await NetworkInterface.list()) {
         for (var addr in interface.addresses) {
-          if (addr.type == InternetAddressType.IPv4 && 
-              !addr.isLoopback && 
+          if (addr.type == InternetAddressType.IPv4 &&
+              !addr.isLoopback &&
               addr.address.startsWith('192.168.')) {
             return 'http://${addr.address}:8000';
           }
@@ -32,20 +33,24 @@ class DioClient {
       return 'http://127.0.0.1:8000';
     }
   }
-  
+
   late final Dio _dio;
 
   DioClient() {
-    _dio = Dio(BaseOptions(
-      baseUrl: _baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(minutes: 8), // Increased for LLM responses
-      sendTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: _baseUrl,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(
+          minutes: 8,
+        ), // Increased for LLM responses
+        sendTimeout: const Duration(seconds: 30),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ),
+    );
 
     _setupInterceptors();
   }
@@ -65,12 +70,15 @@ class DioClient {
       ),
     );
   }
+
   void setAuthToken(String token) {
     _dio.options.headers['Authorization'] = 'Bearer $token';
   }
+
   void clearAuthToken() {
     _dio.options.headers.remove('Authorization');
   }
+
   Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -86,6 +94,7 @@ class DioClient {
       throw _handleDioException(e);
     }
   }
+
   Future<Response<T>> post<T>(
     String path, {
     dynamic data,
@@ -103,6 +112,7 @@ class DioClient {
       throw _handleDioException(e);
     }
   }
+
   Future<Response<T>> put<T>(
     String path, {
     dynamic data,
@@ -120,6 +130,7 @@ class DioClient {
       throw _handleDioException(e);
     }
   }
+
   Future<Response<T>> delete<T>(
     String path, {
     dynamic data,
@@ -137,20 +148,29 @@ class DioClient {
       throw _handleDioException(e);
     }
   }
+
   Exception _handleDioException(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return NetworkException('Connection timeout. Please check your internet connection.');
+        return NetworkException(
+          'Connection timeout. Please check your internet connection.',
+        );
       case DioExceptionType.sendTimeout:
-        return NetworkException('Send timeout. Please check your internet connection.');
+        return NetworkException(
+          'Send timeout. Please check your internet connection.',
+        );
       case DioExceptionType.receiveTimeout:
-        return NetworkException('Receive timeout. Please check your internet connection.');
+        return NetworkException(
+          'Receive timeout. Please check your internet connection.',
+        );
       case DioExceptionType.badResponse:
         return _handleBadResponse(error.response);
       case DioExceptionType.cancel:
         return NetworkException('Request was cancelled.');
       case DioExceptionType.connectionError:
-        return NetworkException('Connection error. Please check your internet connection.');
+        return NetworkException(
+          'Connection error. Please check your internet connection.',
+        );
       case DioExceptionType.unknown:
         return NetworkException('Unknown error occurred: ${error.message}');
       default:
@@ -166,7 +186,15 @@ class DioClient {
     if (response.data != null) {
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
-        errorMessage = data['error'] ?? data['message'] ?? data['detail'];
+        // Handle different error field types safely
+        if (data['error'] is String) {
+          errorMessage = data['error'] as String;
+        } else if (data['error'] is bool && data['error'] == true) {
+          // If error is true, use the message field instead
+          errorMessage = data['message'] as String?;
+        } else {
+          errorMessage = data['message'] ?? data['detail'];
+        }
       } else if (response.data is String) {
         errorMessage = response.data as String;
       }
@@ -174,36 +202,26 @@ class DioClient {
 
     switch (response.statusCode) {
       case 400:
-        return BadRequestException(
-          errorMessage ?? 'Bad request.',
-        );
+        return BadRequestException(errorMessage ?? 'Bad request.');
       case 401:
-        return UnauthorizedException(
-          errorMessage ?? 'Invalid credentials.',
-        );
+        return UnauthorizedException(errorMessage ?? 'Invalid credentials.');
       case 403:
-        return ForbiddenException(
-          errorMessage ?? 'Access forbidden.',
-        );
+        return ForbiddenException(errorMessage ?? 'Access forbidden.');
       case 404:
-        return NotFoundException(
-          errorMessage ?? 'Resource not found.',
-        );
+        return NotFoundException(errorMessage ?? 'Resource not found.');
       case 409:
-        return ConflictException(
-          errorMessage ?? 'Conflict occurred.',
-        );
+        return ConflictException(errorMessage ?? 'Conflict occurred.');
       case 500:
-        return ServerException(
-          errorMessage ?? 'Internal server error.',
-        );
+        return ServerException(errorMessage ?? 'Internal server error.');
       default:
         return ServerException(
-          errorMessage ?? 'Server error with status code: ${response.statusCode}',
+          errorMessage ??
+              'Server error with status code: ${response.statusCode}',
         );
     }
   }
 }
+
 abstract class AppException implements Exception {
   final String message;
   const AppException(this.message);

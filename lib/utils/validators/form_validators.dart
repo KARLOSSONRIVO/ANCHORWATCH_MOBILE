@@ -22,6 +22,7 @@ class FormValidators {
 
     return null;
   }
+
   static String? validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter an email';
@@ -36,6 +37,7 @@ class FormValidators {
 
     return null;
   }
+
   static String? validatePassword(String? value, {int minLength = 8}) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter a password';
@@ -47,6 +49,7 @@ class FormValidators {
 
     return null;
   }
+
   static String? validateConfirmPassword(String? value, String password) {
     if (value == null || value.trim().isEmpty) {
       return 'Please confirm your password';
@@ -58,6 +61,7 @@ class FormValidators {
 
     return null;
   }
+
   static String? validateOtp(String? value, {int length = 6}) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter the verification code';
@@ -74,18 +78,21 @@ class FormValidators {
 
     return null;
   }
+
   static String? validateRequired(String? value, String fieldName) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter $fieldName';
     }
     return null;
   }
+
   static String? validateUsernameOrEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter your username or email';
     }
     return null;
   }
+
   static String? validateMessage(String? value, {int minLength = 10}) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter a message';
@@ -98,4 +105,3 @@ class FormValidators {
     return null;
   }
 }
-
