@@ -5,12 +5,10 @@ import '../blocs/onboarding/onboarding.dart';
 import '../widgets/widgets.dart';
 import 'app_router.dart';
 import 'app_routes.dart';
+
 class RouteGuard extends StatelessWidget {
-  const RouteGuard({
-    super.key,
-    required this.child,
-  });
-  
+  const RouteGuard({super.key, required this.child});
+
   final Widget child;
 
   @override
@@ -32,26 +30,27 @@ class RouteGuard extends StatelessWidget {
             final currentRoute = ModalRoute.of(context)?.settings.name;
             switch (state.status) {
               case AuthenticationStatus.authenticated:
-                if (currentRoute == AppRoutes.login || currentRoute == AppRoutes.splash) {
+                if (currentRoute == AppRoutes.login ||
+                    currentRoute == AppRoutes.splash) {
                   AppRouter.navigateToHome(context);
                 }
                 break;
-                
+
               case AuthenticationStatus.unauthenticated:
                 if (AppRouter.isProtectedRoute(currentRoute)) {
                   AppRouter.navigateToLogin(context);
                 }
                 break;
-                
+
               case AuthenticationStatus.loading:
                 break;
-                
+
               case AuthenticationStatus.signUpSuccess:
                 if (currentRoute != AppRoutes.login) {
                   AppRouter.navigateToLogin(context);
                 }
                 break;
-                
+
               case AuthenticationStatus.unknown:
                 break;
             }
@@ -62,32 +61,39 @@ class RouteGuard extends StatelessWidget {
     );
   }
 }
+
 class NavigationHelper {
-  static void showMessage(BuildContext context, String message, {bool isError = false}) {
+  static void showMessage(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
     SnackBarHelper.show(context, message, isError: isError);
   }
+
   static void showSuccess(BuildContext context, String message) {
     SnackBarHelper.showSuccess(context, message);
   }
+
   static void showError(BuildContext context, String message) {
     SnackBarHelper.showError(context, message);
   }
+
   static void showWarning(BuildContext context, String message) {
     SnackBarHelper.showWarning(context, message);
   }
+
   static void showInfo(BuildContext context, String message) {
     SnackBarHelper.showInfo(context, message);
   }
- 
+
   static void showLogoutLoading(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         content: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -121,9 +127,11 @@ class NavigationHelper {
       ),
     );
   }
+
   static void hideLoading(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop();
   }
+
   static Future<bool> confirmLogout(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
@@ -146,7 +154,7 @@ class NavigationHelper {
         ],
       ),
     );
-    
+
     return result ?? false;
   }
 }

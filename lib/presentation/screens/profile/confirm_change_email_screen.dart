@@ -48,6 +48,7 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
       },
       listener: (context, state) {
         if (state is ChangeEmailConfirmSuccess) {
+          SnackBarHelper.showSuccess(context, "Email changed successfully!");
           FocusScope.of(context).unfocus();
           Navigator.pop(context, widget.newEmail);
         } else if (state is ChangeEmailConfirmFailure) {

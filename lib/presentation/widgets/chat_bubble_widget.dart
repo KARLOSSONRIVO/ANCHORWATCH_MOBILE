@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/time_formatter.dart';
+import 'custom_snackbar.dart';
+
 class ChatBubbleMessage {
   final String id;
   final String content;
@@ -39,6 +41,7 @@ class ChatBubbleMessage {
     );
   }
 }
+
 class ChatBubbleWidget extends StatefulWidget {
   final ChatBubbleMessage message;
   final Function(ChatBubbleMessage)? onPositiveFeedback;
@@ -85,13 +88,9 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
     _animationController.forward();
   }
 
@@ -111,7 +110,8 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
 
   Widget _buildUserMessage() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bubbleColor = widget.userBubbleColor ??
+    final bubbleColor =
+        widget.userBubbleColor ??
         (isDark ? const Color(0xFF2F3136) : const Color(0xFFEBECEC));
 
     return Align(
@@ -120,7 +120,12 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Container(
-            margin: const EdgeInsets.only(left: 50, top: 8, bottom: 4, right: 16),
+            margin: const EdgeInsets.only(
+              left: 50,
+              top: 8,
+              bottom: 4,
+              right: 16,
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: bubbleColor,
@@ -150,7 +155,8 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
 
   Widget _buildAIMessage() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bubbleColor = widget.aiBubbleColor ??
+    final bubbleColor =
+        widget.aiBubbleColor ??
         (isDark ? const Color(0xFF25272B) : const Color(0xFFF0F2F5));
 
     return Container(
@@ -166,7 +172,10 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
                 _buildAINameLabel(),
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: bubbleColor,
                     borderRadius: BorderRadius.circular(18),
@@ -223,11 +232,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
                   color: Theme.of(context).primaryColor,
                   borderRadius: BorderRadius.circular(21),
                 ),
-                child: Icon(
-                  Icons.smart_toy,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: Icon(Icons.smart_toy, color: Colors.white, size: 24),
               );
             },
           ),
@@ -251,7 +256,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
 
   Widget _buildMessageContent() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     if (widget.message.isLoading) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -360,14 +365,16 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
     required VoidCallback onTap,
   }) {
     final isSelected = _selectedFeedback == feedbackType;
-    
+
     return GestureDetector(
       onTap: _feedbackSent ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isSelected ? selectedColor.withValues(alpha: 0.1) : Colors.transparent,
+          color: isSelected
+              ? selectedColor.withValues(alpha: 0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: isSelected ? selectedColor : borderColor,
@@ -399,12 +406,14 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
       if (feedbackType == 'positive' && widget.onPositiveFeedback != null) {
         await widget.onPositiveFeedback!(widget.message);
         success = true;
-      } else if (feedbackType == 'negative' && widget.onNegativeFeedback != null) {
+      } else if (feedbackType == 'negative' &&
+          widget.onNegativeFeedback != null) {
         await widget.onNegativeFeedback!(widget.message);
         success = true;
       }
     } catch (e) {
-      success = false;    }
+      success = false;
+    }
 
     if (mounted) {
       setState(() {
@@ -413,24 +422,14 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
           _selectedFeedback = null; // Reset selection if failed
         }
       });
-      final snackBar = SnackBar(
-        content: Text(
-          success
-              ? 'Feedback sent successfully!'
-              : 'Failed to send feedback. Please try again.',
-        ),
-        duration: Duration(seconds: success ? 2 : 3),
-        backgroundColor: success
-            ? (widget.positiveColor ?? const Color(0xFF10B981))
-            : (widget.negativeColor ?? const Color(0xFFEF4444)),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      if (success) {
+        SnackBarHelper.showSuccess(context, 'Feedback sent successfully!');
+      } else {
+        SnackBarHelper.showError(
+          context,
+          'Failed to send feedback. Please try again.',
+        );
+      }
     }
   }
 }
-

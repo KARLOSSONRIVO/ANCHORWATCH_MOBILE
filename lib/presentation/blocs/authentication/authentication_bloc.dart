@@ -6,8 +6,10 @@ import '../../../services/authentication_service.dart';
 import '../../../services/dio_client.dart';
 import 'authentication_event.dart';
 import 'authentication_state.dart';
+
 @injectable
-class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
+class AuthenticationBloc
+    extends Bloc<AuthenticationEvent, AuthenticationState> {
   final LoginUseCase _loginUseCase;
   final RegisterUseCase _registerUseCase;
   final AuthenticationService _authenticationService;
@@ -29,39 +31,51 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   ) async {
     try {
       final isAuthenticated = await _authenticationService.isAuthenticated();
-      
+
       if (isAuthenticated) {
         _authenticationService.updateDioClientToken();
         final userProfile = await _authenticationService.fetchUserProfile();
-        final username = userProfile?.username ?? _authenticationService.getUserName() ?? 'Current User';
-        
-        emit(state.copyWith(
-          status: AuthenticationStatus.authenticated,
-          user: username,
-          error: null,
-        ));
+        final username =
+            userProfile?.username ??
+            _authenticationService.getUserName() ??
+            'Current User';
+
+        emit(
+          state.copyWith(
+            status: AuthenticationStatus.authenticated,
+            user: username,
+            error: null,
+          ),
+        );
       } else {
-        emit(state.copyWith(
-          status: AuthenticationStatus.unauthenticated,
-          error: null,
-        ));
+        emit(
+          state.copyWith(
+            status: AuthenticationStatus.unauthenticated,
+            error: null,
+          ),
+        );
       }
     } catch (e) {
-      emit(state.copyWith(
-        status: AuthenticationStatus.unauthenticated,
-        error: 'Failed to check authentication status: $e',
-      ));
+      emit(
+        state.copyWith(
+          status: AuthenticationStatus.unauthenticated,
+          error: 'Failed to check authentication status: $e',
+        ),
+      );
     }
   }
+
   void _onAuthenticationLoginRequested(
     AuthenticationLoginRequested event,
     Emitter<AuthenticationState> emit,
   ) async {
-    emit(state.copyWith(
-      status: AuthenticationStatus.loading,
-      isLoading: true,
-      error: null,
-    ));
+    emit(
+      state.copyWith(
+        status: AuthenticationStatus.loading,
+        isLoading: true,
+        error: null,
+      ),
+    );
 
     try {
       final authResult = await _loginUseCase(
@@ -69,12 +83,14 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
         password: event.password,
       );
       await _authenticationService.storeAuthResult(authResult);
-      emit(state.copyWith(  
-        status: AuthenticationStatus.authenticated,
-        user: authResult.user.username,
-        isLoading: false,
-        error: null,
-      ));
+      emit(
+        state.copyWith(
+          status: AuthenticationStatus.authenticated,
+          user: authResult.user.username,
+          isLoading: false,
+          error: null,
+        ),
+      );
     } catch (e) {
       String errorMessage;
       if (e is AppException) {
@@ -82,48 +98,70 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       } else {
         errorMessage = 'Login failed: $e';
       }
-      
-      emit(state.copyWith(
-        status: AuthenticationStatus.unauthenticated,
-        isLoading: false,
-        error: errorMessage,
-      ));
+
+      emit(
+        state.copyWith(
+          status: AuthenticationStatus.unauthenticated,
+          isLoading: false,
+          error: errorMessage,
+        ),
+      );
     }
   }
+
   void _onAuthenticationLogoutRequested(
     AuthenticationLogoutRequested event,
     Emitter<AuthenticationState> emit,
   ) async {
-    emit(state.copyWith(
-      status: AuthenticationStatus.loading,
-      isLoading: true,
-      error: null,
-    ));
+    emit(
+      state.copyWith(
+        status: AuthenticationStatus.loading,
+        isLoading: true,
+        error: null,
+      ),
+    );
 
     try {
-      await _authenticationService.logout();
-      
-      emit(const AuthenticationState(
-        status: AuthenticationStatus.unauthenticated,
-        isLoading: false,
-      ));
+      final logoutResult = await _authenticationService.logout();
+
+      if (logoutResult) {
+        emit(
+          const AuthenticationState(
+            status: AuthenticationStatus.unauthenticated,
+            isLoading: false,
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            status: AuthenticationStatus.authenticated,
+            isLoading: false,
+            error: 'Logout failed: Unable to clear authentication data',
+          ),
+        );
+      }
     } catch (e) {
-      emit(state.copyWith(
-        status: AuthenticationStatus.authenticated,
-        isLoading: false,
-        error: 'Logout failed: $e',
-      ));
+      emit(
+        state.copyWith(
+          status: AuthenticationStatus.authenticated,
+          isLoading: false,
+          error: 'Logout failed: $e',
+        ),
+      );
     }
   }
+
   void _onAuthenticationSignUpRequested(
     AuthenticationSignUpRequested event,
     Emitter<AuthenticationState> emit,
   ) async {
-    emit(state.copyWith(
-      status: AuthenticationStatus.loading,
-      isLoading: true,
-      error: null,
-    ));
+    emit(
+      state.copyWith(
+        status: AuthenticationStatus.loading,
+        isLoading: true,
+        error: null,
+      ),
+    );
 
     try {
       final authResult = await _registerUseCase(
@@ -132,20 +170,24 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
         password: event.password,
       );
       final stored = await _authenticationService.storeAuthResult(authResult);
-      
+
       if (stored) {
-        emit(state.copyWith(
-          status: AuthenticationStatus.authenticated,
-          isLoading: false,
-          user: authResult.user.username,
-          error: null,
-        ));
+        emit(
+          state.copyWith(
+            status: AuthenticationStatus.authenticated,
+            isLoading: false,
+            user: authResult.user.username,
+            error: null,
+          ),
+        );
       } else {
-        emit(state.copyWith(
-          status: AuthenticationStatus.unauthenticated,
-          isLoading: false,
-          error: 'Failed to store authentication data',
-        ));
+        emit(
+          state.copyWith(
+            status: AuthenticationStatus.unauthenticated,
+            isLoading: false,
+            error: 'Failed to store authentication data',
+          ),
+        );
       }
     } catch (e) {
       String errorMessage;
@@ -154,24 +196,24 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       } else {
         errorMessage = 'Registration failed: $e';
       }
-      
-      emit(state.copyWith(
-        status: AuthenticationStatus.unauthenticated,
-        isLoading: false,
-        error: errorMessage,
-      ));
+
+      emit(
+        state.copyWith(
+          status: AuthenticationStatus.unauthenticated,
+          isLoading: false,
+          error: errorMessage,
+        ),
+      );
     }
   }
+
   void _onAuthenticationUsernameUpdated(
     AuthenticationUsernameUpdated event,
     Emitter<AuthenticationState> emit,
   ) async {
     try {
       await _authenticationService.updateUserProfile(name: event.newUsername);
-    emit(state.copyWith(
-      user: event.newUsername,
-      error: null,
-    ));
-  } catch (_) {}
-}
+      emit(state.copyWith(user: event.newUsername, error: null));
+    } catch (_) {}
+  }
 }

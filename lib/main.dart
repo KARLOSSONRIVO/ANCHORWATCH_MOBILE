@@ -13,7 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageService.init();
   await configureDependencies();
-  
+
   runApp(const MyApp());
 }
 
@@ -25,33 +25,26 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => getIt<OnboardingBloc>()
-            ..add(const OnboardingStatusRequested()),
+          create: (context) =>
+              getIt<OnboardingBloc>()..add(const OnboardingStatusRequested()),
         ),
         BlocProvider(
-          create: (context) => getIt<AuthenticationBloc>()
-            ..add(const AuthenticationStatusRequested()),
+          create: (context) =>
+              getIt<AuthenticationBloc>()
+                ..add(const AuthenticationStatusRequested()),
+        ),
+        BlocProvider(create: (context) => getIt<NavigationBloc>()),
+        BlocProvider(
+          create: (context) =>
+              getIt<ProfileBloc>()..add(const ProfileLoadRequested()),
         ),
         BlocProvider(
-          create: (context) => getIt<NavigationBloc>(),
+          create: (context) =>
+              getIt<AlertsBloc>()..add(const AlertsLoadRequested()),
         ),
-        BlocProvider(
-          create: (context) => getIt<ProfileBloc>()
-            ..add(const ProfileLoadRequested()),
-        ),
-        BlocProvider(
-          create: (context) => getIt<AlertsBloc>()
-            ..add(const AlertsLoadRequested()),
-        ),
-        BlocProvider(
-          create: (context) => getIt<AnchorWiseBloc>(),
-        ),
-        BlocProvider(
-          create: (context) => getIt<ContactBloc>(),
-        ),
-        BlocProvider(
-          create: (context) => getIt<FaqBloc>(),
-        ),
+        BlocProvider(create: (context) => getIt<AnchorWiseBloc>()),
+        BlocProvider(create: (context) => getIt<ContactBloc>()),
+        BlocProvider(create: (context) => getIt<FaqBloc>()),
       ],
       child: MaterialApp(
         title: 'AnchorWatch',
@@ -64,14 +57,16 @@ class MyApp extends StatelessWidget {
           builder: (context, onboardingState) {
             return BlocBuilder<AuthenticationBloc, AuthenticationState>(
               builder: (context, authState) {
+                print('🏠 Main.dart - Auth status: ${authState.status}');
+
                 if (onboardingState.status == OnboardingStatus.loading) {
                   return const _SplashScreen();
                 }
-                
+
                 if (onboardingState.status == OnboardingStatus.notCompleted) {
                   return const OnboardingScreen();
                 }
-                
+
                 switch (authState.status) {
                   case AuthenticationStatus.authenticated:
                     return const MainNavigationScreen();
@@ -96,6 +91,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
 
@@ -107,11 +103,7 @@ class _SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.anchor,
-              size: 120,
-              color: Colors.white,
-            ),
+            const Icon(Icons.anchor, size: 120, color: Colors.white),
             const SizedBox(height: 24),
             Text(
               'AnchorWatch',
@@ -123,9 +115,9 @@ class _SplashScreen extends StatelessWidget {
             const SizedBox(height: 48),
             Text(
               'Initializing...',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.white70,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.white70),
             ),
           ],
         ),

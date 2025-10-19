@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
+import '../blocs/navigation/navigation_bloc.dart';
+import '../blocs/navigation/navigation_event.dart';
 import '../routes/routes.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
 import '../../utils/validators/form_validators.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -60,18 +63,26 @@ class _LoginScreenState extends State<LoginScreen> {
           listener: (context, state) {
             if (state.status == AuthenticationStatus.loading) {
               ScaffoldMessenger.of(context).clearSnackBars();
-            }
-            else if (state.status == AuthenticationStatus.authenticated) {
-              ScaffoldMessenger.of(context).clearSnackBars();
+            } else if (state.status == AuthenticationStatus.authenticated) {
+              // Reset navigation stack to ensure clean state
+              context.read<NavigationBloc>().add(const NavigationReset());
+
+              // Show login success snackbar
+              SnackBarHelper.showSuccess(context, "Login successful!");
+
+              // Then navigate after a short delay to let snackbar show
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
-                  Navigator.of(
-                    context,
-                  ).pushReplacementNamed(AppRoutes.dashboard);
+                  Future.delayed(const Duration(milliseconds: 1500), () {
+                    if (mounted) {
+                      Navigator.of(
+                        context,
+                      ).pushReplacementNamed(AppRoutes.dashboard);
+                    }
+                  });
                 }
               });
-            }
-            else if (state.status == AuthenticationStatus.unauthenticated &&
+            } else if (state.status == AuthenticationStatus.unauthenticated &&
                 state.error != null) {
               SnackBarHelper.showError(context, state.error!);
             }
@@ -341,4 +352,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

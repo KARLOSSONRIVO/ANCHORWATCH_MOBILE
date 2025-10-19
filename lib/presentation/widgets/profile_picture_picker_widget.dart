@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../injection_container.dart';
 import '../blocs/profile_picture/profile_picture.dart';
 import '../themes/app_theme.dart';
+import 'custom_snackbar.dart';
+
 class ProfilePicturePickerWidget extends StatelessWidget {
   final String? currentImageUrl;
   final double size;
@@ -43,25 +45,19 @@ class _ProfilePicturePickerView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<ProfilePictureBloc, ProfilePictureState>(
       listener: (context, state) {
-        if (state.status == ProfilePictureStatus.imagePicked && state.selectedImage != null) {
+        if (state.status == ProfilePictureStatus.imagePicked &&
+            state.selectedImage != null) {
           context.read<ProfilePictureBloc>().add(
             ProfilePictureUploadRequested(imageFile: state.selectedImage!),
           );
         } else if (state.status == ProfilePictureStatus.confirmed) {
           onImageChanged?.call();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile picture updated successfully!'),
-              backgroundColor: Colors.green,
-            ),
+          SnackBarHelper.showSuccess(
+            context,
+            'Profile picture updated successfully!',
           );
         } else if (state.status == ProfilePictureStatus.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.error ?? 'An error occurred'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          SnackBarHelper.showError(context, state.error ?? 'An error occurred');
         }
       },
       builder: (context, state) {
@@ -80,9 +76,7 @@ class _ProfilePicturePickerView extends StatelessWidget {
                     width: 2,
                   ),
                 ),
-                child: ClipOval(
-                  child: _buildImageContent(context, state),
-                ),
+                child: ClipOval(child: _buildImageContent(context, state)),
               ),
             ),
             if (state.status == ProfilePictureStatus.uploading ||
@@ -175,7 +169,7 @@ class _ProfilePicturePickerView extends StatelessWidget {
             child: CircularProgressIndicator(
               value: loadingProgress.expectedTotalBytes != null
                   ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
+                        loadingProgress.expectedTotalBytes!
                   : null,
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
@@ -204,7 +198,7 @@ class _ProfilePicturePickerView extends StatelessWidget {
 
   void _showImagePickerOptions(BuildContext context) {
     final profilePictureBloc = context.read<ProfilePictureBloc>();
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.getCardBackgroundColor(context),
@@ -226,7 +220,7 @@ class _ProfilePicturePickerView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               Text(
                 'Change Profile Picture',
                 style: TextStyle(
@@ -277,16 +271,10 @@ class _ProfilePicturePickerView extends StatelessWidget {
               ),
               if (currentImageUrl != null && currentImageUrl!.isNotEmpty)
                 ListTile(
-                  leading: Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  ),
+                  leading: Icon(Icons.delete, color: Colors.red),
                   title: Text(
                     'Remove Picture',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontFamily: 'Inter',
-                    ),
+                    style: TextStyle(color: Colors.red, fontFamily: 'Inter'),
                   ),
                   onTap: () {
                     Navigator.pop(context);
@@ -302,4 +290,3 @@ class _ProfilePicturePickerView extends StatelessWidget {
     );
   }
 }
-

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/change_password/change_password.dart';
 import '../../widgets/custom_snackbar.dart';
+import '../../widgets/loading_widget.dart';
 import '../../../injection_container.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
@@ -56,6 +57,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
               null; // Clear last error when starting new submission
         } else if (state is ChangePasswordSuccess) {
           _isSubmitting = false;
+          SnackBarHelper.showSuccess(context, "Password changed successfully!");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.of(context).pop();
@@ -265,11 +267,16 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
               if (state is ChangePasswordLoading)
                 Container(
                   color: Colors.black.withValues(alpha: 0.3),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Color(0xFF00E5CC),
+                  child: Center(
+                    child: LoadingWidget(
+                      size: 48.0,
+                      color: const Color(0xFF00E5CC),
+                      strokeWidth: 3.0,
+                      text: 'Changing password...',
+                      textStyle: const TextStyle(
+                        color: Color(0xFF00E5CC),
+                        fontSize: 16,
+                        fontFamily: 'Inter',
                       ),
                     ),
                   ),

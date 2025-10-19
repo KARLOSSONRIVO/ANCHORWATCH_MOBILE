@@ -4,6 +4,7 @@ import '../../services/navigation_service.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_state.dart';
 import '../themes/app_theme.dart';
+
 class NavigationDrawerWidget extends StatelessWidget {
   const NavigationDrawerWidget({super.key});
 
@@ -17,161 +18,193 @@ class NavigationDrawerWidget extends StatelessWidget {
         }
 
         return Drawer(
-      backgroundColor: AppTheme.getSurfaceColor(context),
-      child: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: Row(
-                children: [
-                  Image.asset(
-                    'assets/images/LOGOnoBG.png',
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.contain,
+          backgroundColor: AppTheme.getSurfaceColor(context),
+          child: SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'AnchorWatch',
-                    style: TextStyle(
-                      color: AppTheme.getTextPrimaryColor(context),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Inter',
-                    ),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/LOGOnoBG.png',
+                        height: 50,
+                        width: 50,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'AnchorWatch',
+                        style: TextStyle(
+                          color: AppTheme.getTextPrimaryColor(context),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Inter',
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            Container(
-              height: 1,
-              color: AppTheme.getBorderColor(context),
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildMenuItem(
-                    context,
-                    iconPath: 'assets/images/Navigation_Icons/Home.png',
-                    title: 'Dashboard',
-                    currentIndex: currentIndex,
-                    itemIndex: 0,
-                    onTap: () {
-                      NavigationService.handleMainNavigation(context, NavigationIndex.dashboard);
-                    },
+                ),
+                Container(
+                  height: 1,
+                  color: AppTheme.getBorderColor(context),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      _buildMenuItem(
+                        context,
+                        iconPath: 'assets/images/Navigation_Icons/Home.png',
+                        title: 'Dashboard',
+                        currentIndex: currentIndex,
+                        itemIndex: 0,
+                        onTap: () {
+                          NavigationService.handleMainNavigation(
+                            context,
+                            NavigationIndex.dashboard,
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        context,
+                        iconPath: 'assets/images/Navigation_Icons/Compass.png',
+                        title: 'Discover',
+                        currentIndex: currentIndex,
+                        itemIndex: 1,
+                        onTap: () {
+                          NavigationService.handleMainNavigation(
+                            context,
+                            NavigationIndex.discover,
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        context,
+                        iconPath:
+                            'assets/images/Navigation_Icons/AnchorWise.png',
+                        title: 'AnchorWise',
+                        currentIndex: currentIndex,
+                        itemIndex: 2,
+                        onTap: () {
+                          NavigationService.handleMainNavigation(
+                            context,
+                            NavigationIndex.anchorwise,
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        context,
+                        iconPath:
+                            'assets/images/Navigation_Icons/Notifications.png',
+                        title: 'Alerts',
+                        currentIndex: currentIndex,
+                        itemIndex: 3,
+                        onTap: () {
+                          NavigationService.handleMainNavigation(
+                            context,
+                            NavigationIndex.alerts,
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        context,
+                        iconPath: 'assets/images/Navigation_Icons/Profile.png',
+                        title: 'Profile',
+                        currentIndex: currentIndex,
+                        itemIndex: 4,
+                        onTap: () {
+                          NavigationService.handleMainNavigation(
+                            context,
+                            NavigationIndex.profile,
+                          );
+                        },
+                      ),
+                      Container(
+                        height: 1,
+                        color: AppTheme.getBorderColor(context),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                      ),
+                      _buildMenuItem(
+                        context,
+                        iconPath: 'assets/images/Navigation_Icons/Phone.png',
+                        title: 'Contact Support',
+                        currentIndex: currentIndex,
+                        itemIndex: -1, // Special navigation, never active
+                        onTap: () {
+                          NavigationService.handleSpecialNavigation(
+                            context,
+                            'contact_support',
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        context,
+                        iconPath: 'assets/images/Navigation_Icons/Faqs.png',
+                        title: 'FAQS',
+                        currentIndex: currentIndex,
+                        itemIndex: -2, // Special navigation, never active
+                        onTap: () {
+                          NavigationService.handleSpecialNavigation(
+                            context,
+                            'faqs',
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                  _buildMenuItem(
-                    context,
-                    iconPath: 'assets/images/Navigation_Icons/Compass.png',
-                    title: 'Discover',
-                    currentIndex: currentIndex,
-                    itemIndex: 1,
-                    onTap: () {
-                      NavigationService.handleMainNavigation(context, NavigationIndex.discover);
-                    },
-                  ),
-                  _buildMenuItem(
-                    context,
-                    iconPath: 'assets/images/Navigation_Icons/AnchorWise.png',
-                    title: 'AnchorWise',
-                    currentIndex: currentIndex,
-                    itemIndex: 2,
-                    onTap: () {
-                      NavigationService.handleMainNavigation(context, NavigationIndex.anchorwise);
-                    },
-                  ),
-                  _buildMenuItem(
-                    context,
-                    iconPath: 'assets/images/Navigation_Icons/Notifications.png',
-                    title: 'Alerts',
-                    currentIndex: currentIndex,
-                    itemIndex: 3,
-                    onTap: () {
-                      NavigationService.handleMainNavigation(context, NavigationIndex.alerts);
-                    },
-                  ),
-                  _buildMenuItem(
-                    context,
-                    iconPath: 'assets/images/Navigation_Icons/Profile.png',
-                    title: 'Profile',
-                    currentIndex: currentIndex,
-                    itemIndex: 4,
-                    onTap: () {
-                      NavigationService.handleMainNavigation(context, NavigationIndex.profile);
-                    },
-                  ),
-                  Container(
-                    height: 1,
-                    color: AppTheme.getBorderColor(context),
-                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  ),
-                  _buildMenuItem(
-                    context,
-                    iconPath: 'assets/images/Navigation_Icons/Phone.png',
-                    title: 'Contact Support',
-                    currentIndex: currentIndex,
-                    itemIndex: -1, // Special navigation, never active
-                    onTap: () {
-                      NavigationService.handleSpecialNavigation(context, 'contact_support');
-                    },
-                  ),
-                  _buildMenuItem(
-                    context,
-                    iconPath: 'assets/images/Navigation_Icons/Faqs.png',
-                    title: 'FAQS',
-                    currentIndex: currentIndex,
-                    itemIndex: -2, // Special navigation, never active
-                    onTap: () {
-                      NavigationService.handleSpecialNavigation(context, 'faqs');
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    NavigationService.handleSpecialNavigation(context, 'logout');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD32F2F), // Red color matching the image
-                    foregroundColor: AppTheme.getTextPrimaryColor(context),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    elevation: 0,
-                  ),
-                  icon: const Icon(
-                    Icons.logout,
-                    size: 18,
-                  ),
-                  label: const Text(
-                    'Logout',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        NavigationService.handleSpecialNavigation(
+                          context,
+                          'logout',
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(
+                          0xFFD32F2F,
+                        ), // Red color matching the image
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        elevation: 0,
+                      ),
+                      icon: const Icon(Icons.logout, size: 18),
+                      label: const Text(
+                        'Logout',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
       },
     );
   }
+
   Widget _buildMenuItem(
     BuildContext context, {
     required String iconPath,
@@ -181,36 +214,39 @@ class NavigationDrawerWidget extends StatelessWidget {
     required int itemIndex,
   }) {
     final bool isActive = currentIndex == itemIndex;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          decoration: isActive ? BoxDecoration(
-            color: const Color(0xFF00BCD4).withValues(alpha: 0.15),
-            border: const Border(
-              right: BorderSide(
-                color: Color(0xFF00BCD4),
-                width: 3,
-              ),
-            ),
-          ) : null,
+          decoration: isActive
+              ? BoxDecoration(
+                  color: const Color(0xFF00BCD4).withValues(alpha: 0.15),
+                  border: const Border(
+                    right: BorderSide(color: Color(0xFF00BCD4), width: 3),
+                  ),
+                )
+              : null,
           child: Row(
             children: [
               Image.asset(
                 iconPath,
                 width: 28,
                 height: 28,
-                color: isActive ? const Color(0xFF00BCD4) : AppTheme.getTextPrimaryColor(context),
+                color: isActive
+                    ? const Color(0xFF00BCD4)
+                    : AppTheme.getTextPrimaryColor(context),
                 fit: BoxFit.contain,
               ),
               const SizedBox(width: 16),
               Text(
                 title,
                 style: TextStyle(
-                  color: isActive ? const Color(0xFF00BCD4): AppTheme.getTextPrimaryColor(context),
+                  color: isActive
+                      ? const Color(0xFF00BCD4)
+                      : AppTheme.getTextPrimaryColor(context),
                   fontSize: 16,
                   fontFamily: 'Inter',
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
@@ -223,4 +259,3 @@ class NavigationDrawerWidget extends StatelessWidget {
     );
   }
 }
-

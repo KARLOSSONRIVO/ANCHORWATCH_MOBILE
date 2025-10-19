@@ -1,5 +1,13 @@
 import 'package:equatable/equatable.dart';
-enum AuthenticationStatus { unknown, authenticated, unauthenticated, loading, signUpSuccess }
+
+enum AuthenticationStatus {
+  unknown,
+  authenticated,
+  unauthenticated,
+  loading,
+  signUpSuccess,
+}
+
 class AuthenticationState extends Equatable {
   const AuthenticationState({
     this.status = AuthenticationStatus.unknown,
@@ -30,5 +38,6 @@ class AuthenticationState extends Equatable {
   List<Object?> get props => [status, user, error, isLoading];
 
   @override
-  String toString() => 'AuthenticationState(status: $status, user: $user, error: $error, isLoading: $isLoading)';
+  String toString() =>
+      'AuthenticationState(status: $status, user: $user, error: $error, isLoading: $isLoading)';
 }

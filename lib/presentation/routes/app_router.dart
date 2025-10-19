@@ -18,16 +18,19 @@ import '../screens/profile/change_email_screen.dart';
 import '../screens/profile/confirm_change_email_screen.dart';
 import '../../injection_container.dart';
 import 'app_routes.dart';
+
 class AppRouter {
   static PasswordResetBloc? _passwordResetBloc;
   static PasswordResetBloc _getPasswordResetBloc() {
     _passwordResetBloc ??= getIt<PasswordResetBloc>();
     return _passwordResetBloc!;
   }
+
   static void clearPasswordResetBloc() {
     _passwordResetBloc?.close();
     _passwordResetBloc = null;
   }
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.splash:
@@ -35,19 +38,19 @@ class AppRouter {
           builder: (_) => const _SplashScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.onboarding:
         return MaterialPageRoute(
           builder: (_) => const OnboardingScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.signup:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
@@ -65,19 +68,19 @@ class AppRouter {
           builder: (_) => const MainNavigationScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.contact:
         return MaterialPageRoute(
           builder: (_) => const ContactScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.faq:
         return MaterialPageRoute(
           builder: (_) => const FaqScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.resetPasswordEmail:
         return MaterialPageRoute(
           builder: (_) => BlocProvider.value(
@@ -86,7 +89,7 @@ class AppRouter {
           ),
           settings: settings,
         );
-        
+
       case AppRoutes.resetPasswordOtp:
         final email = settings.arguments as String? ?? '';
         return MaterialPageRoute(
@@ -96,7 +99,7 @@ class AppRouter {
           ),
           settings: settings,
         );
-        
+
       case AppRoutes.resetPasswordConfirm:
         return MaterialPageRoute(
           builder: (_) => BlocProvider.value(
@@ -105,32 +108,32 @@ class AppRouter {
           ),
           settings: settings,
         );
-        
+
       case AppRoutes.changePassword:
         return MaterialPageRoute(
           builder: (_) => const ChangePasswordScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.changeUsername:
         return MaterialPageRoute(
           builder: (_) => const ChangeUsernameScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.requestChangeEmail:
         return MaterialPageRoute(
           builder: (_) => const ChangeEmailScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.confirmChangeEmail:
         final newEmail = settings.arguments as String? ?? '';
         return MaterialPageRoute(
           builder: (_) => ConfirmChangeEmailScreen(newEmail: newEmail),
           settings: settings,
         );
-        
+
       default:
         return MaterialPageRoute(
           builder: (_) => _UnknownRouteScreen(routeName: settings.name),
@@ -138,6 +141,7 @@ class AppRouter {
         );
     }
   }
+
   static String getInitialRoute(AuthenticationStatus status) {
     switch (status) {
       case AuthenticationStatus.authenticated:
@@ -152,23 +156,23 @@ class AppRouter {
         return AppRoutes.splash;
     }
   }
+
   static bool isProtectedRoute(String? route) {
     return AppRoutes.protectedRoutes.contains(route);
   }
+
   static void navigateToOnboarding(BuildContext context) {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.onboarding,
-      (route) => false,
-    );
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(AppRoutes.onboarding, (route) => false);
   }
-  
+
   static void navigateToLogin(BuildContext context) {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.login,
-      (route) => false,
-    );
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
   }
-  
+
   static void navigateToHome(BuildContext context) {
     Navigator.of(context).pushNamedAndRemoveUntil(
       AppRoutes.dashboard, // Navigate to dashboard instead of home
@@ -176,6 +180,7 @@ class AppRouter {
     );
   }
 }
+
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
 
@@ -187,11 +192,7 @@ class _SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.anchor,
-              size: 120,
-              color: Colors.white,
-            ),
+            Icon(Icons.anchor, size: 120, color: Colors.white),
             const SizedBox(height: 24),
             Text(
               'AnchorWatch',
@@ -207,9 +208,10 @@ class _SplashScreen extends StatelessWidget {
     );
   }
 }
+
 class _UnknownRouteScreen extends StatelessWidget {
   const _UnknownRouteScreen({required this.routeName});
-  
+
   final String? routeName;
 
   @override
@@ -224,11 +226,7 @@ class _UnknownRouteScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red,
-            ),
+            Icon(Icons.error_outline, size: 80, color: Colors.red),
             const SizedBox(height: 24),
             Text(
               '404 - Page Not Found',
@@ -237,9 +235,9 @@ class _UnknownRouteScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Route "${routeName ?? 'unknown'}" does not exist.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey.shade600),
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(

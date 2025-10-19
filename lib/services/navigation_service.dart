@@ -6,6 +6,7 @@ import '../presentation/blocs/navigation/navigation_state.dart';
 import '../presentation/blocs/authentication/authentication.dart';
 import '../presentation/widgets/custom_snackbar.dart';
 import '../presentation/routes/app_routes.dart';
+
 enum NavigationIndex {
   dashboard(0, 'Dashboard'),
   discover(1, 'Discover'),
@@ -24,17 +25,21 @@ enum NavigationIndex {
     );
   }
 }
+
 class NavigationService {
-  static final GlobalKey<ScaffoldState> mainScaffoldKey = GlobalKey<ScaffoldState>();
+  static final GlobalKey<ScaffoldState> mainScaffoldKey =
+      GlobalKey<ScaffoldState>();
   static void navigateToTab(BuildContext context, NavigationIndex destination) {
     _closeCurrentDrawer(context);
     context.read<NavigationBloc>().add(
       NavigationPageChanged(destination.tabIndex),
     );
   }
+
   static void _closeCurrentDrawer(BuildContext context) {
     try {
-      if (mainScaffoldKey.currentState != null && mainScaffoldKey.currentState!.isDrawerOpen) {
+      if (mainScaffoldKey.currentState != null &&
+          mainScaffoldKey.currentState!.isDrawerOpen) {
         mainScaffoldKey.currentState!.closeDrawer();
         return;
       }
@@ -44,37 +49,47 @@ class NavigationService {
       }
     } catch (_) {}
   }
+
   static void forceCloseDrawer() {
     try {
-      if (mainScaffoldKey.currentState != null && mainScaffoldKey.currentState!.isDrawerOpen) {
+      if (mainScaffoldKey.currentState != null &&
+          mainScaffoldKey.currentState!.isDrawerOpen) {
         mainScaffoldKey.currentState!.closeDrawer();
       }
     } catch (_) {}
   }
-  static void navigateToTabWithPush(BuildContext context, NavigationIndex destination) {
+
+  static void navigateToTabWithPush(
+    BuildContext context,
+    NavigationIndex destination,
+  ) {
     _closeCurrentDrawer(context);
-    
+
     final routeName = _getRouteNameForIndex(destination.tabIndex);
     context.read<NavigationBloc>().add(
       NavigationStackPush(destination.tabIndex, routeName),
     );
   }
+
   static void goBack(BuildContext context) {
     final navigationBloc = context.read<NavigationBloc>();
     if (navigationBloc.canGoBack) {
-      context.read<NavigationBloc>().add(
-        const NavigationStackPop(),
-      );
+      context.read<NavigationBloc>().add(const NavigationStackPop());
     }
   }
-  static void replaceCurrentNavigation(BuildContext context, NavigationIndex destination) {
+
+  static void replaceCurrentNavigation(
+    BuildContext context,
+    NavigationIndex destination,
+  ) {
     _closeCurrentDrawer(context);
-    
+
     final routeName = _getRouteNameForIndex(destination.tabIndex);
     context.read<NavigationBloc>().add(
       NavigationStackReplace(destination.tabIndex, routeName),
     );
   }
+
   static String _getRouteNameForIndex(int index) {
     switch (index) {
       case 0:
@@ -91,11 +106,16 @@ class NavigationService {
         return '/dashboard';
     }
   }
+
   static void navigateToIndex(BuildContext context, int index) {
     final destination = NavigationIndex.fromIndex(index);
     navigateToTab(context, destination);
   }
-  static void handleMainNavigation(BuildContext context, NavigationIndex destination) {
+
+  static void handleMainNavigation(
+    BuildContext context,
+    NavigationIndex destination,
+  ) {
     switch (destination) {
       case NavigationIndex.dashboard:
         navigateToTab(context, NavigationIndex.dashboard);
@@ -114,7 +134,11 @@ class NavigationService {
         break;
     }
   }
-  static Future<void> handleSpecialNavigation(BuildContext context, String action) async {
+
+  static Future<void> handleSpecialNavigation(
+    BuildContext context,
+    String action,
+  ) async {
     switch (action) {
       case 'contact_support':
         _closeCurrentDrawer(context);
@@ -131,8 +155,8 @@ class NavigationService {
         SnackBarHelper.showWarning(context, 'Unknown action: $action');
     }
   }
+
   static Future<void> _handleLogout(BuildContext context) async {
-    final authBloc = context.read<AuthenticationBloc>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -145,44 +169,60 @@ class NavigationService {
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Logout'),
           ),
-          child: const Text('Logout'),
-        ),
-      ],
-    ),
-  );
-  
-  if (confirmed == true && context.mounted) {
-    _closeCurrentDrawer(context);
-    authBloc.add(const AuthenticationLogoutRequested());
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      // Get the authentication bloc reference BEFORE the delay
+      final authBloc = context.read<AuthenticationBloc>();
+      final navigationBloc = context.read<NavigationBloc>();
+
+      _closeCurrentDrawer(context);
+
+      // Reset navigation stack to clear any previous navigation history
+      navigationBloc.add(const NavigationReset());
+
+      SnackBarHelper.showSuccess(context, "Logout successful!");
+
+      authBloc.add(const AuthenticationLogoutRequested());
+    }
   }
-}
-static int getCurrentIndex(BuildContext context) {
-  final navigationBloc = context.read<NavigationBloc>();
-  final state = navigationBloc.state;    if (state is NavigationPageSelected) {
+
+  static int getCurrentIndex(BuildContext context) {
+    final navigationBloc = context.read<NavigationBloc>();
+    final state = navigationBloc.state;
+    if (state is NavigationPageSelected) {
       return state.currentIndex;
     }
     return 0; // Default to dashboard
   }
+
   static bool canGoBack(BuildContext context) {
     final navigationBloc = context.read<NavigationBloc>();
     return navigationBloc.canGoBack;
   }
+
   static List<NavigationStackEntry> getNavigationStack(BuildContext context) {
     final navigationBloc = context.read<NavigationBloc>();
     return navigationBloc.navigationStack;
   }
+
   static void resetToHome(BuildContext context) {
     context.read<NavigationBloc>().add(const NavigationReset());
   }
+
   static void navigateToContact(BuildContext context) {
     Navigator.of(context).pushNamed(AppRoutes.contact);
   }
+
   static void navigateToFaq(BuildContext context) {
     Navigator.of(context).pushNamed(AppRoutes.faq);
   }
 }
-

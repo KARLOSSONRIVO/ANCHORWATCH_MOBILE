@@ -4,6 +4,7 @@ import '../../../data/models/anchorwise/chat_models.dart';
 import '../blocs/anchorwise/anchorwise_bloc.dart';
 import '../blocs/anchorwise/anchorwise_event.dart';
 import '../blocs/anchorwise/anchorwise_state.dart';
+
 class ConversationHistoryDialog extends StatelessWidget {
   const ConversationHistoryDialog({super.key});
 
@@ -36,15 +37,11 @@ class ConversationHistoryDialog extends StatelessWidget {
               child: BlocBuilder<AnchorWiseBloc, AnchorWiseState>(
                 builder: (context, state) {
                   if (state.isLoadingConversations) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   if (state.conversations.isEmpty) {
-                    return const Center(
-                      child: Text('No conversations found'),
-                    );
+                    return const Center(child: Text('No conversations found'));
                   }
 
                   return ListView.builder(
@@ -54,9 +51,11 @@ class ConversationHistoryDialog extends StatelessWidget {
                       return _ConversationTile(
                         conversation: conversation,
                         onTap: () {
-                          context
-                              .read<AnchorWiseBloc>()
-                              .add(AnchorWiseSelectConversation(conversation.conversationId));
+                          context.read<AnchorWiseBloc>().add(
+                            AnchorWiseSelectConversation(
+                              conversation.conversationId,
+                            ),
+                          );
                           Navigator.of(context).pop();
                         },
                       );
@@ -71,29 +70,24 @@ class ConversationHistoryDialog extends StatelessWidget {
     );
   }
 }
+
 class _ConversationTile extends StatelessWidget {
   final ConversationItem conversation;
   final VoidCallback onTap;
 
-  const _ConversationTile({
-    required this.conversation,
-    required this.onTap,
-  });
+  const _ConversationTile({required this.conversation, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
-          child: Icon(
-            Icons.chat,
-            color: theme.colorScheme.onPrimaryContainer,
-          ),
+          child: Icon(Icons.chat, color: theme.colorScheme.onPrimaryContainer),
         ),
         title: Text(
           conversation.title,
@@ -105,17 +99,17 @@ class _ConversationTile extends StatelessWidget {
           onPressed: () {
             _showDeleteConfirmation(context, conversation);
           },
-          icon: Icon(
-            Icons.delete_outline,
-            color: theme.colorScheme.error,
-          ),
+          icon: Icon(Icons.delete_outline, color: theme.colorScheme.error),
           tooltip: 'Delete conversation',
         ),
       ),
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, ConversationItem conversation) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    ConversationItem conversation,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -131,16 +125,10 @@ class _ConversationTile extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                context
-                    .read<AnchorWiseBloc>()
-                    .add(AnchorWiseDeleteConversation(conversation.conversationId));
-                Navigator.of(dialogContext).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Conversation "${conversation.title}" deleted'),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ),
+                context.read<AnchorWiseBloc>().add(
+                  AnchorWiseDeleteConversation(conversation.conversationId),
                 );
+                Navigator.of(dialogContext).pop();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,

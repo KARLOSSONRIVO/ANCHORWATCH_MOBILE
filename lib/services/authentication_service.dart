@@ -7,11 +7,12 @@ import '../data/endpoints/auth_endpoints.dart';
 import 'token_storage_service.dart';
 import 'storage_service.dart';
 import 'dio_client.dart';
+
 @lazySingleton
 class AuthenticationService {
   final TokenStorageService _tokenStorage;
   final DioClient _dioClient;
-  
+
   AuthenticationService(this._tokenStorage, this._dioClient);
   Future<bool> isAuthenticated() async {
     final hasValidTokens = _tokenStorage.hasValidTokens();
@@ -27,58 +28,68 @@ class AuthenticationService {
         _dioClient.setAuthToken(accessToken);
       }
     }
-    
+
     return hasValidTokens;
   }
+
   String? getAccessToken() {
     return _tokenStorage.getAccessToken();
   }
+
   String? getRefreshToken() {
     return _tokenStorage.getRefreshToken();
   }
+
   Future<bool> storeAuthResult(AuthResult authResult) async {
     try {
       final tokensStored = await _tokenStorage.saveTokens(authResult.tokens);
-      
+
       if (tokensStored) {
         await StorageService.setString(StorageKeys.userId, authResult.user.id);
-        await StorageService.setString(StorageKeys.userEmail, authResult.user.email);
-        await StorageService.setString(StorageKeys.userName, authResult.user.username);
+        await StorageService.setString(
+          StorageKeys.userEmail,
+          authResult.user.email,
+        );
+        await StorageService.setString(
+          StorageKeys.userName,
+          authResult.user.username,
+        );
 
         updateDioClientToken();
 
         _dioClient.setAuthToken(authResult.tokens.accessToken);
       }
-      
+
       return tokensStored;
     } catch (e) {
       return false;
     }
   }
+
   Future<bool> logout() async {
     try {
       final accessToken = _tokenStorage.getAccessToken();
       final refreshToken = _tokenStorage.getRefreshToken();
-      
+
       if (accessToken != null && refreshToken != null) {
         try {
           await _dioClient.post(
             AuthEndpoints.logout,
-            data: {
-              'access': accessToken,
-              'refresh': refreshToken,
-            },
+            data: {'access': accessToken, 'refresh': refreshToken},
           );
-        } catch (_) {}
+        } catch (e) {
+          return false;
+        }
       }
-      
+
+
       final tokensCleared = await _tokenStorage.clearTokens();
-      
+
       await StorageService.remove(StorageKeys.userId);
       await StorageService.remove(StorageKeys.userEmail);
       await StorageService.remove(StorageKeys.userName);
       await StorageService.remove(StorageKeys.userToken);
-      
+
       _dioClient.clearAuthToken();
 
       return tokensCleared;
@@ -86,52 +97,57 @@ class AuthenticationService {
       return false;
     }
   }
+
   String? getUserId() {
     return StorageService.getString(StorageKeys.userId);
   }
+
   String? getUserEmail() {
     return StorageService.getString(StorageKeys.userEmail);
   }
+
   String? getUserName() {
     return StorageService.getString(StorageKeys.userName);
   }
-  Future<bool> updateUserProfile({
-    String? name,
-    String? email,
-  }) async {
+
+  Future<bool> updateUserProfile({String? name, String? email}) async {
     try {
       if (name != null) {
         await StorageService.setString(StorageKeys.userName, name);
       }
-      
+
       if (email != null) {
         await StorageService.setString(StorageKeys.userEmail, email);
       }
-      
+
       return true;
     } catch (e) {
       return false;
     }
   }
+
   bool isValidToken(String token) {
     final parts = token.split('.');
     return parts.length == 3 && token.isNotEmpty;
   }
+
   bool isSessionValid() {
     final token = getAccessToken();
     if (token == null) return false;
-    
+
     return isValidToken(token) && _tokenStorage.hasValidTokens();
   }
+
   Map<String, String> getAuthHeaders() {
     final token = getAccessToken();
     if (token == null) return {};
-    
+
     return {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
     };
   }
+
   Future<User?> fetchUserProfile() async {
     try {
       final token = getAccessToken();
@@ -141,11 +157,7 @@ class AuthenticationService {
 
       final response = await _dioClient.get<Map<String, dynamic>>(
         AuthEndpoints.profile,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       if (response.data != null) {
@@ -158,9 +170,9 @@ class AuthenticationService {
       return null;
     }
   }
+
   void updateDioClientToken() {
     final token = getAccessToken();
-    if (token != null) {
-    }
+    if (token != null) {}
   }
 }

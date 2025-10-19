@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_state.dart';
-import '../blocs/authentication/authentication_bloc.dart';
-import '../blocs/authentication/authentication_state.dart';
 import '../blocs/anchorwise/anchorwise.dart';
 import '../widgets/bottom_navigation_widget.dart';
 import '../widgets/navigation_drawer_widget.dart';
@@ -15,6 +13,7 @@ import 'discover/discover_screen.dart';
 import 'anchorwise_screen.dart';
 import 'alerts_screen.dart';
 import 'profile/profile_screen.dart';
+
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -100,87 +99,74 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthenticationBloc, AuthenticationState>(
-      listener: (context, authState) {
-        if (authState.status == AuthenticationStatus.unauthenticated) {
+    return BlocListener<NavigationBloc, NavigationState>(
+      listener: (context, state) {
+        if (state is NavigationPageSelected) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              Navigator.of(context).pushReplacementNamed('/login');
-            }
+            NavigationService.forceCloseDrawer();
           });
         }
       },
-      child: BlocListener<NavigationBloc, NavigationState>(
-        listener: (context, state) {
+      child: BlocBuilder<NavigationBloc, NavigationState>(
+        builder: (context, state) {
+          int currentIndex = 0;
+          bool canGoBack = false;
+
           if (state is NavigationPageSelected) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              NavigationService.forceCloseDrawer();
-            });
+            currentIndex = state.currentIndex;
+            canGoBack = state.canGoBack;
           }
-        },
-        child: BlocBuilder<NavigationBloc, NavigationState>(
-          builder: (context, state) {
-            int currentIndex = 0;
-            bool canGoBack = false;
 
-            if (state is NavigationPageSelected) {
-              currentIndex = state.currentIndex;
-              canGoBack = state.canGoBack;
-            }
-
-            return PopScope(
-              canPop:
-                  !canGoBack, // Prevent system back button if we have navigation stack
-              onPopInvokedWithResult: (didPop, result) {
-                if (!didPop && canGoBack) {
-                  NavigationService.goBack(context);
-                }
-              },
-              child: Scaffold(
-                key: _scaffoldKey,
-                backgroundColor: AppTheme.getBackgroundColor(context),
-                appBar: AppBar(
-                  title: currentIndex == 2
-                      ? _buildAnchorWiseTitle()
-                      : Text(
-                          _getPageTitle(currentIndex),
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
-                          ),
+          return PopScope(
+            canPop:
+                !canGoBack, // Prevent system back button if we have navigation stack
+            onPopInvokedWithResult: (didPop, result) {
+              if (!didPop && canGoBack) {
+                NavigationService.goBack(context);
+              }
+            },
+            child: Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: AppTheme.getBackgroundColor(context),
+              appBar: AppBar(
+                title: currentIndex == 2
+                    ? _buildAnchorWiseTitle()
+                    : Text(
+                        _getPageTitle(currentIndex),
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
                         ),
-                  leading: Builder(
-                    builder: (context) => IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () => Scaffold.of(context).openDrawer(),
-                    ),
+                      ),
+                leading: Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
                   ),
-                  actions: _getAppBarActions(context, currentIndex),
                 ),
-                drawer: const NavigationDrawerWidget(),
-                body: IndexedStack(
-                  index: currentIndex,
-                  children: const [
-                    DashboardScreen(),
-                    DiscoverScreen(),
-                    AnchorWiseScreen(),
-                    AlertsScreen(),
-                    ProfileScreen(),
-                  ],
-                ),
-                bottomNavigationBar: BottomNavigationWidget(
-                  currentIndex: currentIndex,
-                  onTap: (index) {
-                    NavigationService.navigateToIndex(context, index);
-                  },
-                ),
+                actions: _getAppBarActions(context, currentIndex),
               ),
-            );
-          },
-        ),
+              drawer: const NavigationDrawerWidget(),
+              body: IndexedStack(
+                index: currentIndex,
+                children: const [
+                  DashboardScreen(),
+                  DiscoverScreen(),
+                  AnchorWiseScreen(),
+                  AlertsScreen(),
+                  ProfileScreen(),
+                ],
+              ),
+              bottomNavigationBar: BottomNavigationWidget(
+                currentIndex: currentIndex,
+                onTap: (index) {
+                  NavigationService.navigateToIndex(context, index);
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 }
-
-
