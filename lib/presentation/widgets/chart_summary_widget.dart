@@ -5,6 +5,7 @@ import '../../injection_container.dart';
 import 'data_quality_indicator.dart';
 import '../../data/models/chart_summary_model.dart';
 import '../../data/models/data_quality_model.dart';
+import '../themes/app_theme.dart';
 class ChartSummaryWidget extends StatelessWidget {
   final String chartType;
   final String chartTitle;
@@ -89,6 +90,9 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
   Widget build(BuildContext context) {
     return BlocBuilder<ChartSummaryBloc, ChartSummaryState>(
       builder: (context, state) {
+        final isLightMode = Theme.of(context).brightness == Brightness.light;
+        final accentColor = isLightMode ? AppTheme.aiSummaryColorLight : const Color(0xFF00D4AA);
+        
         return Container(
           margin: const EdgeInsets.only(top: 12),
           padding: const EdgeInsets.all(16),
@@ -98,7 +102,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                 : const Color(0xFF1A2A2A), // Dark teal background
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFF00D4AA).withValues(alpha: 0.3),
+              color: accentColor.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -112,7 +116,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                     children: [
                       Icon(
                         Icons.analytics_outlined,
-                        color: const Color(0xFF00D4AA),
+                        color: accentColor,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -130,12 +134,12 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(
+                        SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00D4AA)),
+                            valueColor: AlwaysStoppedAnimation<Color>(accentColor),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -159,8 +163,8 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                       label: Text(state.summary == null ? 'Generate' : 'Regenerate'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: state.summary == null 
-                            ? const Color(0xFF00D4AA) 
-                            : const Color(0xFF00D4AA).withValues(alpha: 0.8),
+                            ? accentColor 
+                            : accentColor.withValues(alpha: 0.8),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         minimumSize: Size.zero,
@@ -182,17 +186,17 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                         : const Color(0xFF1A2A2A), // Dark teal background
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF00D4AA).withValues(alpha: 0.3),
+                      color: accentColor.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
                     children: [
-                      const SizedBox(
+                      SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00D4AA)),
+                          valueColor: AlwaysStoppedAnimation<Color>(accentColor),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -233,14 +237,14 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                         : const Color(0xFF1A2A2A).withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF00D4AA).withValues(alpha: 0.2),
+                      color: accentColor.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.info_outline,
-                        color: const Color(0xFF00D4AA).withValues(alpha: 0.7),
+                        color: accentColor.withValues(alpha: 0.7),
                         size: 16,
                       ),
                       const SizedBox(width: 8),
@@ -317,13 +321,13 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00D4AA).withValues(alpha: 0.1),
+                                color: accentColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 'Cached',
                                 style: TextStyle(
-                                  color: const Color(0xFF00D4AA),
+                                  color: accentColor,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -387,7 +391,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                         );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00D4AA),
+                          backgroundColor: accentColor,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           minimumSize: Size.zero,
