@@ -99,7 +99,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.light
                 ? const Color(0xFFF0F8F7) 
-                : const Color(0xFF1A2A2A), 
+                : const Color(0xFF1A2A2A),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: accentColor.withValues(alpha: 0.3),
@@ -183,7 +183,7 @@ class _ChartSummaryContentState extends State<_ChartSummaryContent> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).brightness == Brightness.light
                         ? const Color(0xFFF0F8F7) 
-                        : const Color(0xFF1A2A2A), 
+                        : const Color(0xFF1A2A2A),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: accentColor.withValues(alpha: 0.3),
