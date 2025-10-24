@@ -46,46 +46,63 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<ContactBloc>()),
         BlocProvider(create: (context) => getIt<FaqBloc>()),
       ],
-      child: MaterialApp(
-        title: 'AnchorWatch',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system, // Automatically follows system theme
-        onGenerateRoute: AppRouter.generateRoute,
-        home: BlocBuilder<OnboardingBloc, OnboardingState>(
-          builder: (context, onboardingState) {
-            return BlocBuilder<AuthenticationBloc, AuthenticationState>(
-              builder: (context, authState) {
-                print('🏠 Main.dart - Auth status: ${authState.status}');
+      child: BlocListener<AuthenticationBloc, AuthenticationState>(
+        listener: (context, state) {
+          print('🔐 Main.dart - Auth state changed: ${state.status}');
 
-                if (onboardingState.status == OnboardingStatus.loading) {
-                  return const _SplashScreen();
-                }
+          // Handle navigation when authentication state changes
+          if (state.status == AuthenticationStatus.unauthenticated) {
+            // Force navigation to login screen
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+              }
+            });
+          }
+        },
+        child: MaterialApp(
+          title: 'AnchorWatch',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.system, // Automatically follows system theme
+          onGenerateRoute: AppRouter.generateRoute,
+          home: BlocBuilder<OnboardingBloc, OnboardingState>(
+            builder: (context, onboardingState) {
+              return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                builder: (context, authState) {
+                  print('🏠 Main.dart - Auth status: ${authState.status}');
 
-                if (onboardingState.status == OnboardingStatus.notCompleted) {
-                  return const OnboardingScreen();
-                }
+                  if (onboardingState.status == OnboardingStatus.loading) {
+                    return const _SplashScreen();
+                  }
 
-                switch (authState.status) {
-                  case AuthenticationStatus.authenticated:
-                    return const MainNavigationScreen();
-                  case AuthenticationStatus.unauthenticated:
-                    return const LoginScreen();
-                  case AuthenticationStatus.loading:
-                    return const LoginScreen(); // Stay on login during loading
-                  case AuthenticationStatus.signUpSuccess:
-                    return const LoginScreen(); // Redirect to login after successful signup
-                  case AuthenticationStatus.unknown:
-                    if (onboardingState.status == OnboardingStatus.loading) {
-                      return const _SplashScreen();
-                    } else {
+                  if (onboardingState.status == OnboardingStatus.notCompleted) {
+                    return const OnboardingScreen();
+                  }
+
+                  switch (authState.status) {
+                    case AuthenticationStatus.authenticated:
+                      return const MainNavigationScreen();
+                    case AuthenticationStatus.unauthenticated:
+                      return const LoginScreen();
+                    case AuthenticationStatus.loading:
                       return const LoginScreen(); // Stay on login during loading
-                    }
-                }
-              },
-            );
-          },
+                    case AuthenticationStatus.signUpSuccess:
+                      return const LoginScreen(); // Redirect to login after successful signup
+                    case AuthenticationStatus.unknown:
+                      if (onboardingState.status == OnboardingStatus.loading) {
+                        return const _SplashScreen();
+                      } else {
+                        return const LoginScreen(); // Stay on login during loading
+                      }
+                  }
+                },
+              );
+            },
+          ),
         ),
       ),
     );

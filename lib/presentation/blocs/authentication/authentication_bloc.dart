@@ -126,9 +126,11 @@ class AuthenticationBloc
 
       if (logoutResult) {
         emit(
-          const AuthenticationState(
+          state.copyWith(
             status: AuthenticationStatus.unauthenticated,
             isLoading: false,
+            user: null,
+            error: null,
           ),
         );
       } else {

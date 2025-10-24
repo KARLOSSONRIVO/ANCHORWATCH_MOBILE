@@ -189,9 +189,11 @@ class NavigationService {
       // Reset navigation stack to clear any previous navigation history
       navigationBloc.add(const NavigationReset());
 
-      SnackBarHelper.showSuccess(context, "Logout successful!");
-
+      // Trigger logout first
       authBloc.add(const AuthenticationLogoutRequested());
+
+      // Show success message after logout is processed
+      SnackBarHelper.showSuccess(context, "Logout successful!");
     }
   }
 

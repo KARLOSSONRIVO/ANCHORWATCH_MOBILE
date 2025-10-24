@@ -57,7 +57,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
               null; // Clear last error when starting new submission
         } else if (state is ChangePasswordSuccess) {
           _isSubmitting = false;
-          SnackBarHelper.showSuccess(context, "Password changed successfully!");
+          SnackBarHelper.showSuccess(context, "Password changed successfully!",duration: const Duration(milliseconds: 1500),);
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.of(context).pop();

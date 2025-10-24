@@ -61,6 +61,7 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                 SnackBarHelper.showSuccess(
                   context,
                   "username changed successfully",
+                  duration: const Duration(milliseconds: 1500),
                 );
                 final newUsername = state.newUsername;
                 context.read<AuthenticationBloc>().add(

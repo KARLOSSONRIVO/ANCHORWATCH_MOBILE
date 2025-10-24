@@ -62,29 +62,35 @@ class _LoginScreenState extends State<LoginScreen> {
         child: BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) {
             if (state.status == AuthenticationStatus.loading) {
-              ScaffoldMessenger.of(context).clearSnackBars();
+              if (mounted) {
+                ScaffoldMessenger.of(context).clearSnackBars();
+              }
             } else if (state.status == AuthenticationStatus.authenticated) {
-              // Reset navigation stack to ensure clean state
-              context.read<NavigationBloc>().add(const NavigationReset());
+              if (mounted) {
+                // Reset navigation stack to ensure clean state
+                context.read<NavigationBloc>().add(const NavigationReset());
 
-              // Show login success snackbar
-              SnackBarHelper.showSuccess(context, "Login successful!");
+                // Show login success snackbar
+                SnackBarHelper.showSuccess(context, "Login successful!");
 
-              // Then navigate after a short delay to let snackbar show
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  Future.delayed(const Duration(milliseconds: 1500), () {
-                    if (mounted) {
-                      Navigator.of(
-                        context,
-                      ).pushReplacementNamed(AppRoutes.dashboard);
-                    }
-                  });
-                }
-              });
+                // Then navigate after a short delay to let snackbar show
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    Future.delayed(const Duration(milliseconds: 1500), () {
+                      if (mounted) {
+                        Navigator.of(
+                          context,
+                        ).pushReplacementNamed(AppRoutes.dashboard);
+                      }
+                    });
+                  }
+                });
+              }
             } else if (state.status == AuthenticationStatus.unauthenticated &&
                 state.error != null) {
-              SnackBarHelper.showError(context, state.error!);
+              if (mounted) {
+                SnackBarHelper.showError(context, state.error!);
+              }
             }
           },
           child: BlocBuilder<AuthenticationBloc, AuthenticationState>(

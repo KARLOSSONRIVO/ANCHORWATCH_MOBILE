@@ -70,6 +70,7 @@ class _ContactViewState extends State<_ContactView> {
             SnackBarHelper.showSuccess(
               context,
               'Your question has been submitted successfully!',
+              duration: const Duration(milliseconds: 1500),
             );
             context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.failure) {
