@@ -119,7 +119,7 @@ class _AnchorWiseScreenState extends State<AnchorWiseScreen> {
   }
 
   Widget _buildWelcomeArea(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
