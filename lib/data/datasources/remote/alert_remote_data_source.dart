@@ -47,32 +47,50 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
     try {
       final queryParams = <String, dynamic>{'page': page, 'limit': limit};
 
-      if (severity != null) queryParams['severity'] = severity;
-      if (status != null) queryParams['status'] = status;
-      if (type != null) queryParams['type'] = type;
+      if (severity != null) {
+        queryParams['severity'] = severity;
+      }
+
+      if (status != null) {
+        final normalizedStatus = status == 'active' ? 'triggered' : status;
+        queryParams['status'] = normalizedStatus;
+      }
+
+      if (type != null) {
+        queryParams['type'] = type;
+      }
 
       final response = await _dioClient.get(
         '/api/alerts/history/',
         queryParameters: queryParams,
       );
       final respData = response.data;
-      if (respData is Map<String, dynamic> && respData['success'] == true) {
-        List<dynamic> alertsJson = <dynamic>[];
 
-        if (respData['alerts'] is List<dynamic>) {
-          alertsJson = respData['alerts'] as List<dynamic>;
-        } else if (respData['data'] is Map<String, dynamic>) {
-          final data = respData['data'] as Map<String, dynamic>;
-          if (data['alerts'] is List<dynamic>) {
-            alertsJson = data['alerts'] as List<dynamic>;
-          }
-        }
-
-        return alertsJson
-            .map((json) => AlertModel.fromJson(json as Map<String, dynamic>))
-            .toList();
+      if (respData is! Map<String, dynamic>) {
+        throw Exception('Unexpected response format');
       }
-      return <AlertModel>[];
+
+      if (respData['success'] != true) {
+        throw Exception(respData['message'] ?? 'Failed to fetch alert history');
+      }
+
+      final payload = respData['data'];
+      List<dynamic> alertsJson = <dynamic>[];
+
+      if (payload is List<dynamic>) {
+        alertsJson = payload;
+      } else if (payload is Map<String, dynamic>) {
+        if (payload['alerts'] is List<dynamic>) {
+          alertsJson = payload['alerts'] as List<dynamic>;
+        } else if (payload['data'] is List<dynamic>) {
+          alertsJson = payload['data'] as List<dynamic>;
+        }
+      }
+
+      return alertsJson
+          .whereType<Map<String, dynamic>>()
+          .map(AlertModel.fromJson)
+          .toList();
     } catch (e) {
       if (e is DioException) {
         throw Exception('Network error: ${e.message}');
@@ -90,11 +108,10 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
         return AlertDashboardModel.fromJson(
           response.data['data'] as Map<String, dynamic>,
         );
-      } else {
-        throw Exception(
-          response.data['message'] ?? 'Failed to fetch alert dashboard',
-        );
       }
+      throw Exception(
+        response.data['message'] ?? 'Failed to fetch alert dashboard',
+      );
     } catch (e) {
       if (e is DioException) {
         throw Exception('Network error: ${e.message}');
@@ -109,18 +126,25 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
       final response = await _dioClient.get('/api/alerts/rules/');
 
       if (response.data['success'] == true) {
-        final List<dynamic> rulesJson =
-            response.data['data']['rules'] as List<dynamic>? ?? [];
+        final data = response.data['data'];
+        final List<dynamic> rulesJson;
+
+        if (data is Map<String, dynamic> && data['rules'] is List<dynamic>) {
+          rulesJson = data['rules'] as List<dynamic>;
+        } else if (data is List<dynamic>) {
+          rulesJson = data;
+        } else {
+          rulesJson = const [];
+        }
+
         return rulesJson
-            .map(
-              (json) => AlertRuleModel.fromJson(json as Map<String, dynamic>),
-            )
+            .whereType<Map<String, dynamic>>()
+            .map(AlertRuleModel.fromJson)
             .toList();
-      } else {
-        throw Exception(
-          response.data['message'] ?? 'Failed to fetch alert rules',
-        );
       }
+      throw Exception(
+        response.data['message'] ?? 'Failed to fetch alert rules',
+      );
     } catch (e) {
       if (e is DioException) {
         throw Exception('Network error: ${e.message}');
@@ -318,4 +342,3 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
     }
   }
 }
-

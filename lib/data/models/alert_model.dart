@@ -24,16 +24,45 @@ class AlertModel {
   });
 
   factory AlertModel.fromJson(Map<String, dynamic> json) {
+    final safeJson = Map<String, dynamic>.from(json);
+    final id = _coalesceString(safeJson, ['id', '_id', 'alert_id']);
+    final ruleId = _coalesceString(safeJson, ['rule_id']);
+    final type = _coalesceString(safeJson, ['type', 'alert_type']);
+    final title = _coalesceString(safeJson, [
+      'title',
+      'rule_name',
+      'message',
+      'alert_type',
+    ], defaultValue: 'Alert notification');
+    final message = _coalesceString(safeJson, ['message'], defaultValue: title);
+    final createdAt = _coalesceString(safeJson, [
+      'created_at',
+      'triggered_at',
+      'timestamp',
+    ], defaultValue: DateTime.now().toIso8601String());
+    final severity = _normalizeSeverity(
+      _coalesceString(safeJson, ['severity'], defaultValue: 'low'),
+    );
+    final status = _normalizeStatus(
+      _coalesceString(safeJson, ['status'], defaultValue: 'active'),
+    );
+    final description = _optionalString(safeJson, [
+      'description',
+      'rule_description',
+      'details',
+    ]);
+    final data = _coalesceMap(safeJson['data']);
+
     return AlertModel(
-      id: json['id'] as String? ?? '',
-      type: json['type'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      message: json['message'] as String? ?? '',
-      createdAt: json['created_at'] as String? ?? '',
-      severity: json['severity'] as String? ?? 'low',
-      status: json['status'] as String? ?? 'active',
-      data: json['data'] as Map<String, dynamic>?,
-      description: json['description'] as String?,
+      id: id.isNotEmpty ? id : (ruleId.isNotEmpty ? ruleId : type),
+      type: type,
+      title: title,
+      message: message,
+      createdAt: createdAt,
+      severity: severity,
+      status: status,
+      data: data,
+      description: description,
     );
   }
 
@@ -77,6 +106,57 @@ class AlertModel {
       data: alert.data,
       description: alert.description,
     );
+  }
+
+  static String _coalesceString(
+    Map<String, dynamic> json,
+    List<String> keys, {
+    String defaultValue = '',
+  }) {
+    for (final key in keys) {
+      if (!json.containsKey(key)) {
+        continue;
+      }
+      final value = json[key];
+      if (value == null) {
+        continue;
+      }
+      if (value is DateTime) {
+        return value.toIso8601String();
+      }
+      final stringValue = value.toString().trim();
+      if (stringValue.isNotEmpty) {
+        return stringValue;
+      }
+    }
+    return defaultValue;
+  }
+
+  static String? _optionalString(Map<String, dynamic> json, List<String> keys) {
+    final value = _coalesceString(json, keys);
+    return value.isEmpty ? null : value;
+  }
+
+  static Map<String, dynamic>? _coalesceMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return Map<String, dynamic>.from(value);
+    }
+    if (value is Map) {
+      return value.map((key, val) => MapEntry(key.toString(), val));
+    }
+    return null;
+  }
+
+  static String _normalizeStatus(String status) {
+    final value = status.toLowerCase();
+    if (value == 'triggered') {
+      return 'active';
+    }
+    return value;
+  }
+
+  static String _normalizeSeverity(String severity) {
+    return severity.toLowerCase();
   }
 }
 
@@ -151,6 +231,36 @@ class AlertDashboardModel {
   });
 
   factory AlertDashboardModel.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('alerts')) {
+      final alertsSection = (json['alerts'] as Map<String, dynamic>?) ?? {};
+      final statistics =
+          (alertsSection['statistics'] as Map<String, dynamic>?) ?? {};
+      final bySeverity =
+          (statistics['by_severity'] as Map<String, dynamic>?) ?? {};
+      final byStatus = (statistics['by_status'] as Map<String, dynamic>?) ?? {};
+      final byType = (statistics['by_type'] as Map<String, dynamic>?) ?? {};
+      final recent = (alertsSection['recent'] as List<dynamic>?) ?? [];
+
+      int _asInt(dynamic value) => (value is num) ? value.toInt() : 0;
+
+      return AlertDashboardModel(
+        totalAlerts: _asInt(statistics['total_alerts']) != 0
+            ? _asInt(statistics['total_alerts'])
+            : recent.length,
+        activeAlerts:
+            _asInt(byStatus['active']) + _asInt(byStatus['triggered']),
+        criticalAlerts: _asInt(bySeverity['critical']),
+        highAlerts: _asInt(bySeverity['high']),
+        mediumAlerts: _asInt(bySeverity['medium']),
+        lowAlerts: _asInt(bySeverity['low']),
+        recentAlerts: recent
+            .whereType<Map<String, dynamic>>()
+            .map(AlertModel.fromJson)
+            .toList(),
+        alertsByType: byType.map((key, value) => MapEntry(key, _asInt(value))),
+      );
+    }
+
     return AlertDashboardModel(
       totalAlerts: (json['total_alerts'] as num?)?.toInt() ?? 0,
       activeAlerts: (json['active_alerts'] as num?)?.toInt() ?? 0,
