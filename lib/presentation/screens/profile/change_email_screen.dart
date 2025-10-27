@@ -54,7 +54,7 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                 ),
               ).then((result) {
                 if (result != null && result.isNotEmpty && context.mounted) {
-                  Navigator.pop(context, result); // bubble new email upward
+                  Navigator.pop(context, result);
                 }
               });
             }
@@ -66,12 +66,12 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-              : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
+              ? const Color(0xFFF8F8F8)
+              : const Color(0xFF1E1E1E),
           appBar: AppBar(
             backgroundColor: Theme.of(context).brightness == Brightness.light
-                ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-                : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
+                ? const Color(0xFFF8F8F8)
+                : const Color(0xFF1E1E1E),
             elevation: 0,
             iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
           ),
@@ -197,23 +197,18 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
-                  height: 56,
                   child: ElevatedButton(
                     onPressed: state is ChangeEmailRequestLoading
                         ? null
                         : _onSendOtp,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(
-                        0xFF00E5CC,
-                      ), // Consistent with app branding
+                      backgroundColor: const Color(0xFF484848),
                       foregroundColor: Colors.white,
-                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      disabledBackgroundColor: const Color(
-                        0xFF00E5CC,
-                      ).withValues(alpha: 0.5),
+                      elevation: 0,
                     ),
                     child: state is ChangeEmailRequestLoading
                         ? const SizedBox(
@@ -232,6 +227,7 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Inter',
+                              color: Colors.white,
                             ),
                           ),
                   ),
@@ -254,13 +250,10 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
   }
 
   void _onSendOtp() {
-    // Mark field as interacted with so validation errors will show
     _hasInteractedWithEmail = true;
 
-    // Trigger validation first to show any errors
     _triggerValidation();
 
-    // Then submit after a short delay to allow validation to complete
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         context.read<ChangeEmailBloc>().add(

@@ -53,8 +53,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
       listener: (context, state) {
         if (state is ChangePasswordLoading) {
           _isSubmitting = true;
-          _lastShownError =
-              null; // Clear last error when starting new submission
+          _lastShownError = null;
         } else if (state is ChangePasswordSuccess) {
           _isSubmitting = false;
           SnackBarHelper.showSuccess(context, "Password changed successfully!",duration: const Duration(milliseconds: 1500),);
@@ -65,7 +64,6 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
           });
         } else if (state is ChangePasswordFailure) {
           _isSubmitting = false;
-          // Only show error if it's different from the last shown error
           if (_lastShownError != state.error) {
             _lastShownError = state.error;
             SnackBarHelper.showError(context, state.error);
@@ -77,12 +75,12 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-              : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
+              ? const Color(0xFFF8F8F8)
+              : const Color(0xFF1E1E1E),
           appBar: AppBar(
             backgroundColor: Theme.of(context).brightness == Brightness.light
-                ? const Color(0xFFF8F8F8) // Softer off-white for light mode
-                : const Color(0xFF1E1E1E), // Softer dark gray for dark mode
+                ? const Color(0xFFF8F8F8)
+                : const Color(0xFF1E1E1E),
             elevation: 0,
             iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
           ),
@@ -233,23 +231,18 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                     const SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
-                      height: 56,
                       child: ElevatedButton(
                         onPressed: state is ChangePasswordLoading
                             ? null
                             : _onSubmit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                            0xFF00E5CC,
-                          ), // Consistent with app branding
+                          backgroundColor: const Color(0xFF484848),
                           foregroundColor: Colors.white,
-                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          disabledBackgroundColor: const Color(
-                            0xFF00E5CC,
-                          ).withValues(alpha: 0.5),
+                          elevation: 0,
                         ),
                         child: const Text(
                           'Change Password',
@@ -257,6 +250,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Inter',
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -339,18 +333,14 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
   }
 
   void _onSubmit() {
-    // Prevent multiple submissions
     if (_isSubmitting) return;
 
-    // Mark all fields as interacted with so validation errors will show
     _hasInteractedWithOldPassword = true;
     _hasInteractedWithNewPassword = true;
     _hasInteractedWithConfirmPassword = true;
 
-    // Trigger validation first to show any errors
     _triggerValidation();
 
-    // Then submit after a short delay to allow validation to complete
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         context.read<ChangePasswordBloc>().add(

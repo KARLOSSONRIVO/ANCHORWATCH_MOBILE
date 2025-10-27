@@ -127,6 +127,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             },
             child: Scaffold(
               key: _scaffoldKey,
+              resizeToAvoidBottomInset: true,
               backgroundColor: AppTheme.getBackgroundColor(context),
               appBar: AppBar(
                 title: currentIndex == 2

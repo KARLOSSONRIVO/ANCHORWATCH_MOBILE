@@ -227,12 +227,13 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                           ? null
                           : _onSubmit,
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF484848),
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: AppTheme.primaryColor,
-                        foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(20),
                         ),
+                        elevation: 0,
                       ),
                       child: state is ChangeUsernameLoading
                           ? const SimpleLoadingWidget(
@@ -240,12 +241,13 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
                               color: Colors.white,
                               strokeWidth: 2,
                             )
-                          : Text(
+                          : const Text(
                               'Change Username',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Inter',
+                                color: Colors.white,
                               ),
                             ),
                     ),
