@@ -20,16 +20,19 @@ class AuthenticationState extends Equatable {
   final String? user;
   final String? error;
   final bool isLoading;
+
   AuthenticationState copyWith({
     AuthenticationStatus? status,
     String? user,
     String? error,
     bool? isLoading,
+    bool clearUser = false,
+    bool clearError = false,
   }) {
     return AuthenticationState(
       status: status ?? this.status,
-      user: user ?? this.user,
-      error: error ?? this.error,
+      user: clearUser ? null : (user ?? this.user),
+      error: clearError ? null : (error ?? this.error),
       isLoading: isLoading ?? this.isLoading,
     );
   }

@@ -6,8 +6,10 @@ import 'presentation/screens/onboarding_screen.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/themes/app_theme.dart';
+import 'presentation/widgets/custom_snackbar.dart';
 import 'injection_container.dart';
 import 'services/storage_service.dart';
+import 'utils/app_keys.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,63 +48,117 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<ContactBloc>()),
         BlocProvider(create: (context) => getIt<FaqBloc>()),
       ],
-      child: BlocListener<AuthenticationBloc, AuthenticationState>(
-        listener: (context, state) {
-          print('🔐 Main.dart - Auth state changed: ${state.status}');
+      child: MaterialApp(
+        navigatorKey: AppKeys.navigatorKey,
+        scaffoldMessengerKey: AppKeys.scaffoldMessengerKey,
+        title: 'AnchorWatch',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system, // Automatically follows system theme
+        onGenerateRoute: AppRouter.generateRoute,
+        builder: (context, child) {
+          return BlocListener<AuthenticationBloc, AuthenticationState>(
+            listenWhen: (previous, current) =>
+                previous.status != current.status ||
+                previous.error != current.error ||
+                previous.user != current.user,
+            listener: (context, state) {
+              print('🔐 Main.dart - Auth state changed: ${state.status}');
 
-          // Handle navigation when authentication state changes
-          if (state.status == AuthenticationStatus.unauthenticated) {
-            // Force navigation to login screen
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (context.mounted) {
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+              final navigator = AppKeys.navigatorKey.currentState;
+              final messengerContext =
+                  AppKeys.navigatorKey.currentContext ?? context;
+              final error = state.error;
+
+              if (state.status == AuthenticationStatus.loading) {
+                AppKeys.scaffoldMessengerKey.currentState?.clearSnackBars();
+                return;
               }
-            });
-          }
-        },
-        child: MaterialApp(
-          title: 'AnchorWatch',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.system, // Automatically follows system theme
-          onGenerateRoute: AppRouter.generateRoute,
-          home: BlocBuilder<OnboardingBloc, OnboardingState>(
-            builder: (context, onboardingState) {
-              return BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                builder: (context, authState) {
-                  print('🏠 Main.dart - Auth status: ${authState.status}');
 
-                  if (onboardingState.status == OnboardingStatus.loading) {
-                    return const _SplashScreen();
-                  }
+              if (state.status == AuthenticationStatus.unauthenticated) {
+                context.read<NavigationBloc>().add(const NavigationReset());
+                navigator?.popUntil((route) => route.isFirst);
 
-                  if (onboardingState.status == OnboardingStatus.notCompleted) {
-                    return const OnboardingScreen();
-                  }
+                if (error != null && error.isNotEmpty) {
+                  // Login/auth failed with error
+                  SnackBarHelper.showError(
+                    messengerContext,
+                    error,
+                    duration: const Duration(milliseconds: 1600),
+                  );
+                } else if (state.user == null) {
+                  // Successful logout (transitioned from authenticated to unauthenticated, user cleared, no error)
+                  SnackBarHelper.showSuccess(
+                    messengerContext,
+                    'Logout successful!',
+                    duration: const Duration(milliseconds: 1200),
+                  );
+                }
+                return;
+              }
 
-                  switch (authState.status) {
-                    case AuthenticationStatus.authenticated:
-                      return const MainNavigationScreen();
-                    case AuthenticationStatus.unauthenticated:
-                      return const LoginScreen();
-                    case AuthenticationStatus.loading:
-                      return const LoginScreen(); // Stay on login during loading
-                    case AuthenticationStatus.signUpSuccess:
-                      return const LoginScreen(); // Redirect to login after successful signup
-                    case AuthenticationStatus.unknown:
-                      if (onboardingState.status == OnboardingStatus.loading) {
-                        return const _SplashScreen();
-                      } else {
-                        return const LoginScreen(); // Stay on login during loading
-                      }
-                  }
-                },
-              );
+              if (state.status == AuthenticationStatus.authenticated) {
+                context.read<NavigationBloc>().add(const NavigationReset());
+                navigator?.popUntil((route) => route.isFirst);
+
+                if (error != null && error.isNotEmpty) {
+                  SnackBarHelper.showError(
+                    messengerContext,
+                    error,
+                    duration: const Duration(milliseconds: 1600),
+                  );
+                  return;
+                }
+
+                final user = state.user;
+                final message = user != null && user.isNotEmpty
+                    ? 'Welcome back, $user!'
+                    : 'Login successful!';
+
+                SnackBarHelper.showSuccess(
+                  messengerContext,
+                  message,
+                  duration: const Duration(milliseconds: 1200),
+                );
+              }
             },
-          ),
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
+        home: BlocBuilder<OnboardingBloc, OnboardingState>(
+          builder: (context, onboardingState) {
+            return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+              builder: (context, authState) {
+                print('🏠 Main.dart - Auth status: ${authState.status}');
+
+                if (onboardingState.status == OnboardingStatus.loading) {
+                  return const _SplashScreen();
+                }
+
+                if (onboardingState.status == OnboardingStatus.notCompleted) {
+                  return const OnboardingScreen();
+                }
+
+                switch (authState.status) {
+                  case AuthenticationStatus.authenticated:
+                    return const MainNavigationScreen();
+                  case AuthenticationStatus.unauthenticated:
+                    return const LoginScreen();
+                  case AuthenticationStatus.loading:
+                    return const LoginScreen(); // Stay on login during loading
+                  case AuthenticationStatus.signUpSuccess:
+                    return const LoginScreen(); // Redirect to login after successful signup
+                  case AuthenticationStatus.unknown:
+                    if (onboardingState.status == OnboardingStatus.loading) {
+                      return const _SplashScreen();
+                    } else {
+                      return const LoginScreen(); // Stay on login during loading
+                    }
+                }
+              },
+            );
+          },
         ),
       ),
     );

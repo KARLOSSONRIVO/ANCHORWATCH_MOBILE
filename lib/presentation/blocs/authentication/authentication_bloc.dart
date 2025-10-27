@@ -44,14 +44,14 @@ class AuthenticationBloc
           state.copyWith(
             status: AuthenticationStatus.authenticated,
             user: username,
-            error: null,
+            clearError: true,
           ),
         );
       } else {
         emit(
           state.copyWith(
             status: AuthenticationStatus.unauthenticated,
-            error: null,
+            clearError: true,
           ),
         );
       }
@@ -73,7 +73,7 @@ class AuthenticationBloc
       state.copyWith(
         status: AuthenticationStatus.loading,
         isLoading: true,
-        error: null,
+        clearError: true,
       ),
     );
 
@@ -88,7 +88,7 @@ class AuthenticationBloc
           status: AuthenticationStatus.authenticated,
           user: authResult.user.username,
           isLoading: false,
-          error: null,
+          clearError: true,
         ),
       );
     } catch (e) {
@@ -117,7 +117,7 @@ class AuthenticationBloc
       state.copyWith(
         status: AuthenticationStatus.loading,
         isLoading: true,
-        error: null,
+        clearError: true,
       ),
     );
 
@@ -129,8 +129,8 @@ class AuthenticationBloc
           state.copyWith(
             status: AuthenticationStatus.unauthenticated,
             isLoading: false,
-            user: null,
-            error: null,
+            clearUser: true,
+            clearError: true,
           ),
         );
       } else {
@@ -161,7 +161,7 @@ class AuthenticationBloc
       state.copyWith(
         status: AuthenticationStatus.loading,
         isLoading: true,
-        error: null,
+        clearError: true,
       ),
     );
 
@@ -179,7 +179,7 @@ class AuthenticationBloc
             status: AuthenticationStatus.authenticated,
             isLoading: false,
             user: authResult.user.username,
-            error: null,
+            clearError: true,
           ),
         );
       } else {
@@ -215,7 +215,7 @@ class AuthenticationBloc
   ) async {
     try {
       await _authenticationService.updateUserProfile(name: event.newUsername);
-      emit(state.copyWith(user: event.newUsername, error: null));
+      emit(state.copyWith(user: event.newUsername, clearError: true));
     } catch (_) {}
   }
 }

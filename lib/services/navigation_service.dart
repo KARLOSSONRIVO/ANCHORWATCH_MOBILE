@@ -180,10 +180,7 @@ class NavigationService {
             const SizedBox(height: 12),
             const Text(
               'Are you sure you want to logout?',
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: 'Inter',
-              ),
+              style: TextStyle(fontSize: 14, fontFamily: 'Inter'),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -221,8 +218,6 @@ class NavigationService {
       navigationBloc.add(const NavigationReset());
 
       authBloc.add(const AuthenticationLogoutRequested());
-
-      SnackBarHelper.showSuccess(context, "Logout successful!");
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/app_keys.dart';
 
 class CustomSnackBar extends SnackBar {
   CustomSnackBar({
@@ -148,7 +149,7 @@ class SnackBarHelper {
     VoidCallback? onActionPressed,
     String? actionLabel,
   }) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    _messenger(context)?.showSnackBar(
       CustomSnackBar(
         message: message,
         type: SnackBarType.success,
@@ -166,7 +167,7 @@ class SnackBarHelper {
     VoidCallback? onActionPressed,
     String? actionLabel,
   }) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    _messenger(context)?.showSnackBar(
       CustomSnackBar(
         message: message,
         type: SnackBarType.error,
@@ -184,7 +185,7 @@ class SnackBarHelper {
     VoidCallback? onActionPressed,
     String? actionLabel,
   }) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    _messenger(context)?.showSnackBar(
       CustomSnackBar(
         message: message,
         type: SnackBarType.warning,
@@ -202,7 +203,7 @@ class SnackBarHelper {
     VoidCallback? onActionPressed,
     String? actionLabel,
   }) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    _messenger(context)?.showSnackBar(
       CustomSnackBar(
         message: message,
         type: SnackBarType.info,
@@ -238,5 +239,10 @@ class SnackBarHelper {
         actionLabel: actionLabel,
       );
     }
+  }
+
+  static ScaffoldMessengerState? _messenger(BuildContext context) {
+    return AppKeys.scaffoldMessengerKey.currentState ??
+        ScaffoldMessenger.maybeOf(context);
   }
 }
