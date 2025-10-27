@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
             listenWhen: (previous, current) =>
                 previous.status != current.status ||
                 previous.error != current.error ||
-                previous.user != current.user,
+                previous.successMessage != current.successMessage,
             listener: (context, state) {
               print('🔐 Main.dart - Auth state changed: ${state.status}');
 
@@ -70,57 +70,36 @@ class MyApp extends StatelessWidget {
               final messengerContext =
                   AppKeys.navigatorKey.currentContext ?? context;
               final error = state.error;
+              final successMessage = state.successMessage;
 
               if (state.status == AuthenticationStatus.loading) {
                 AppKeys.scaffoldMessengerKey.currentState?.clearSnackBars();
                 return;
               }
 
-              if (state.status == AuthenticationStatus.unauthenticated) {
-                context.read<NavigationBloc>().add(const NavigationReset());
-                navigator?.popUntil((route) => route.isFirst);
-
-                if (error != null && error.isNotEmpty) {
-                  // Login/auth failed with error
-                  SnackBarHelper.showError(
-                    messengerContext,
-                    error,
-                    duration: const Duration(milliseconds: 1600),
-                  );
-                } else if (state.user == null) {
-                  // Successful logout (transitioned from authenticated to unauthenticated, user cleared, no error)
-                  SnackBarHelper.showSuccess(
-                    messengerContext,
-                    'Logout successful!',
-                    duration: const Duration(milliseconds: 1200),
-                  );
-                }
-                return;
-              }
-
-              if (state.status == AuthenticationStatus.authenticated) {
-                context.read<NavigationBloc>().add(const NavigationReset());
-                navigator?.popUntil((route) => route.isFirst);
-
-                if (error != null && error.isNotEmpty) {
-                  SnackBarHelper.showError(
-                    messengerContext,
-                    error,
-                    duration: const Duration(milliseconds: 1600),
-                  );
-                  return;
-                }
-
-                final user = state.user;
-                final message = user != null && user.isNotEmpty
-                    ? 'Welcome back, $user!'
-                    : 'Login successful!';
-
+              // Handle success messages (login or logout)
+              if (successMessage != null && successMessage.isNotEmpty) {
                 SnackBarHelper.showSuccess(
                   messengerContext,
-                  message,
+                  successMessage,
                   duration: const Duration(milliseconds: 1200),
                 );
+              }
+
+              // Handle errors
+              if (error != null && error.isNotEmpty) {
+                SnackBarHelper.showError(
+                  messengerContext,
+                  error,
+                  duration: const Duration(milliseconds: 1600),
+                );
+              }
+
+              // Handle navigation
+              if (state.status == AuthenticationStatus.unauthenticated ||
+                  state.status == AuthenticationStatus.authenticated) {
+                context.read<NavigationBloc>().add(const NavigationReset());
+                navigator?.popUntil((route) => route.isFirst);
               }
             },
             child: child ?? const SizedBox.shrink(),

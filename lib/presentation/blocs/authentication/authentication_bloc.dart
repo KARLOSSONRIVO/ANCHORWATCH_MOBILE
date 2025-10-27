@@ -83,12 +83,19 @@ class AuthenticationBloc
         password: event.password,
       );
       await _authenticationService.storeAuthResult(authResult);
+
+      final user = authResult.user.username;
+      final message = user.isNotEmpty
+          ? 'Welcome back, $user!'
+          : 'Login successful!';
+
       emit(
         state.copyWith(
           status: AuthenticationStatus.authenticated,
-          user: authResult.user.username,
+          user: user,
           isLoading: false,
           clearError: true,
+          successMessage: message,
         ),
       );
     } catch (e) {
@@ -131,6 +138,7 @@ class AuthenticationBloc
             isLoading: false,
             clearUser: true,
             clearError: true,
+            successMessage: 'Logout successful!',
           ),
         );
       } else {
