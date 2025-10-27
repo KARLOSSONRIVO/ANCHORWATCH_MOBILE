@@ -29,7 +29,7 @@ class AuthenticationState extends Equatable {
     return AuthenticationState(
       status: status ?? this.status,
       user: user ?? this.user,
-      error: error ?? this.error,
+      error: error, // This will properly clear error when null is passed
       isLoading: isLoading ?? this.isLoading,
     );
   }

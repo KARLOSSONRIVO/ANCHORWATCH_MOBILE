@@ -24,6 +24,7 @@ class AuthenticationBloc
     on<AuthenticationLogoutRequested>(_onAuthenticationLogoutRequested);
     on<AuthenticationSignUpRequested>(_onAuthenticationSignUpRequested);
     on<AuthenticationUsernameUpdated>(_onAuthenticationUsernameUpdated);
+    on<AuthenticationErrorCleared>(_onAuthenticationErrorCleared);
   }
   void _onAuthenticationStatusRequested(
     AuthenticationStatusRequested event,
@@ -217,5 +218,12 @@ class AuthenticationBloc
       await _authenticationService.updateUserProfile(name: event.newUsername);
       emit(state.copyWith(user: event.newUsername, error: null));
     } catch (_) {}
+  }
+
+  void _onAuthenticationErrorCleared(
+    AuthenticationErrorCleared event,
+    Emitter<AuthenticationState> emit,
+  ) {
+    emit(state.copyWith(error: null));
   }
 }

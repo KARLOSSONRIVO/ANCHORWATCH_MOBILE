@@ -341,14 +341,18 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget>
         ),
         if (_feedbackSent) ...[
           const SizedBox(width: 12),
-          Text(
-            'Thank you for your feedback!',
-            style: TextStyle(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF9CA3AF)
-                  : Colors.grey[600],
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
+          Flexible(
+            child: Text(
+              'Thank you for your feedback!',
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF9CA3AF)
+                    : Colors.grey[600],
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],

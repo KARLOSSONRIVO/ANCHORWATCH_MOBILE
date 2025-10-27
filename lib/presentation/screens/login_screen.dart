@@ -40,6 +40,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _clearError() {
+    context.read<AuthenticationBloc>().add(const AuthenticationErrorCleared());
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -143,6 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 40),
                             TextFormField(
                               controller: _usernameController,
+                              onChanged: (_) => _clearError(),
                               style: TextStyle(
                                 color: AppTheme.getTextPrimaryColor(context),
                               ),
@@ -186,6 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
+                              onChanged: (_) => _clearError(),
                               style: TextStyle(
                                 color: AppTheme.getTextPrimaryColor(context),
                               ),
