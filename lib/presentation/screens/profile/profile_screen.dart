@@ -7,6 +7,8 @@ import '../../routes/app_routes.dart';
 import '../../themes/app_theme.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/profile_picture_picker_widget.dart';
+import '../../widgets/custom_snackbar.dart';
+import 'profile_action_result.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -306,21 +308,24 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
                     context,
                     AppRoutes.changeUsername,
                   );
-                  if (context.mounted && result != null && result is String && result.isNotEmpty) {
-                    context.read<ProfileBloc>().add(const ProfileLoadRequested());
+                  if (context.mounted && result is ProfileActionResult) {
+                    _handleProfileActionResult(result);
                   }
                 },
               ),
               _DropdownOption(
                 title: 'Change Password',
-                onTap: () {
+                onTap: () async {
                   setState(() {
                     _isExpanded = false;
                   });
-                  Navigator.pushNamed(
+                  final result = await Navigator.pushNamed(
                     context,
                     AppRoutes.changePassword,
                   );
+                  if (context.mounted && result is ProfileActionResult) {
+                    _handleProfileActionResult(result);
+                  }
                 },
               ),
               _DropdownOption(
@@ -333,8 +338,8 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
                     context,
                     AppRoutes.requestChangeEmail,
                   );
-                  if (context.mounted && result != null && result is String && result.isNotEmpty) {
-                    context.read<ProfileBloc>().add(const ProfileLoadRequested());
+                  if (context.mounted && result is ProfileActionResult) {
+                    _handleProfileActionResult(result);
                   }
                 },
                 showDivider: false,
@@ -351,10 +356,39 @@ class _EditAccountDropdownItemState extends State<_EditAccountDropdownItem> {
     );
   }
 
+  void _handleProfileActionResult(ProfileActionResult result) {
+    if (!mounted) {
+      return;
+    }
+
+    if (result.isSuccess) {
+      SnackBarHelper.showSuccess(
+        context,
+        result.message,
+        duration: const Duration(milliseconds: 1500),
+      );
+
+      if (result.hasProfileUpdates) {
+        context.read<ProfileBloc>().add(
+          ProfileUpdateRequested(
+            name: result.updatedName,
+            email: result.updatedEmail,
+          ),
+        );
+      }
+    } else {
+      SnackBarHelper.showError(
+        context,
+        result.message,
+        duration: const Duration(milliseconds: 1600),
+      );
+    }
+  }
 }
+
 class _DropdownOption extends StatelessWidget {
   final String title;
-  final VoidCallback onTap;
+  final Future<void> Function()? onTap;
   final bool showDivider;
 
   const _DropdownOption({
@@ -368,7 +402,11 @@ class _DropdownOption extends StatelessWidget {
     return Column(
       children: [
         InkWell(
-          onTap: onTap,
+          onTap: onTap == null
+              ? null
+              : () {
+                  onTap!();
+                },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             child: Row(

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/change_password/change_password.dart';
-import '../../widgets/custom_snackbar.dart';
 import '../../widgets/loading_widget.dart';
 import '../../../injection_container.dart';
+import 'profile_action_result.dart';
+import '../../widgets/custom_snackbar.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   const ChangePasswordScreen({super.key});
@@ -56,10 +57,14 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
           _lastShownError = null;
         } else if (state is ChangePasswordSuccess) {
           _isSubmitting = false;
-          SnackBarHelper.showSuccess(context, "Password changed successfully!",duration: const Duration(milliseconds: 1500),);
+          final message = state.result.message.isNotEmpty
+              ? state.result.message
+              : 'Password changed successfully!';
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(
+                ProfileActionResult.success(message: message),
+              );
             }
           });
         } else if (state is ChangePasswordFailure) {

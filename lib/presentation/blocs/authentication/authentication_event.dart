@@ -51,3 +51,16 @@ class AuthenticationUsernameUpdated extends AuthenticationEvent {
   @override
   List<Object> get props => [newUsername];
 }
+
+class AuthenticationEmailUpdated extends AuthenticationEvent {
+  const AuthenticationEmailUpdated({required this.newEmail});
+
+  final String newEmail;
+
+  @override
+  List<Object> get props => [newEmail];
+}
+
+class AuthenticationMessageCleared extends AuthenticationEvent {
+  const AuthenticationMessageCleared();
+}

@@ -7,6 +7,7 @@ import '../../widgets/custom_snackbar.dart';
 import '../../themes/app_theme.dart';
 import '../../../injection_container.dart';
 import '../../widgets/loading_widget.dart';
+import 'profile_action_result.dart';
 
 class ChangeUsernameScreen extends StatelessWidget {
   const ChangeUsernameScreen({super.key});
@@ -58,16 +59,19 @@ class _ChangeUsernameViewState extends State<_ChangeUsernameView> {
           BlocListener<ChangeUsernameBloc, ChangeUsernameState>(
             listener: (context, state) {
               if (state is ChangeUsernameSuccess) {
-                SnackBarHelper.showSuccess(
-                  context,
-                  "username changed successfully",
-                  duration: const Duration(milliseconds: 1500),
-                );
                 final newUsername = state.newUsername;
+                final message = state.message.isNotEmpty
+                    ? state.message
+                    : 'Username updated successfully!';
                 context.read<AuthenticationBloc>().add(
                   AuthenticationUsernameUpdated(newUsername: newUsername),
                 );
-                Navigator.of(context).pop(newUsername);
+                Navigator.of(context).pop(
+                  ProfileActionResult.success(
+                    message: message,
+                    updatedName: newUsername,
+                  ),
+                );
               } else if (state is ChangeUsernameFailure) {
                 SnackBarHelper.showError(context, state.error);
               }

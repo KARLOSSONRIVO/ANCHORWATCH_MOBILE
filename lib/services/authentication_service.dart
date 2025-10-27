@@ -162,6 +162,18 @@ class AuthenticationService {
 
       if (response.data != null) {
         final userModel = UserModel.fromJson(response.data!);
+        await StorageService.setString(
+          StorageKeys.userId,
+          userModel.id,
+        );
+        await StorageService.setString(
+          StorageKeys.userName,
+          userModel.username,
+        );
+        await StorageService.setString(
+          StorageKeys.userEmail,
+          userModel.email,
+        );
         return userModel.toEntity();
       }
 
@@ -173,6 +185,8 @@ class AuthenticationService {
 
   void updateDioClientToken() {
     final token = getAccessToken();
-    if (token != null) {}
+    if (token != null) {
+      _dioClient.setAuthToken(token);
+    }
   }
 }

@@ -23,6 +23,7 @@ class ProfileState extends Equatable {
     String? avatar,
     bool? isDarkTheme,
     String? error,
+    bool clearError = false,
   }) {
     return ProfileState(
       status: status ?? this.status,
@@ -30,7 +31,7 @@ class ProfileState extends Equatable {
       email: email ?? this.email,
       avatar: avatar ?? this.avatar,
       isDarkTheme: isDarkTheme ?? this.isDarkTheme,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
     );
   }
 

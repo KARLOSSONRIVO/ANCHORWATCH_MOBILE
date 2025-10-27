@@ -24,6 +24,8 @@ class AuthenticationBloc
     on<AuthenticationLogoutRequested>(_onAuthenticationLogoutRequested);
     on<AuthenticationSignUpRequested>(_onAuthenticationSignUpRequested);
     on<AuthenticationUsernameUpdated>(_onAuthenticationUsernameUpdated);
+    on<AuthenticationEmailUpdated>(_onAuthenticationEmailUpdated);
+    on<AuthenticationMessageCleared>(_onAuthenticationMessageCleared);
   }
   void _onAuthenticationStatusRequested(
     AuthenticationStatusRequested event,
@@ -45,6 +47,7 @@ class AuthenticationBloc
             status: AuthenticationStatus.authenticated,
             user: username,
             clearError: true,
+            clearSuccessMessage: true,
           ),
         );
       } else {
@@ -52,6 +55,7 @@ class AuthenticationBloc
           state.copyWith(
             status: AuthenticationStatus.unauthenticated,
             clearError: true,
+            clearSuccessMessage: true,
           ),
         );
       }
@@ -60,6 +64,7 @@ class AuthenticationBloc
         state.copyWith(
           status: AuthenticationStatus.unauthenticated,
           error: 'Failed to check authentication status: $e',
+          clearSuccessMessage: true,
         ),
       );
     }
@@ -74,6 +79,7 @@ class AuthenticationBloc
         status: AuthenticationStatus.loading,
         isLoading: true,
         clearError: true,
+        clearSuccessMessage: true,
       ),
     );
 
@@ -111,6 +117,7 @@ class AuthenticationBloc
           status: AuthenticationStatus.unauthenticated,
           isLoading: false,
           error: errorMessage,
+          clearSuccessMessage: true,
         ),
       );
     }
@@ -125,6 +132,7 @@ class AuthenticationBloc
         status: AuthenticationStatus.loading,
         isLoading: true,
         clearError: true,
+        clearSuccessMessage: true,
       ),
     );
 
@@ -170,6 +178,7 @@ class AuthenticationBloc
         status: AuthenticationStatus.loading,
         isLoading: true,
         clearError: true,
+        clearSuccessMessage: true,
       ),
     );
 
@@ -188,6 +197,7 @@ class AuthenticationBloc
             isLoading: false,
             user: authResult.user.username,
             clearError: true,
+            clearSuccessMessage: true,
           ),
         );
       } else {
@@ -196,6 +206,7 @@ class AuthenticationBloc
             status: AuthenticationStatus.unauthenticated,
             isLoading: false,
             error: 'Failed to store authentication data',
+            clearSuccessMessage: true,
           ),
         );
       }
@@ -212,6 +223,7 @@ class AuthenticationBloc
           status: AuthenticationStatus.unauthenticated,
           isLoading: false,
           error: errorMessage,
+          clearSuccessMessage: true,
         ),
       );
     }
@@ -223,7 +235,30 @@ class AuthenticationBloc
   ) async {
     try {
       await _authenticationService.updateUserProfile(name: event.newUsername);
-      emit(state.copyWith(user: event.newUsername, clearError: true));
+      emit(
+        state.copyWith(
+          user: event.newUsername,
+          clearError: true,
+          clearSuccessMessage: true,
+        ),
+      );
     } catch (_) {}
+  }
+
+  void _onAuthenticationEmailUpdated(
+    AuthenticationEmailUpdated event,
+    Emitter<AuthenticationState> emit,
+  ) async {
+    try {
+      await _authenticationService.updateUserProfile(email: event.newEmail);
+      emit(state.copyWith(clearError: true, clearSuccessMessage: true));
+    } catch (_) {}
+  }
+
+  void _onAuthenticationMessageCleared(
+    AuthenticationMessageCleared event,
+    Emitter<AuthenticationState> emit,
+  ) {
+    emit(state.copyWith(clearSuccessMessage: true, clearError: true));
   }
 }

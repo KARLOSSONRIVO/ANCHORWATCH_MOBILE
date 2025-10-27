@@ -9,18 +9,18 @@ class ProfileLoadRequested extends ProfileEvent {
   const ProfileLoadRequested();
 }
 class ProfileUpdateRequested extends ProfileEvent {
-  final String name;
-  final String email;
+  final String? name;
+  final String? email;
   final String? avatar;
 
   const ProfileUpdateRequested({
-    required this.name,
-    required this.email,
+    this.name,
+    this.email,
     this.avatar,
   });
 
   @override
-  List<Object> get props => [name, email, avatar ?? ''];
+  List<Object> get props => [name ?? '', email ?? '', avatar ?? ''];
 }
 class ProfileLogoutRequested extends ProfileEvent {
   const ProfileLogoutRequested();

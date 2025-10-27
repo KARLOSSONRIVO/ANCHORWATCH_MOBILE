@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/change_email/change_email.dart';
-import '../../widgets/custom_snackbar.dart';
 import '../../../injection_container.dart';
 import '../../../utils/validators/form_validators.dart';
+import '../../widgets/custom_snackbar.dart';
+import '../../blocs/authentication/authentication.dart';
+import 'profile_action_result.dart';
 
 class ConfirmChangeEmailScreen extends StatelessWidget {
   final String newEmail;
@@ -48,9 +50,23 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
       },
       listener: (context, state) {
         if (state is ChangeEmailConfirmSuccess) {
-          SnackBarHelper.showSuccess(context, "Email changed successfully!",duration: const Duration(milliseconds: 1500),);
           FocusScope.of(context).unfocus();
-          Navigator.pop(context, widget.newEmail);
+          context.read<AuthenticationBloc>().add(
+            AuthenticationEmailUpdated(newEmail: widget.newEmail),
+          );
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.pop(
+                context,
+                ProfileActionResult.success(
+                  message: state.result.message.isNotEmpty
+                      ? state.result.message
+                      : 'Email changed successfully!',
+                  updatedEmail: widget.newEmail,
+                ),
+              );
+            }
+          });
         } else if (state is ChangeEmailConfirmFailure) {
           SnackBarHelper.showError(context, state.error);
         }

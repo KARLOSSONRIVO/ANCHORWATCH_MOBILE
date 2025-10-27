@@ -69,30 +69,38 @@ class MyApp extends StatelessWidget {
               final navigator = AppKeys.navigatorKey.currentState;
               final messengerContext =
                   AppKeys.navigatorKey.currentContext ?? context;
+              final messengerState = AppKeys.scaffoldMessengerKey.currentState;
               final error = state.error;
               final successMessage = state.successMessage;
 
               if (state.status == AuthenticationStatus.loading) {
-                AppKeys.scaffoldMessengerKey.currentState?.clearSnackBars();
+                messengerState?.clearSnackBars();
                 return;
               }
 
-              // Handle success messages (login or logout)
-              if (successMessage != null && successMessage.isNotEmpty) {
-                SnackBarHelper.showSuccess(
-                  messengerContext,
-                  successMessage,
-                  duration: const Duration(milliseconds: 1200),
-                );
-              }
-
-              // Handle errors
+              // Handle errors first
               if (error != null && error.isNotEmpty) {
+                messengerState?.clearSnackBars();
                 SnackBarHelper.showError(
                   messengerContext,
                   error,
                   duration: const Duration(milliseconds: 1600),
                 );
+                final authBloc = context.read<AuthenticationBloc>();
+                Future.microtask(() {
+                  authBloc.add(const AuthenticationMessageCleared());
+                });
+              } else if (successMessage != null && successMessage.isNotEmpty) {
+                // Handle success messages (login or logout)
+                messengerState?.clearSnackBars();
+                SnackBarHelper.showSuccess(
+                  messengerContext,
+                  successMessage,
+                  duration: const Duration(milliseconds: 1200),
+                );
+                context
+                    .read<AuthenticationBloc>()
+                    .add(const AuthenticationMessageCleared());
               }
 
               // Handle navigation

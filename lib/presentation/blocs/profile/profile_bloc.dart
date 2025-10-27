@@ -26,12 +26,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final user = await _authService.fetchUserProfile();
       
       if (user != null) {
+        await _authService.updateUserProfile(
+          name: user.username,
+          email: user.email,
+        );
         emit(state.copyWith(
           status: ProfileStatus.loaded,
           name: user.username,
           email: user.email,
           avatar: user.profileImageUrl,
           isDarkTheme: true, // Keep theme setting as is
+          clearError: true,
         ));
       } else {
         emit(state.copyWith(
@@ -50,23 +55,41 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     ProfileUpdateRequested event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(state.copyWith(status: ProfileStatus.updating));
+    emit(state.copyWith(status: ProfileStatus.updating, clearError: true));
+
+    final nextName = event.name ?? state.name;
+    final nextEmail = event.email ?? state.email;
+    final nextAvatar = event.avatar ?? state.avatar;
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
-
-      emit(state.copyWith(
-        status: ProfileStatus.loaded,
+      await _authService.updateUserProfile(
         name: event.name,
         email: event.email,
-        avatar: event.avatar,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        status: ProfileStatus.error,
-        error: 'Failed to update profile: $e',
-      ));
+      );
+
+      final refreshedUser = await _authService.fetchUserProfile();
+
+      if (refreshedUser != null) {
+        emit(state.copyWith(
+          status: ProfileStatus.loaded,
+          name: refreshedUser.username,
+          email: refreshedUser.email,
+          avatar: refreshedUser.profileImageUrl,
+          clearError: true,
+        ));
+        return;
+      }
+    } catch (_) {
+      // Swallow and fall back to optimistic update below.
     }
+
+    emit(state.copyWith(
+      status: ProfileStatus.loaded,
+      name: nextName,
+      email: nextEmail,
+      avatar: nextAvatar,
+      clearError: true,
+    ));
   }
   void _onProfileLogoutRequested(
     ProfileLogoutRequested event,

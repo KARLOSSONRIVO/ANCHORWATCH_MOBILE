@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/change_email/change_email.dart';
-import '../../widgets/custom_snackbar.dart';
 import '../../../injection_container.dart';
 import 'confirm_change_email_screen.dart';
+import '../../widgets/custom_snackbar.dart';
+import 'profile_action_result.dart';
 
 class ChangeEmailScreen extends StatelessWidget {
   const ChangeEmailScreen({super.key});
@@ -53,7 +54,7 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
                   ),
                 ),
               ).then((result) {
-                if (result != null && result.isNotEmpty && context.mounted) {
+                if (result is ProfileActionResult && context.mounted) {
                   Navigator.pop(context, result);
                 }
               });

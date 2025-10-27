@@ -67,13 +67,21 @@ class _ResetPasswordConfirmScreenState
       body: BlocConsumer<PasswordResetBloc, PasswordResetState>(
         listener: (context, state) {
           if (state.status == PasswordResetStatus.passwordReset) {
+            // Show success message before navigating
+            SnackBarHelper.showSuccess(
+              context,
+              'Password updated successfully!',
+              duration: const Duration(milliseconds: 1500),
+            );
+
             AppRouter.clearPasswordResetBloc();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil('/login', (route) => false);
-              }
+
+            // Delay navigation to allow snackbar to show
+            Future.delayed(const Duration(milliseconds: 1600), () {
+              if (!context.mounted) return;
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/login', (route) => false);
             });
           }
 
