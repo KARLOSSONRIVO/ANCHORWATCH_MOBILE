@@ -7,13 +7,13 @@ import 'dart:io';
 class DioClient {
   static String get _baseUrl {
     if (kIsWeb) {
-      return 'http://10.0.2.2:8000'; // Web can use localhost directly
+      return 'http://127.0.0.1:8000'; // Web can use localhost directly
     } else if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000'; // Android emulator special IP
     } else if (Platform.isIOS) {
-      return 'http://10.0.2.2:8000'; // iOS simulator can use localhost
+      return 'http://127.0.0.1:8000'; // iOS simulator uses localhost
     } else {
-      return 'http://10.0.2.2:8000'; // Default for other platforms
+      return 'http://127.0.0.1:8000'; // Default for other platforms
     }
   }
 
