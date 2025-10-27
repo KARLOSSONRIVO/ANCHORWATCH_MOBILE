@@ -32,7 +32,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
       );
 
-      return LoginResponseModel.fromJson(response.data as Map<String, dynamic>);
+      final data = _extractResponseData(response.data);
+      return LoginResponseModel.fromJson(data);
     } on AppException {
       rethrow;
     } catch (e) {
@@ -48,7 +49,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
       );
 
-      return RegisterResponseModel.fromJson(response.data as Map<String, dynamic>);
+      final data = _extractResponseData(response.data);
+      return RegisterResponseModel.fromJson(data);
     } on AppException {
       rethrow;
     } catch (e) {
@@ -64,7 +66,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
       );
 
-      return ForgotPasswordResponseModel.fromJson(response.data as Map<String, dynamic>);
+      final data = _extractResponseData(response.data);
+      return ForgotPasswordResponseModel.fromJson(data);
     } on AppException {
       rethrow;
     } catch (e) {
@@ -80,7 +83,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
       );
 
-      return VerifyOtpResponseModel.fromJson(response.data as Map<String, dynamic>);
+      final data = _extractResponseData(response.data);
+      return VerifyOtpResponseModel.fromJson(data);
     } on AppException {
       rethrow;
     } catch (e) {
@@ -96,11 +100,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
       );
 
-      return ResetPasswordResponseModel.fromJson(response.data as Map<String, dynamic>);
+      final data = _extractResponseData(response.data);
+      return ResetPasswordResponseModel.fromJson(data);
     } on AppException {
       rethrow;
     } catch (e) {
       throw ServerException('Password reset failed: $e');
     }
+  }
+
+  Map<String, dynamic> _extractResponseData(dynamic responseData) {
+    if (responseData is Map<String, dynamic>) {
+      final payload = responseData['data'];
+      if (payload is Map<String, dynamic>) {
+        return Map<String, dynamic>.from(payload);
+      }
+
+      if (payload == null && responseData.containsKey('data')) {
+        return <String, dynamic>{};
+      }
+
+      return Map<String, dynamic>.from(responseData);
+    }
+
+    throw const ServerException('Unexpected response format from server.');
   }
 }

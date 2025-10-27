@@ -12,24 +12,23 @@ class RegisterResponseModel {
   });
 
   factory RegisterResponseModel.fromJson(Map<String, dynamic> json) {
+    final tokens = json['tokens'];
     return RegisterResponseModel(
-      access: json['access'] as String,
-      refresh: json['refresh'] as String,
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
+      access: _readString(json, tokens, ['access', 'access_token']),
+      refresh: _readString(json, tokens, ['refresh', 'refresh_token']),
+      user: UserModel.fromJson(
+        _readMap(json, ['user', 'user_data']) ?? <String, dynamic>{},
+      ),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'access': access,
-      'refresh': refresh,
-      'user': user.toJson(),
-    };
+    return {'access': access, 'refresh': refresh, 'user': user.toJson()};
   }
 
   @override
   String toString() {
-    return 'RegisterResponseModel(access: ${access.substring(0, 20)}..., refresh: ${refresh.substring(0, 20)}..., user: $user)';
+    return 'RegisterResponseModel(access: ${_truncate(access)}, refresh: ${_truncate(refresh)}, user: $user)';
   }
 
   @override
@@ -43,4 +42,54 @@ class RegisterResponseModel {
 
   @override
   int get hashCode => access.hashCode ^ refresh.hashCode ^ user.hashCode;
+}
+
+String _readString(
+  Map<String, dynamic> root,
+  dynamic tokens,
+  List<String> keys,
+) {
+  for (final key in keys) {
+    final value = _extractValue(root, tokens, key);
+    if (value == null) {
+      continue;
+    }
+    if (value is String && value.isNotEmpty) {
+      return value;
+    }
+    if (value is num || value is bool) {
+      final asString = value.toString();
+      if (asString.isNotEmpty) {
+        return asString;
+      }
+    }
+  }
+  return '';
+}
+
+Map<String, dynamic>? _readMap(Map<String, dynamic> root, List<String> keys) {
+  for (final key in keys) {
+    final value = root[key];
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+  }
+  return null;
+}
+
+dynamic _extractValue(Map<String, dynamic> root, dynamic tokens, String key) {
+  if (root.containsKey(key)) {
+    return root[key];
+  }
+  if (tokens is Map<String, dynamic> && tokens.containsKey(key)) {
+    return tokens[key];
+  }
+  return null;
+}
+
+String _truncate(String value, [int max = 20]) {
+  if (value.length <= max) {
+    return value;
+  }
+  return '${value.substring(0, max)}...';
 }

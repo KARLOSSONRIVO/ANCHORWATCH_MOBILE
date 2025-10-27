@@ -20,16 +20,12 @@ class LoginResponseModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'access': access,
-      'refresh': refresh,
-      'user': user.toJson(),
-    };
+    return {'access': access, 'refresh': refresh, 'user': user.toJson()};
   }
 
   @override
   String toString() {
-    return 'LoginResponseModel(access: ${access.substring(0, 20)}..., refresh: ${refresh.substring(0, 20)}..., user: $user)';
+    return 'LoginResponseModel(access: ${_truncate(access)}, refresh: ${_truncate(refresh)}, user: $user)';
   }
 
   @override
@@ -43,4 +39,11 @@ class LoginResponseModel {
 
   @override
   int get hashCode => access.hashCode ^ refresh.hashCode ^ user.hashCode;
+}
+
+String _truncate(String value, [int max = 20]) {
+  if (value.length <= max) {
+    return value;
+  }
+  return '${value.substring(0, max)}...';
 }

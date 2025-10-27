@@ -15,9 +15,9 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as String,
-      username: json['username'] as String,
-      email: json['email'] as String,
+      id: _readString(json, ['id', '_id', 'user_id']),
+      username: _readString(json, ['username', 'name', 'email']),
+      email: _readString(json, ['email', 'username']),
       profileImageUrl: json['profile_image_url'] as String?,
     );
   }
@@ -30,6 +30,7 @@ class UserModel {
       'profile_image_url': profileImageUrl,
     };
   }
+
   User toEntity() {
     return User(
       id: id,
@@ -55,5 +56,26 @@ class UserModel {
   }
 
   @override
-  int get hashCode => id.hashCode ^ username.hashCode ^ email.hashCode ^ profileImageUrl.hashCode;
+  int get hashCode =>
+      id.hashCode ^
+      username.hashCode ^
+      email.hashCode ^
+      profileImageUrl.hashCode;
+}
+
+String _readString(Map<String, dynamic> json, List<String> keys) {
+  for (final key in keys) {
+    if (!json.containsKey(key)) {
+      continue;
+    }
+    final value = json[key];
+    if (value == null) {
+      continue;
+    }
+    final stringValue = value.toString().trim();
+    if (stringValue.isNotEmpty) {
+      return stringValue;
+    }
+  }
+  return '';
 }
