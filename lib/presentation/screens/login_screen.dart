@@ -9,6 +9,8 @@ import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
 import '../../utils/validators/form_validators.dart';
 import '../../services/dio_client.dart';
+import '../../services/maintenance_service.dart';
+import '../../injection_container.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,14 +39,47 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      context.read<AuthenticationBloc>().add(
-        AuthenticationLoginRequested(
-          username: _usernameController.text.trim(),
-          password: _passwordController.text,
-        ),
-      );
+      // Capture ScaffoldMessenger and bloc before async gap
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      final authBloc = context.read<AuthenticationBloc>();
+      
+      // Check maintenance status before login
+      try {
+        final maintenanceService = getIt<MaintenanceService>();
+        final status = await maintenanceService.checkMaintenanceStatus(forceRefresh: true);
+        
+        if (status.isMaintenanceMode) {
+          if (mounted) {
+            scaffoldMessenger.showSnackBar(
+              SnackBar(
+                content: Text(
+                  status.message.isNotEmpty 
+                    ? status.message 
+                    : 'System is under maintenance. Please try again later.',
+                ),
+                backgroundColor: Colors.orange.shade700,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+          return;
+        }
+      } catch (e) {
+        debugPrint('Error checking maintenance status: $e');
+        // Continue with login if maintenance check fails
+      }
+      
+      // Proceed with login if not in maintenance mode
+      if (mounted) {
+        authBloc.add(
+          AuthenticationLoginRequested(
+            username: _usernameController.text.trim(),
+            password: _passwordController.text,
+          ),
+        );
+      }
     }
   }
 

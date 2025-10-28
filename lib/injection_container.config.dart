@@ -96,6 +96,8 @@ import 'services/alert_websocket_service.dart' as _i459;
 import 'services/authentication_service.dart' as _i460;
 import 'services/dio_client.dart' as _i332;
 import 'services/email_service.dart' as _i146;
+import 'services/maintenance_monitor.dart' as _i399;
+import 'services/maintenance_service.dart' as _i533;
 import 'services/s3_upload_service.dart' as _i408;
 import 'services/token_storage_service.dart' as _i646;
 
@@ -131,6 +133,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i146.EmailService>(
       () => _i146.EmailService(gh<_i332.DioClient>()),
+    );
+    gh.lazySingleton<_i533.MaintenanceService>(
+      () => _i533.MaintenanceService(gh<_i332.DioClient>()),
     );
     gh.singleton<_i459.AlertWebSocketService>(
       () => _i459.AlertWebSocketService(gh<_i146.EmailService>()),
@@ -240,6 +245,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i427.ChartSummaryRepository>(
       () => _i651.ChartSummaryRepositoryImpl(
         gh<_i694.ChartSummaryRemoteDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i399.MaintenanceMonitor>(
+      () => _i399.MaintenanceMonitor(
+        gh<_i533.MaintenanceService>(),
+        gh<_i460.AuthenticationService>(),
       ),
     );
     gh.factory<_i711.GetStablecoinChartDataUseCase>(

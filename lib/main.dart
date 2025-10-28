@@ -5,10 +5,14 @@ import 'presentation/routes/routes.dart';
 import 'presentation/screens/onboarding_screen.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 import 'presentation/screens/login_screen.dart';
+import 'presentation/screens/maintenance_screen.dart';
 import 'presentation/themes/app_theme.dart';
 import 'injection_container.dart';
 import 'services/storage_service.dart';
 import 'services/dio_client.dart';
+import 'services/maintenance_service.dart';
+import 'services/maintenance_monitor.dart';
+import 'domain/entities/maintenance_status.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +22,56 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  MaintenanceStatus? _maintenanceStatus;
+  late final MaintenanceMonitor _maintenanceMonitor;
+  late final MaintenanceService _maintenanceService;
+
+  @override
+  void initState() {
+    super.initState();
+    _maintenanceService = getIt<MaintenanceService>();
+    _maintenanceMonitor = getIt<MaintenanceMonitor>();
+    
+    // Set up listener for maintenance mode changes
+    _maintenanceMonitor.onMaintenanceModeChanged = (status) {
+      setState(() {
+        _maintenanceStatus = status;
+      });
+    };
+    
+    // Check maintenance status on app start
+    _checkMaintenanceStatus();
+    
+    // Start monitoring maintenance mode
+    _maintenanceMonitor.startMonitoring();
+  }
+
+  Future<void> _checkMaintenanceStatus() async {
+    try {
+      final status = await _maintenanceService.checkMaintenanceStatus(forceRefresh: true);
+      if (mounted) {
+        setState(() {
+          _maintenanceStatus = status;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error checking maintenance status: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _maintenanceMonitor.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +130,20 @@ class MyApp extends StatelessWidget {
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: ThemeMode.system, // Automatically follows system theme
-              onGenerateRoute: AppRouter.generateRoute,
-              home: BlocBuilder<OnboardingBloc, OnboardingState>(
+              navigatorObservers: [_MaintenanceNavigatorObserver(_maintenanceStatus)],
+              onGenerateRoute: (settings) {
+                // Block all routes if in maintenance mode
+                if (_maintenanceStatus?.isMaintenanceMode == true) {
+                  return MaterialPageRoute(
+                    builder: (_) => MaintenanceScreen(status: _maintenanceStatus!),
+                    settings: settings,
+                  );
+                }
+                return AppRouter.generateRoute(settings);
+              },
+              home: _maintenanceStatus?.isMaintenanceMode == true
+                  ? MaintenanceScreen(status: _maintenanceStatus!)
+                  : BlocBuilder<OnboardingBloc, OnboardingState>(
                 builder: (context, onboardingState) {
                   return BlocBuilder<AuthenticationBloc, AuthenticationState>(
                     builder: (context, authState) {
@@ -161,5 +225,17 @@ class _SplashScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _MaintenanceNavigatorObserver extends NavigatorObserver {
+  final MaintenanceStatus? maintenanceStatus;
+
+  _MaintenanceNavigatorObserver(this.maintenanceStatus);
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    debugPrint('Navigation: Pushed ${route.settings.name}');
+    debugPrint('Maintenance Mode: ${maintenanceStatus?.isMaintenanceMode}');
   }
 }
