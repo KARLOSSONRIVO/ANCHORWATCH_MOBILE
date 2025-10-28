@@ -1,9 +1,14 @@
+import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+@lazySingleton
 class StorageService {
   static SharedPreferences? _preferences;
+  
   static Future<void> init() async {
     _preferences = await SharedPreferences.getInstance();
   }
+  
   static SharedPreferences get preferences {
     if (_preferences == null) {
       throw Exception('StorageService not initialized. Call StorageService.init() first.');
@@ -51,6 +56,31 @@ class StorageService {
   }
   static Set<String> getKeys() {
     return preferences.getKeys();
+  }
+
+  // User-specific helper methods
+  static Future<String?> getUserId() async {
+    return getString(StorageKeys.userId);
+  }
+
+  static Future<String?> getUserEmail() async {
+    return getString(StorageKeys.userEmail);
+  }
+
+  static Future<String?> getUsername() async {
+    return getString(StorageKeys.userName);
+  }
+
+  static Future<bool> setUserId(String userId) async {
+    return await setString(StorageKeys.userId, userId);
+  }
+
+  static Future<bool> setUserEmail(String email) async {
+    return await setString(StorageKeys.userEmail, email);
+  }
+
+  static Future<bool> setUsername(String username) async {
+    return await setString(StorageKeys.userName, username);
   }
 }
 class StorageKeys {

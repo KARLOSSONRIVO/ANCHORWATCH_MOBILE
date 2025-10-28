@@ -4,15 +4,19 @@ import 'package:injectable/injectable.dart';
 import 'contact_event.dart';
 import 'contact_state.dart';
 import '../../../domain/usecases/contact/contact_support_usecase.dart';
+import '../../../services/storage_service.dart';
 
 @injectable
 class ContactBloc extends Bloc<ContactEvent, ContactState> {
   final ContactSupportUseCase _contactSupportUseCase;
   Timer? _cooldownTimer;
 
-  ContactBloc(this._contactSupportUseCase) : super(const ContactState()) {
+  ContactBloc(
+    this._contactSupportUseCase,
+  ) : super(const ContactState()) {
     on<ContactLoadRequested>(_onContactLoadRequested);
     on<ContactRefreshRequested>(_onContactRefreshRequested);
+    on<ContactSubjectChanged>(_onContactSubjectChanged);
     on<ContactQuestionChanged>(_onContactQuestionChanged);
     on<ContactFormSubmitted>(_onContactFormSubmitted);
     on<ContactNavigateToFaq>(_onContactNavigateToFaq);
@@ -65,11 +69,19 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
     }
   }
 
+  void _onContactSubjectChanged(
+    ContactSubjectChanged event,
+    Emitter<ContactState> emit,
+  ) {
+    final isValid = event.subject.trim().isNotEmpty && state.question.trim().isNotEmpty;
+    emit(state.copyWith(subject: event.subject, isFormValid: isValid));
+  }
+
   void _onContactQuestionChanged(
     ContactQuestionChanged event,
     Emitter<ContactState> emit,
   ) {
-    final isValid = event.question.trim().isNotEmpty;
+    final isValid = event.question.trim().isNotEmpty && state.subject.trim().isNotEmpty;
     emit(state.copyWith(question: event.question, isFormValid: isValid));
   }
 
@@ -82,16 +94,27 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
     emit(state.copyWith(status: ContactStatus.submitting));
 
     try {
+      // Get user info from storage
+      final userId = await StorageService.getUserId();
+      final username = await StorageService.getUsername();
+      final userEmail = await StorageService.getUserEmail();
+
       final result = await _contactSupportUseCase.execute(
+        subject: state.subject,
         message: state.question,
+        userEmail: userEmail,
+        userId: userId,
+        username: username,
       );
 
       if (result.success) {
         emit(
           state.copyWith(
             status: ContactStatus.submitted,
+            subject: '',
             question: '',
             isFormValid: false,
+            conversationId: result.conversationId,
           ),
         );
       } else {
