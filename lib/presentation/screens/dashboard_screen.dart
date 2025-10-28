@@ -155,9 +155,11 @@ class _DashboardView extends StatelessWidget {
                     title: 'Price vs Market Cap',
                     child: Column(
                       children: [
-                        Expanded(
+                        SizedBox(
+                          height: 280,
                           child: _buildPriceMarketCapChart(context, state),
                         ),
+                        const SizedBox(height: 8),
                         ChartSummaryWidget(
                           chartType: 'price_market_cap',
                           chartTitle: 'Price vs Market Cap',
@@ -165,15 +167,17 @@ class _DashboardView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    height: 350,
+                    height: null,
                   ),
                   _buildCard(
                     title: 'Supply vs Inflation (Dual Axis)',
                     child: Column(
                       children: [
-                        Expanded(
+                        SizedBox(
+                          height: 280,
                           child: _buildSupplyInflationChart(context, state),
                         ),
+                        const SizedBox(height: 8),
                         ChartSummaryWidget(
                           chartType: 'supply_inflation',
                           chartTitle: 'Supply vs Inflation (Dual Axis)',
@@ -181,13 +185,17 @@ class _DashboardView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    height: 350,
+                    height: null,
                   ),
                   _buildCard(
                     title: 'Mint vs Burn (Stacked)',
                     child: Column(
                       children: [
-                        Expanded(child: _buildMintBurnChart(context, state)),
+                        SizedBox(
+                          height: 320,
+                          child: _buildMintBurnChart(context, state),
+                        ),
+                        const SizedBox(height: 8),
                         ChartSummaryWidget(
                           chartType: 'mint_burn_activity',
                           chartTitle: 'Mint vs Burn (Stacked)',
@@ -195,15 +203,17 @@ class _DashboardView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    height: 400,
+                    height: null,
                   ),
                   _buildCard(
                     title: 'Supply% vs Price% (Scatter)',
                     child: Column(
                       children: [
-                        Expanded(
+                        SizedBox(
+                          height: 300,
                           child: _buildCorrelationScatterChart(context, state),
                         ),
+                        const SizedBox(height: 8),
                         ChartSummaryWidget(
                           chartType: 'correlation_scatter',
                           chartTitle: 'Supply% vs Price% (Scatter)',
@@ -211,15 +221,17 @@ class _DashboardView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    height: 380,
+                    height: null,
                   ),
                   _buildCard(
                     title: 'Correlation Heatmap',
                     child: Column(
                       children: [
-                        Expanded(
+                        SizedBox(
+                          height: 340,
                           child: _buildCorrelationHeatmap(context, state),
                         ),
+                        const SizedBox(height: 8),
                         ChartSummaryWidget(
                           chartType: 'correlation_table',
                           chartTitle: 'Correlation Heatmap',
@@ -227,15 +239,17 @@ class _DashboardView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    height: 420,
+                    height: null,
                   ),
                   _buildCard(
                     title: 'Rolling Correlation (Supply vs Market Cap)',
                     child: Column(
                       children: [
-                        Expanded(
+                        SizedBox(
+                          height: 280,
                           child: _buildRollingCorrelationChart(context, state),
                         ),
+                        const SizedBox(height: 8),
                         ChartSummaryWidget(
                           chartType: 'rolling_correlation',
                           chartTitle:
@@ -244,7 +258,7 @@ class _DashboardView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    height: 350,
+                    height: null,
                   ),
                 ],
               ),
