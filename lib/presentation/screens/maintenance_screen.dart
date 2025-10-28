@@ -16,138 +16,155 @@ class MaintenanceScreen extends StatelessWidget {
       backgroundColor: AppTheme.getBackgroundColor(context),
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Maintenance Icon
-                Icon(
-                  Icons.construction,
-                  size: 120,
-                  color: Colors.orange.shade700,
-                ),
-                
-                const SizedBox(height: 32),
-                
-                // Title
-                Text(
-                  'System Maintenance',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.getTextPrimaryColor(context),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 40.0,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 40),
+                  
+                  // Maintenance Icon
+                  Icon(
+                    Icons.construction_rounded,
+                    size: 120,
+                    color: AppTheme.primaryColor,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Message
-                Text(
-                  status.message.isNotEmpty
-                      ? status.message
-                      : 'System is currently under maintenance. Please try again later.',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.getTextSecondaryColor(context),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                
-                const SizedBox(height: 32),
-                
-                // Additional Info Card
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppTheme.getCardBackgroundColor(context),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.orange.withValues(alpha: 0.3),
-                      width: 1,
+                  
+                  const SizedBox(height: 40),
+                  
+                  // Title
+                  Text(
+                    'System Maintenance',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.getTextPrimaryColor(context),
+                      fontFamily: 'Inter',
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (status.maintenanceType != null) ...[
-                        _buildInfoRow(
-                          context,
-                          Icons.info_outline,
-                          'Type',
-                          _formatMaintenanceType(status.maintenanceType!),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      
-                      if (status.estimatedCompletion != null) ...[
-                        _buildInfoRow(
-                          context,
-                          Icons.schedule,
-                          'Est. Completion',
-                          _formatDateTime(status.estimatedCompletion!),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      
-                      if (status.systemVersion != null) ...[
-                        _buildInfoRow(
-                          context,
-                          Icons.system_update,
-                          'Version',
-                          status.systemVersion!,
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      
-                      if (status.supportContact != null && 
-                          status.supportContact!.isNotEmpty) ...[
-                        _buildInfoRow(
-                          context,
-                          Icons.contact_support,
-                          'Support',
-                          status.supportContact!,
-                        ),
-                      ],
-                      
-                      // If no additional info, show generic message
-                      if (status.maintenanceType == null &&
-                          status.estimatedCompletion == null &&
-                          status.systemVersion == null &&
-                          (status.supportContact == null || 
-                           status.supportContact!.isEmpty))
-                        Text(
-                          'We appreciate your patience while we improve our system.',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.getTextSecondaryColor(context),
-                            fontStyle: FontStyle.italic,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 32),
-                
-                // Refresh indicator
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.refresh,
-                      size: 16,
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Message
+                  Text(
+                    status.message.isNotEmpty
+                        ? status.message
+                        : 'System is currently under maintenance. Please try again later.',
+                    style: TextStyle(
+                      fontSize: 14,
                       color: AppTheme.getTextSecondaryColor(context),
+                      fontFamily: 'Inter',
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Checking status automatically...',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.getTextSecondaryColor(context),
+                    textAlign: TextAlign.center,
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Additional Info Card
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppTheme.getCardBackgroundColor(context),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppTheme.getBorderColor(context),
+                        width: 1,
                       ),
                     ),
-                  ],
-                ),
-              ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (status.maintenanceType != null) ...[
+                          _buildInfoRow(
+                            context,
+                            Icons.info_outline,
+                            'Type',
+                            _formatMaintenanceType(status.maintenanceType!),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        
+                        if (status.estimatedCompletion != null) ...[
+                          _buildInfoRow(
+                            context,
+                            Icons.schedule,
+                            'Est. Completion',
+                            _formatDateTime(status.estimatedCompletion!),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        
+                        if (status.systemVersion != null) ...[
+                          _buildInfoRow(
+                            context,
+                            Icons.system_update,
+                            'Version',
+                            status.systemVersion!,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        
+                        if (status.supportContact != null && 
+                            status.supportContact!.isNotEmpty) ...[
+                          _buildInfoRow(
+                            context,
+                            Icons.contact_support,
+                            'Support',
+                            status.supportContact!,
+                          ),
+                        ],
+                        
+                        // If no additional info, show generic message
+                        if (status.maintenanceType == null &&
+                            status.estimatedCompletion == null &&
+                            status.systemVersion == null &&
+                            (status.supportContact == null || 
+                             status.supportContact!.isEmpty))
+                          Text(
+                            'We appreciate your patience while we improve our system.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppTheme.getTextSecondaryColor(context),
+                              fontStyle: FontStyle.italic,
+                              fontFamily: 'Inter',
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 40),
+                  
+                  // Refresh indicator
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.refresh,
+                        size: 16,
+                        color: AppTheme.getTextSecondaryColor(context),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Checking status automatically...',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.getTextSecondaryColor(context),
+                          fontFamily: 'Inter',
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
           ),
         ),
@@ -167,7 +184,7 @@ class MaintenanceScreen extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color: Colors.orange.shade700,
+          color: AppTheme.primaryColor,
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -176,16 +193,20 @@ class MaintenanceScreen extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                style: TextStyle(
+                  fontSize: 12,
                   color: AppTheme.getTextSecondaryColor(context),
                   fontWeight: FontWeight.w600,
+                  fontFamily: 'Inter',
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 value,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                style: TextStyle(
+                  fontSize: 14,
                   color: AppTheme.getTextPrimaryColor(context),
+                  fontFamily: 'Inter',
                 ),
               ),
             ],
