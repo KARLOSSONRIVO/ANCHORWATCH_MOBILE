@@ -90,7 +90,13 @@ class StablecoinChartDataModel {
   StablecoinChartDataModel({required this.data});
 
   factory StablecoinChartDataModel.fromJson(Map<String, dynamic> json) {
-    final responseData = json['data'] as List<dynamic>;
+    final rawData = json['data'];
+    final responseData = rawData is List
+        ? rawData
+        : rawData is Map<String, dynamic>
+            ? (rawData['data'] as List<dynamic>? ?? const [])
+            : const [];
+
     return StablecoinChartDataModel(
       data: responseData
           .map(

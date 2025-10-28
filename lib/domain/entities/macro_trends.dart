@@ -3,12 +3,14 @@ class MacroTrendsData {
   final List<InflationSupplyData> inflationVsSupplyGrowth;
   final List<InflationRateData> inflationTimeline;
   final List<CorrelationData> correlationTable;
+  final List<RollingCorrelationData> rollingCorrelations;
 
   MacroTrendsData({
     required this.annualInflationRates,
     required this.inflationVsSupplyGrowth,
     required this.inflationTimeline,
     required this.correlationTable,
+    required this.rollingCorrelations,
   });
 }
 
@@ -53,5 +55,15 @@ class CorrelationData {
     required this.marketCap,
     required this.supplyClosing,
     required this.netChangeUsd,
+  });
+}
+
+class RollingCorrelationData {
+  final String periodLabel;
+  final double correlation;
+
+  RollingCorrelationData({
+    required this.periodLabel,
+    required this.correlation,
   });
 }

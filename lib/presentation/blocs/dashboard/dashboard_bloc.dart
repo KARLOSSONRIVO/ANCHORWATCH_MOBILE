@@ -1,7 +1,8 @@
-import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../domain/entities/macro_trends.dart';
 import '../../../domain/usecases/dashboard/fetch_dashboard_metrics_usecase.dart';
+import '../../../utils/date_formatter.dart';
 import 'dashboard_event.dart';
 import 'dashboard_state.dart';
 
@@ -9,6 +10,20 @@ import 'dashboard_state.dart';
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   final FetchDashboardMetricsUseCase _fetchUseCase;
   static const List<String> timePeriods = ['Monthly', 'Yearly'];
+  static const Map<String, String> _heatLabelMap = {
+    'price': 'Price',
+    'market_cap': 'Market Cap',
+    'supply_closing': 'Supply',
+    'net_change_usd': 'Net Change',
+    'inflation_rate': 'Inflation',
+  };
+  static const List<String> _heatOrder = [
+    'price',
+    'market_cap',
+    'supply_closing',
+    'net_change_usd',
+    'inflation_rate',
+  ];
 
   DashboardBloc(this._fetchUseCase) : super(const DashboardInitialState()) {
     on<DashboardInitialLoadEvent>(_onInitialLoad);
@@ -56,6 +71,16 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final unified = _buildUnified(prices, supplies, mintBurn, macros, timePeriod);
       final derivedData = _buildDerived(unified);
       final chartData = _buildChartData(metrics);
+      final heatmapData = _buildHeatmapFromCorrelation(
+        metrics.macroTrendsData.correlationTable,
+      );
+      final heatCells = heatmapData?.cells ?? const <HeatCell>[];
+      final heatVars = heatmapData?.labels ?? const <String>[];
+      final rollingCorrSeries = _buildRollingCorrelationSeries(
+        metrics.macroTrendsData.rollingCorrelations,
+        period: timePeriod,
+        monthlyLimit: unified.length,
+      );
 
       emit(DashboardLoadedState(
         selectedTimePeriod: timePeriod,
@@ -69,9 +94,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         supplySeries: derivedData['supplySeries'] as List<LinePoint>,
         inflationSeries: derivedData['inflationSeries'] as List<LinePoint>,
         scatterPoints: derivedData['scatterPoints'] as List<ScatterPoint>,
-        rollingCorrSeries: derivedData['rollingCorrSeries'] as List<LinePoint>,
-        heatCells: derivedData['heatCells'] as List<HeatCell>,
-        heatVars: ['Price', 'Supply', 'Inflation', 'NetChange'],
+    rollingCorrSeries: rollingCorrSeries,
+    heatCells: heatCells,
+    heatVars: heatVars,
         supplyChartData: chartData['supply'] as List<ChartData>,
         priceChartData: chartData['price'] as List<ChartData>,
         inflationChartData: chartData['inflation'] as List<ChartData>,
@@ -289,8 +314,6 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     final supplySeries = <LinePoint>[];
     final inflationSeries = <LinePoint>[];
     final scatterPoints = <ScatterPoint>[];
-    final rollingCorrSeries = <LinePoint>[];
-    final heatCells = <HeatCell>[];
     for (final row in unified) {
       priceSeries.add(LinePoint(row.timeId, row.price));
       supplySeries.add(LinePoint(row.timeId, row.supply / 1e6)); // scale
@@ -304,56 +327,122 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final priceCh = _pctChange(prev.price, cur.price);
       scatterPoints.add(ScatterPoint(year: cur.year, x: supplyCh, y: priceCh));
     }
-    final priceArr = unified.map((e) => e.price).toList();
-    final supplyArr = unified.map((e) => e.supply / 1e6).toList(); 
-    final inflArr = unified.map((e) => e.inflation.isNaN ? 0 : e.inflation).toList();
-    final netArr = unified.map((e) => e.netChange / 1e6).toList(); 
-    final vars = [priceArr, supplyArr, inflArr, netArr];
-    
-    for (var i = 0; i < vars.length; i++) {
-      for (var j = 0; j < vars.length; j++) {
-        final a = vars[i].map((e) => e.toDouble()).toList();
-        final b = vars[j].map((e) => e.toDouble()).toList();
-        heatCells.add(HeatCell(row: i, col: j, value: _corr(a, b)));
-      }
-    }
-    if (unified.length >= 2) {
-      for (var w = 2; w <= unified.length; w++) {
-        final subSupply = unified.sublist(0, w).map((e) => e.supply).toList();
-        final subMc = unified.sublist(0, w).map((e) => e.price * e.supply).toList();
-        rollingCorrSeries.add(LinePoint(unified[w - 1].timeId, _corr(subSupply, subMc)));
-      }
-    }
-
     return {
       'priceSeries': priceSeries,
       'marketCapSeries': marketCapSeries,
       'supplySeries': supplySeries,
       'inflationSeries': inflationSeries,
       'scatterPoints': scatterPoints,
-      'rollingCorrSeries': rollingCorrSeries,
-      'heatCells': heatCells,
     };
   }
   double _pctChange(double prev, double cur) => prev == 0 ? 0 : ((cur - prev) / prev) * 100;
   
-  double _corr(List<double> a, List<double> b) {
-    final n = a.length < b.length ? a.length : b.length; 
-    if (n == 0) return 0;
-    if (n == 1) return 1.0; 
-    
-    final ma = a.take(n).reduce((x, y) => x + y) / n; 
-    final mb = b.take(n).reduce((x, y) => x + y) / n;
-    double num = 0, da = 0, db = 0; 
-    for (var i = 0; i < n; i++) { 
-      final xa = a[i] - ma; 
-      final yb = b[i] - mb; 
-      num += xa * yb; 
-      da += xa * xa; 
-      db += yb * yb; 
+  _HeatmapData? _buildHeatmapFromCorrelation(List<CorrelationData> table) {
+    if (table.isEmpty) {
+      return null;
     }
-    if (da == 0 || db == 0) return identical(a, b) ? 1.0 : 0.0; 
-    return num / sqrt(da * db);
+
+    final normalized = <String, CorrelationData>{};
+    for (final entry in table) {
+      final key = entry.variable.trim().toLowerCase().replaceAll(' ', '_');
+      if (_heatLabelMap.containsKey(key)) {
+        normalized[key] = entry;
+      }
+    }
+
+    final orderedKeys = _heatOrder.where(normalized.containsKey).toList();
+    if (orderedKeys.length < 2) {
+      return null;
+    }
+
+    final labels = orderedKeys.map((key) => _heatLabelMap[key]!).toList();
+    final cells = <HeatCell>[];
+
+    for (var rowIndex = 0; rowIndex < orderedKeys.length; rowIndex++) {
+      final rowKey = orderedKeys[rowIndex];
+      final rowData = normalized[rowKey]!;
+      for (var colIndex = 0; colIndex < orderedKeys.length; colIndex++) {
+        final colKey = orderedKeys[colIndex];
+        final value = _valueForVariable(rowData, colKey);
+        cells.add(HeatCell(row: rowIndex, col: colIndex, value: value));
+      }
+    }
+
+    return _HeatmapData(labels: labels, cells: cells);
+  }
+
+  List<LinePoint> _buildRollingCorrelationSeries(
+    List<RollingCorrelationData> rows, {
+    required String period,
+    required int monthlyLimit,
+  }) {
+    if (rows.isEmpty) {
+      return const <LinePoint>[];
+    }
+
+    final sortedRows = List<RollingCorrelationData>.from(rows)
+      ..sort((a, b) {
+        final dateA = DateFormatter.tryParsePeriodLabel(a.periodLabel);
+        final dateB = DateFormatter.tryParsePeriodLabel(b.periodLabel);
+        if (dateA != null && dateB != null) {
+          return dateA.compareTo(dateB);
+        }
+        if (dateA != null) {
+          return 1;
+        }
+        if (dateB != null) {
+          return -1;
+        }
+        return a.periodLabel.compareTo(b.periodLabel);
+      });
+
+    final isMonthly = period.toLowerCase() == 'monthly';
+    final series = sortedRows
+        .map(
+          (row) {
+            final parsedDate = DateFormatter.tryParsePeriodLabel(row.periodLabel);
+            final label = isMonthly && parsedDate != null
+                ? DateFormatter.formatMonth(parsedDate)
+                : row.periodLabel;
+            return LinePoint(
+              label,
+              row.correlation,
+            );
+          },
+        )
+        .toList();
+
+    if (period.toLowerCase() != 'monthly') {
+      return series;
+    }
+
+    final boundedLimit = monthlyLimit <= 0
+        ? 0
+        : (monthlyLimit > series.length ? series.length : monthlyLimit);
+    if (boundedLimit == 0) {
+      return const <LinePoint>[];
+    }
+    if (boundedLimit >= series.length) {
+      return series;
+    }
+    return series.sublist(series.length - boundedLimit);
+  }
+
+  double _valueForVariable(CorrelationData data, String key) {
+    switch (key) {
+      case 'price':
+        return data.price;
+      case 'market_cap':
+        return data.marketCap;
+      case 'supply_closing':
+        return data.supplyClosing;
+      case 'net_change_usd':
+        return data.netChangeUsd;
+      case 'inflation_rate':
+        return data.inflationRate;
+      default:
+        return 0;
+    }
   }
 
   Map<String, List> _buildChartData(dynamic metrics) {
@@ -369,7 +458,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       supplyChartData.add(ChartData(point.date, point.supplyClosing));
     }
     for (final activity in stablecoinData.mintBurnActivity) {
-      mintBurnChartData.add(MintBurnChartData(activity.date, activity.mintUsd, activity.burnUsd));
+      mintBurnChartData.add(
+        MintBurnChartData(activity.date, activity.mintUsd, activity.burnUsd),
+      );
     }
     if (macroData.annualInflationRates.isNotEmpty) {
       for (final inflation in macroData.annualInflationRates) {
@@ -381,29 +472,32 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     }
     if (macroData.correlationTable.isNotEmpty) {
       for (final corr in macroData.correlationTable) {
-      if (corr.price > 0) {
-        int year = DateTime.now().year;
-        try {
-          final yearMatch = RegExp(r'\d{4}').firstMatch(corr.variable);
-          if (yearMatch != null) {
-            year = int.parse(yearMatch.group(0)!);
-          }
-        } catch (_) {}
-        priceChartData.add(ChartData(DateTime(year), corr.price));
+        if (corr.price > 0) {
+          int year = DateTime.now().year;
+          try {
+            final yearMatch = RegExp(r'\d{4}').firstMatch(corr.variable);
+            if (yearMatch != null) {
+              year = int.parse(yearMatch.group(0)!);
+            }
+          } catch (_) {}
+          priceChartData.add(ChartData(DateTime(year), corr.price));
+        }
       }
     }
-  }
-  final inflationRates = macroData.annualInflationRates;
-  final supplyData = stablecoinData.totalSupplyOverTime;    if (inflationRates.isNotEmpty && supplyData.isNotEmpty) {
+    final inflationRates = macroData.annualInflationRates;
+    final supplyData = stablecoinData.totalSupplyOverTime;
+    if (inflationRates.isNotEmpty && supplyData.isNotEmpty) {
       for (int i = 0; i < inflationRates.length && i < supplyData.length && i < 10; i++) {
         final inflation = inflationRates[i];
         final supply = supplyData[i];
         if (inflation.inflationRate != null) {
-          correlationScatterData.add(ScatterChartData(
-            inflation.inflationRate!, 
-            supply.supplyClosing, 
-            inflation.year.toString()
-          ));
+          correlationScatterData.add(
+            ScatterChartData(
+              inflation.inflationRate!,
+              supply.supplyClosing,
+              inflation.year.toString(),
+            ),
+          );
         }
       }
     }
@@ -416,5 +510,12 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       'correlation': correlationScatterData,
     };
   }
+}
+
+class _HeatmapData {
+  final List<String> labels;
+  final List<HeatCell> cells;
+
+  _HeatmapData({required this.labels, required this.cells});
 }
 

@@ -37,7 +37,18 @@ class LiveDashboardRemoteDataSource implements DashboardRemoteDataSource {
   }
 
   MacroTrendsModel _extractMacroDataFromUnifiedResponse(Map<String, dynamic> responseData) {
-    final dataList = responseData['data'] as List<dynamic>;
+    final rawData = responseData['data'];
+    final dataList = rawData is List
+        ? rawData
+        : rawData is Map<String, dynamic>
+            ? (rawData['data'] as List<dynamic>? ?? const [])
+            : const [];
+  final correlationRaw = rawData is Map<String, dynamic>
+    ? (rawData['correlation_table'] as List<dynamic>? ?? const [])
+    : (responseData['correlation_table'] as List<dynamic>? ?? const []);
+  final rollingRaw = rawData is Map<String, dynamic>
+    ? (rawData['rolling_correlations'] as List<dynamic>? ?? const [])
+    : (responseData['rolling_correlations'] as List<dynamic>? ?? const []);
     final inflationRates = <Map<String, dynamic>>[];
     
     for (final item in dataList) {
@@ -53,11 +64,30 @@ class LiveDashboardRemoteDataSource implements DashboardRemoteDataSource {
         });
       }
     }
-    
+
+    final correlationModels = correlationRaw
+        .map(
+          (item) => CorrelationModel.fromJson(
+            item as Map<String, dynamic>,
+          ),
+        )
+        .toList();
+    final inflationRateModels = inflationRates
+        .map((item) => InflationRateModel.fromJson(item))
+        .toList();
+    final rollingModels = rollingRaw
+        .map(
+          (item) => RollingCorrelationModel.fromJson(
+            item as Map<String, dynamic>,
+          ),
+        )
+        .toList();
+
     return MacroTrendsModel(
-      annualInflationRates: inflationRates
-          .map((item) => InflationRateModel.fromJson(item))
-          .toList(),
+      annualInflationRates: inflationRateModels,
+      inflationTimeline: List<InflationRateModel>.from(inflationRateModels),
+      correlationTable: correlationModels,
+      rollingCorrelations: rollingModels,
     );
   }
 }

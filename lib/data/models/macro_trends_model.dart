@@ -4,12 +4,14 @@ class MacroTrendsModel {
   final List<InflationSupplyModel> inflationVsSupplyGrowth;
   final List<InflationRateModel> inflationTimeline;
   final List<CorrelationModel> correlationTable;
+  final List<RollingCorrelationModel> rollingCorrelations;
 
   MacroTrendsModel({
     required this.annualInflationRates,
     required this.inflationVsSupplyGrowth,
     required this.inflationTimeline,
     required this.correlationTable,
+    required this.rollingCorrelations,
   });
 
   factory MacroTrendsModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,15 @@ class MacroTrendsModel {
               )
               .toList() ??
           [],
+      rollingCorrelations:
+          (json['rolling_correlations'] as List<dynamic>?)
+              ?.map(
+                (item) => RollingCorrelationModel.fromJson(
+                  item as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
+          [],
     );
   }
 
@@ -63,6 +74,9 @@ class MacroTrendsModel {
       correlationTable: correlationTable
           .map((model) => model.toEntity())
           .toList(),
+    rollingCorrelations: rollingCorrelations
+      .map((model) => model.toEntity())
+      .toList(),
     );
   }
 }
@@ -183,6 +197,27 @@ class CorrelationModel {
       marketCap: marketCap,
       supplyClosing: supplyClosing,
       netChangeUsd: netChangeUsd,
+    );
+  }
+}
+
+class RollingCorrelationModel {
+  final String date;
+  final double correlation;
+
+  RollingCorrelationModel({required this.date, required this.correlation});
+
+  factory RollingCorrelationModel.fromJson(Map<String, dynamic> json) {
+    return RollingCorrelationModel(
+      date: json['date'] as String? ?? '',
+      correlation: (json['correlation'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  RollingCorrelationData toEntity() {
+    return RollingCorrelationData(
+      periodLabel: date,
+      correlation: correlation,
     );
   }
 }
