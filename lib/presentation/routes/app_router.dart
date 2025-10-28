@@ -152,6 +152,8 @@ class AppRouter {
         return AppRoutes.login; // Stay on login during loading
       case AuthenticationStatus.signUpSuccess:
         return AppRoutes.login; // Redirect to login after successful signup
+      case AuthenticationStatus.sessionExpired:
+        return AppRoutes.login; // Redirect to login when session expired
       case AuthenticationStatus.unknown:
         return AppRoutes.splash;
     }

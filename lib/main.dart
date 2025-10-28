@@ -8,6 +8,7 @@ import 'presentation/screens/login_screen.dart';
 import 'presentation/themes/app_theme.dart';
 import 'injection_container.dart';
 import 'services/storage_service.dart';
+import 'services/dio_client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,64 +47,84 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<ContactBloc>()),
         BlocProvider(create: (context) => getIt<FaqBloc>()),
       ],
-      child: BlocListener<AuthenticationBloc, AuthenticationState>(
-        listener: (context, state) {
-          print('🔐 Main.dart - Auth state changed: ${state.status}');
+      child: Builder(
+        builder: (context) {
+          // Set global context for DioClient
+          DioClient.setGlobalContext(context);
 
-          // Handle navigation when authentication state changes
-          if (state.status == AuthenticationStatus.unauthenticated) {
-            // Force navigation to login screen
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (context.mounted) {
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+          return BlocListener<AuthenticationBloc, AuthenticationState>(
+            listener: (context, state) {
+              // Handle navigation when authentication state changes
+              if (state.status == AuthenticationStatus.unauthenticated) {
+                // Force navigation to login screen
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (context.mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.login,
+                      (route) => false,
+                    );
+                  }
+                });
+              } else if (state.status == AuthenticationStatus.sessionExpired) {
+                // Clear any error messages when session expires
+                context.read<AuthenticationBloc>().add(
+                  const AuthenticationErrorCleared(),
+                );
               }
-            });
-          }
-        },
-        child: MaterialApp(
-          title: 'AnchorWatch',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.system, // Automatically follows system theme
-          onGenerateRoute: AppRouter.generateRoute,
-          home: BlocBuilder<OnboardingBloc, OnboardingState>(
-            builder: (context, onboardingState) {
-              return BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                builder: (context, authState) {
-                  print('🏠 Main.dart - Auth status: ${authState.status}');
-
-                  if (onboardingState.status == OnboardingStatus.loading) {
-                    return const _SplashScreen();
-                  }
-
-                  if (onboardingState.status == OnboardingStatus.notCompleted) {
-                    return const OnboardingScreen();
-                  }
-
-                  switch (authState.status) {
-                    case AuthenticationStatus.authenticated:
-                      return const MainNavigationScreen();
-                    case AuthenticationStatus.unauthenticated:
-                      return const LoginScreen();
-                    case AuthenticationStatus.loading:
-                      return const LoginScreen(); // Stay on login during loading
-                    case AuthenticationStatus.signUpSuccess:
-                      return const LoginScreen(); // Redirect to login after successful signup
-                    case AuthenticationStatus.unknown:
+            },
+            child: MaterialApp(
+              title: 'AnchorWatch',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: ThemeMode.system, // Automatically follows system theme
+              onGenerateRoute: AppRouter.generateRoute,
+              home: BlocBuilder<OnboardingBloc, OnboardingState>(
+                builder: (context, onboardingState) {
+                  return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                    builder: (context, authState) {
                       if (onboardingState.status == OnboardingStatus.loading) {
                         return const _SplashScreen();
-                      } else {
-                        return const LoginScreen(); // Stay on login during loading
                       }
-                  }
+
+                      if (onboardingState.status ==
+                          OnboardingStatus.notCompleted) {
+                        return const OnboardingScreen();
+                      }
+
+                      switch (authState.status) {
+                        case AuthenticationStatus.authenticated:
+                          return const RouteGuard(
+                            child: MainNavigationScreen(),
+                          );
+                        case AuthenticationStatus.unauthenticated:
+                          // Reset session expiry flag when showing login screen
+                          DioClient.resetSessionExpiryFlag();
+                          return const LoginScreen();
+                        case AuthenticationStatus.loading:
+                          return const LoginScreen(); // Stay on login during loading
+                        case AuthenticationStatus.signUpSuccess:
+                          return const LoginScreen(); // Redirect to login after successful signup
+                        case AuthenticationStatus.sessionExpired:
+                          // Show current screen but session expired dialog will appear
+                          return const RouteGuard(
+                            child: MainNavigationScreen(),
+                          );
+                        case AuthenticationStatus.unknown:
+                          if (onboardingState.status ==
+                              OnboardingStatus.loading) {
+                            return const _SplashScreen();
+                          } else {
+                            return const LoginScreen(); // Stay on login during loading
+                          }
+                      }
+                    },
+                  );
                 },
-              );
-            },
-          ),
-        ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

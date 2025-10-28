@@ -55,3 +55,7 @@ class AuthenticationUsernameUpdated extends AuthenticationEvent {
 class AuthenticationErrorCleared extends AuthenticationEvent {
   const AuthenticationErrorCleared();
 }
+
+class AuthenticationSessionExpired extends AuthenticationEvent {
+  const AuthenticationSessionExpired();
+}

@@ -8,6 +8,7 @@ import '../routes/routes.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
 import '../../utils/validators/form_validators.dart';
+import '../../services/dio_client.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +22,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Reset session expiry flag when login screen is shown
+    DioClient.resetSessionExpiryFlag();
+  }
 
   @override
   void dispose() {

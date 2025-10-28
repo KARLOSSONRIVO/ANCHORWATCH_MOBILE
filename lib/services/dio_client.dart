@@ -1,10 +1,27 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
+import '../presentation/blocs/authentication/authentication.dart';
+import 'token_storage_service.dart';
+import 'storage_service.dart';
 
 @lazySingleton
 class DioClient {
+  static BuildContext? _globalContext;
+  static bool _isHandlingSessionExpiry = false;
+  static bool _isSessionExpired = false;
+
+  static void setGlobalContext(BuildContext context) {
+    _globalContext = context;
+  }
+
+  static void setSessionExpired(bool expired) {
+    _isSessionExpired = expired;
+  }
+
   static String get _baseUrl {
     if (kIsWeb) {
       return 'http://127.0.0.1:8000'; // Web can use localhost directly
@@ -59,12 +76,52 @@ class DioClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
+          // Prevent API calls when session is expired
+          if (_isSessionExpired) {
+            handler.reject(
+              DioException(
+                requestOptions: options,
+                error: 'Session expired',
+                type: DioExceptionType.cancel,
+              ),
+            );
+            return;
+          }
           handler.next(options);
         },
         onResponse: (response, handler) {
           handler.next(response);
         },
         onError: (error, handler) {
+          // Check for 401 errors which might indicate session expiration
+          if (error.response?.statusCode == 401 && !_isHandlingSessionExpiry) {
+            _isHandlingSessionExpiry = true;
+
+            // Set session expired flag to block further API calls
+            _isSessionExpired = true;
+
+            // Clear tokens from storage first
+            _clearExpiredTokens();
+
+            // Trigger session expired state
+            if (_globalContext != null) {
+              try {
+                final authBloc = _globalContext!.read<AuthenticationBloc>();
+                // Trigger session expired event
+                authBloc.add(const AuthenticationSessionExpired());
+              } catch (e) {
+                // Context might not be available, ignore
+              }
+            }
+
+            // Reset flag after a delay
+            Future.delayed(const Duration(seconds: 2), () {
+              _isHandlingSessionExpiry = false;
+            });
+
+            // Don't propagate the error to prevent raw error messages
+            return;
+          }
           handler.next(error);
         },
       ),
@@ -77,6 +134,29 @@ class DioClient {
 
   void clearAuthToken() {
     _dio.options.headers.remove('Authorization');
+  }
+
+  static void resetSessionExpiryFlag() {
+    _isHandlingSessionExpiry = false;
+    _isSessionExpired = false;
+  }
+
+  static Future<void> _clearExpiredTokens() async {
+    try {
+      // Get the token storage service from the global context
+      if (_globalContext != null) {
+        final tokenStorage = _globalContext!.read<TokenStorageService>();
+        await tokenStorage.clearTokens();
+
+        // Also clear user data
+        await StorageService.remove(StorageKeys.userId);
+        await StorageService.remove(StorageKeys.userEmail);
+        await StorageService.remove(StorageKeys.userName);
+        await StorageService.remove(StorageKeys.userToken);
+      }
+    } catch (e) {
+      // Ignore errors during cleanup
+    }
   }
 
   Future<Response<T>> get<T>(

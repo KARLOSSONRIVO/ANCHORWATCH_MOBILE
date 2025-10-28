@@ -11,6 +11,26 @@ class RouteGuard extends StatelessWidget {
 
   final Widget child;
 
+  void _showSessionExpiredDialog(BuildContext context) {
+    // Check if dialog is already showing to prevent multiple dialogs
+    if (ModalRoute.of(context)?.settings.name == '/session-expired-dialog') {
+      return;
+    }
+
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        routeSettings: const RouteSettings(name: '/session-expired-dialog'),
+        builder: (context) {
+          return const SessionExpiredCard();
+        },
+      );
+    } catch (e) {
+      // Ignore errors when showing dialog
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
@@ -40,6 +60,16 @@ class RouteGuard extends StatelessWidget {
                 if (AppRouter.isProtectedRoute(currentRoute)) {
                   AppRouter.navigateToLogin(context);
                 }
+                break;
+
+              case AuthenticationStatus.sessionExpired:
+                // Show session expired dialog and prevent navigation
+                // Add a small delay to ensure state is properly processed
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (context.mounted) {
+                    _showSessionExpiredDialog(context);
+                  }
+                });
                 break;
 
               case AuthenticationStatus.loading:
@@ -156,10 +186,7 @@ class NavigationHelper {
             const SizedBox(height: 12),
             const Text(
               'Are you sure you want to logout?',
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: 'Inter',
-              ),
+              style: TextStyle(fontSize: 14, fontFamily: 'Inter'),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),

@@ -25,6 +25,7 @@ class AuthenticationBloc
     on<AuthenticationSignUpRequested>(_onAuthenticationSignUpRequested);
     on<AuthenticationUsernameUpdated>(_onAuthenticationUsernameUpdated);
     on<AuthenticationErrorCleared>(_onAuthenticationErrorCleared);
+    on<AuthenticationSessionExpired>(_onAuthenticationSessionExpired);
   }
   void _onAuthenticationStatusRequested(
     AuthenticationStatusRequested event,
@@ -78,12 +79,19 @@ class AuthenticationBloc
       ),
     );
 
+    // Reset session expiry flag when login is requested
+    DioClient.resetSessionExpiryFlag();
+
     try {
       final authResult = await _loginUseCase(
         email: event.username, // Assuming username is email
         password: event.password,
       );
       await _authenticationService.storeAuthResult(authResult);
+
+      // Reset session expiry flag on successful login
+      DioClient.resetSessionExpiryFlag();
+
       emit(
         state.copyWith(
           status: AuthenticationStatus.authenticated,
@@ -225,5 +233,31 @@ class AuthenticationBloc
     Emitter<AuthenticationState> emit,
   ) {
     emit(state.copyWith(error: null));
+  }
+
+  void _onAuthenticationSessionExpired(
+    AuthenticationSessionExpired event,
+    Emitter<AuthenticationState> emit,
+  ) {
+    // Force clear all authentication data
+    _clearAllAuthData();
+
+    // Emit session expired state
+    emit(
+      state.copyWith(
+        status: AuthenticationStatus.sessionExpired,
+        error: null,
+        user: null,
+      ),
+    );
+  }
+
+  Future<void> _clearAllAuthData() async {
+    try {
+      // Clear local data only without making API calls
+      await _authenticationService.clearLocalDataOnly();
+    } catch (e) {
+      // Ignore errors during cleanup
+    }
   }
 }

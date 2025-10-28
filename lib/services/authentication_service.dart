@@ -82,7 +82,6 @@ class AuthenticationService {
         }
       }
 
-
       final tokensCleared = await _tokenStorage.clearTokens();
 
       await StorageService.remove(StorageKeys.userId);
@@ -173,6 +172,30 @@ class AuthenticationService {
 
   void updateDioClientToken() {
     final token = getAccessToken();
-    if (token != null) {}
+    if (token != null) {
+      _dioClient.setAuthToken(token);
+    }
+  }
+
+  void clearDioClientToken() {
+    _dioClient.clearAuthToken();
+  }
+
+  Future<void> clearLocalDataOnly() async {
+    try {
+      // Clear tokens from storage without making API calls
+      await _tokenStorage.clearTokens();
+
+      // Clear user data from storage
+      await StorageService.remove(StorageKeys.userId);
+      await StorageService.remove(StorageKeys.userEmail);
+      await StorageService.remove(StorageKeys.userName);
+      await StorageService.remove(StorageKeys.userToken);
+
+      // Clear auth token from Dio client
+      _dioClient.clearAuthToken();
+    } catch (e) {
+      // Ignore errors during cleanup
+    }
   }
 }

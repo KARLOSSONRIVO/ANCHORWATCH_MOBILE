@@ -6,6 +6,7 @@ enum AuthenticationStatus {
   unauthenticated,
   loading,
   signUpSuccess,
+  sessionExpired,
 }
 
 class AuthenticationState extends Equatable {

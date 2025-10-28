@@ -13,6 +13,7 @@ import '../../utils/tag_colors.dart';
 import '../../utils/date_formatter.dart';
 import '../blocs/dashboard/dashboard.dart';
 import '../blocs/discover/articles/articles.dart';
+import '../blocs/authentication/authentication.dart';
 import '../themes/app_theme.dart';
 import '../../utils/number_formatter.dart';
 
@@ -290,6 +291,15 @@ class _DashboardView extends StatelessWidget {
               fontFamily: 'Inter',
               color: AppTheme.getTextPrimaryColor(context),
             ),
+          ),
+          // Test button for session expired dialog
+          ElevatedButton(
+            onPressed: () {
+              context.read<AuthenticationBloc>().add(
+                const AuthenticationSessionExpired(),
+              );
+            },
+            child: const Text('Test Session Expired'),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
