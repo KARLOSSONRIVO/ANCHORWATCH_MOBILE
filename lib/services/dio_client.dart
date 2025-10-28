@@ -76,8 +76,10 @@ class DioClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Prevent API calls when session is expired
-          if (_isSessionExpired) {
+          // Prevent API calls when session is expired, but allow login and signup calls
+          if (_isSessionExpired &&
+              !options.path.contains('/accounts/login/') &&
+              !options.path.contains('/accounts/signup/')) {
             handler.reject(
               DioException(
                 requestOptions: options,
@@ -90,37 +92,49 @@ class DioClient {
           handler.next(options);
         },
         onResponse: (response, handler) {
+          // If this is a successful login or signup response, reset the session expired flag
+          if ((response.requestOptions.path.contains('/accounts/login/') ||
+                  response.requestOptions.path.contains('/accounts/signup/')) &&
+              response.statusCode == 200) {
+            _isSessionExpired = false;
+            _isHandlingSessionExpiry = false;
+          }
           handler.next(response);
         },
         onError: (error, handler) {
           // Check for 401 errors which might indicate session expiration
           if (error.response?.statusCode == 401 && !_isHandlingSessionExpiry) {
-            _isHandlingSessionExpiry = true;
+            // Only treat as session expiration if it's NOT a login/signup request
+            // Login/signup 401 errors should be handled normally (invalid credentials)
+            if (!error.requestOptions.path.contains('/accounts/login/') &&
+                !error.requestOptions.path.contains('/accounts/signup/')) {
+              _isHandlingSessionExpiry = true;
 
-            // Set session expired flag to block further API calls
-            _isSessionExpired = true;
+              // Set session expired flag to block further API calls
+              _isSessionExpired = true;
 
-            // Clear tokens from storage first
-            _clearExpiredTokens();
+              // Clear tokens from storage first
+              _clearExpiredTokens();
 
-            // Trigger session expired state
-            if (_globalContext != null) {
-              try {
-                final authBloc = _globalContext!.read<AuthenticationBloc>();
-                // Trigger session expired event
-                authBloc.add(const AuthenticationSessionExpired());
-              } catch (e) {
-                // Context might not be available, ignore
+              // Trigger session expired state
+              if (_globalContext != null) {
+                try {
+                  final authBloc = _globalContext!.read<AuthenticationBloc>();
+                  // Trigger session expired event
+                  authBloc.add(const AuthenticationSessionExpired());
+                } catch (e) {
+                  // Context might not be available, ignore
+                }
               }
+
+              // Reset flag after a delay
+              Future.delayed(const Duration(seconds: 2), () {
+                _isHandlingSessionExpiry = false;
+              });
+
+              // Don't propagate the error to prevent raw error messages
+              return;
             }
-
-            // Reset flag after a delay
-            Future.delayed(const Duration(seconds: 2), () {
-              _isHandlingSessionExpiry = false;
-            });
-
-            // Don't propagate the error to prevent raw error messages
-            return;
           }
           handler.next(error);
         },
