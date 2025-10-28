@@ -97,7 +97,6 @@ import 'services/authentication_service.dart' as _i460;
 import 'services/dio_client.dart' as _i332;
 import 'services/email_service.dart' as _i146;
 import 'services/s3_upload_service.dart' as _i408;
-import 'services/storage_service.dart' as _i318;
 import 'services/token_storage_service.dart' as _i646;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -110,9 +109,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i855.FaqBloc>(() => _i855.FaqBloc());
     gh.factory<_i62.NavigationBloc>(() => _i62.NavigationBloc());
     gh.factory<_i131.OnboardingBloc>(() => _i131.OnboardingBloc());
-    gh.lazySingleton<_i408.S3UploadService>(() => _i408.S3UploadService());
     gh.lazySingleton<_i332.DioClient>(() => _i332.DioClient());
-    gh.lazySingleton<_i318.StorageService>(() => _i318.StorageService());
+    gh.lazySingleton<_i408.S3UploadService>(() => _i408.S3UploadService());
     gh.lazySingleton<_i807.DashboardRemoteDataSource>(
       () => _i807.LiveDashboardRemoteDataSource(gh<_i332.DioClient>()),
     );
@@ -122,14 +120,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i235.ArticlesRemoteDataSource>(
       () => _i235.ArticlesRemoteDataSource(gh<_i332.DioClient>()),
     );
-    gh.factory<_i196.StablecoinRemoteDataSource>(
-      () => _i196.StablecoinRemoteDataSource(gh<_i332.DioClient>()),
+    gh.factory<_i694.ChartSummaryRemoteDataSource>(
+      () => _i694.ChartSummaryRemoteDataSource(gh<_i332.DioClient>()),
     );
     gh.factory<_i743.MacroTrendsRemoteDataSource>(
       () => _i743.MacroTrendsRemoteDataSource(gh<_i332.DioClient>()),
     );
-    gh.factory<_i694.ChartSummaryRemoteDataSource>(
-      () => _i694.ChartSummaryRemoteDataSource(gh<_i332.DioClient>()),
+    gh.factory<_i196.StablecoinRemoteDataSource>(
+      () => _i196.StablecoinRemoteDataSource(gh<_i332.DioClient>()),
     );
     gh.lazySingleton<_i146.EmailService>(
       () => _i146.EmailService(gh<_i332.DioClient>()),
@@ -199,17 +197,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i711.FetchDashboardMetricsUseCase>(
       () => _i711.FetchDashboardMetricsUseCase(gh<_i564.DashboardRepository>()),
     );
+    gh.factory<_i183.ChangePasswordUseCase>(
+      () => _i183.ChangePasswordUseCase(gh<_i172.ProfileRepository>()),
+    );
+    gh.factory<_i244.ChangeUsernameUseCase>(
+      () => _i244.ChangeUsernameUseCase(gh<_i172.ProfileRepository>()),
+    );
     gh.factory<_i140.ConfirmChangeEmailUseCase>(
       () => _i140.ConfirmChangeEmailUseCase(gh<_i172.ProfileRepository>()),
     );
     gh.factory<_i1027.RequestChangeEmailUseCase>(
       () => _i1027.RequestChangeEmailUseCase(gh<_i172.ProfileRepository>()),
-    );
-    gh.factory<_i244.ChangeUsernameUseCase>(
-      () => _i244.ChangeUsernameUseCase(gh<_i172.ProfileRepository>()),
-    );
-    gh.factory<_i183.ChangePasswordUseCase>(
-      () => _i183.ChangePasswordUseCase(gh<_i172.ProfileRepository>()),
     );
     gh.factory<_i673.ChangeUsernameBloc>(
       () => _i673.ChangeUsernameBloc(gh<_i244.ChangeUsernameUseCase>()),
@@ -224,20 +222,20 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i625.CreateNewConversationUseCase(gh<_i135.AnchorWiseRepository>()),
     );
+    gh.factory<_i258.DeleteConversationUseCase>(
+      () => _i258.DeleteConversationUseCase(gh<_i135.AnchorWiseRepository>()),
+    );
     gh.factory<_i1011.GetConversationsUseCase>(
       () => _i1011.GetConversationsUseCase(gh<_i135.AnchorWiseRepository>()),
+    );
+    gh.factory<_i539.GetConversationByIdUseCase>(
+      () => _i539.GetConversationByIdUseCase(gh<_i135.AnchorWiseRepository>()),
     );
     gh.factory<_i1011.SendChatMessageUseCase>(
       () => _i1011.SendChatMessageUseCase(gh<_i135.AnchorWiseRepository>()),
     );
     gh.factory<_i920.SendFeedbackUseCase>(
       () => _i920.SendFeedbackUseCase(gh<_i135.AnchorWiseRepository>()),
-    );
-    gh.factory<_i539.GetConversationByIdUseCase>(
-      () => _i539.GetConversationByIdUseCase(gh<_i135.AnchorWiseRepository>()),
-    );
-    gh.factory<_i258.DeleteConversationUseCase>(
-      () => _i258.DeleteConversationUseCase(gh<_i135.AnchorWiseRepository>()),
     );
     gh.factory<_i427.ChartSummaryRepository>(
       () => _i651.ChartSummaryRepositoryImpl(
@@ -277,11 +275,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i512.ForgotPasswordUseCase>(
       () => _i512.ForgotPasswordUseCase(gh<_i716.AuthRepository>()),
     );
-    gh.factory<_i339.RegisterUseCase>(
-      () => _i339.RegisterUseCase(gh<_i716.AuthRepository>()),
-    );
     gh.factory<_i289.LoginUseCase>(
       () => _i289.LoginUseCase(gh<_i716.AuthRepository>()),
+    );
+    gh.factory<_i339.RegisterUseCase>(
+      () => _i339.RegisterUseCase(gh<_i716.AuthRepository>()),
     );
     gh.factory<_i461.ResetPasswordUseCase>(
       () => _i461.ResetPasswordUseCase(gh<_i716.AuthRepository>()),

@@ -28,12 +28,10 @@ class _ContactView extends StatefulWidget {
 }
 
 class _ContactViewState extends State<_ContactView> {
-  final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _questionController = TextEditingController();
 
   @override
   void dispose() {
-    _subjectController.dispose();
     _questionController.dispose();
     super.dispose();
   }
@@ -68,7 +66,6 @@ class _ContactViewState extends State<_ContactView> {
         },
         listener: (context, state) {
           if (state.status == ContactStatus.submitted) {
-            _subjectController.clear();
             _questionController.clear();
             SnackBarHelper.showSuccess(
               context,
@@ -125,60 +122,15 @@ class _ContactViewState extends State<_ContactView> {
                 ),
                 const SizedBox(height: 32),
                 Text(
-                  'Subject',
-                  style: TextStyle(
-                    color: AppTheme.getTextPrimaryColor(context),
-                    fontSize: 14,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.getCardBackgroundColor(context),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppTheme.getBorderColor(context),
-                      width: 1,
-                    ),
-                  ),
-                  child: TextField(
-                    controller: _subjectController,
-                    onChanged: (value) {
-                      context.read<ContactBloc>().add(
-                        ContactSubjectChanged(subject: value),
-                      );
-                    },
-                    maxLines: 1,
-                    style: TextStyle(
-                      color: AppTheme.getTextPrimaryColor(context),
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Brief summary of your question',
-                      hintStyle: TextStyle(
-                        color: AppTheme.getTextSecondaryColor(context),
-                        fontFamily: 'Inter',
-                        fontSize: 14,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(16),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
                   'How can we help?',
                   style: TextStyle(
                     color: AppTheme.getTextPrimaryColor(context),
-                    fontSize: 14,
+                    fontSize: 16,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(

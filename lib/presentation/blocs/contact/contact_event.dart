@@ -15,15 +15,6 @@ class ContactRefreshRequested extends ContactEvent {
   const ContactRefreshRequested();
 }
 
-class ContactSubjectChanged extends ContactEvent {
-  const ContactSubjectChanged({required this.subject});
-
-  final String subject;
-
-  @override
-  List<Object> get props => [subject];
-}
-
 class ContactQuestionChanged extends ContactEvent {
   const ContactQuestionChanged({required this.question});
 

@@ -15,21 +15,9 @@ class ContactRepositoryImpl implements ContactRepository {
   }) : _remoteDataSource = remoteDataSource;
 
   @override
-  Future<ContactSupportResult> contactSupport({
-    required String subject,
-    required String message,
-    String? userEmail,
-    String? userId,
-    String? username,
-  }) async {
+  Future<ContactSupportResult> contactSupport({required String message}) async {
     try {
-      final request = ContactSupportRequestModel(
-        subject: subject,
-        message: message,
-        userEmail: userEmail,
-        userId: userId,
-        username: username,
-      );
+    final request = ContactSupportRequestModel(message: message);
 
       final response = await _remoteDataSource.contactSupport(request);
 
@@ -40,10 +28,7 @@ class ContactRepositoryImpl implements ContactRepository {
           retryAfterSeconds: response.retryAfterSeconds,
         );
       } else {
-        return ContactSupportResult.success(
-          response.message,
-          conversationId: response.conversationId,
-        );
+          return ContactSupportResult.success(response.message);
       }
     } on AppException catch (e) {
       return ContactSupportResult.failure(e.message);
