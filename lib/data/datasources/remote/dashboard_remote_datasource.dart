@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import '../../../domain/entities/dashboard_metrics.dart';
 import '../../../services/dio_client.dart';
@@ -19,35 +18,37 @@ class LiveDashboardRemoteDataSource implements DashboardRemoteDataSource {
   @override
   Future<DashboardMetrics> getMetrics([String? range]) async {
     try {
-      debugPrint('DashboardRemoteDataSource: Starting dashboard metrics fetch...');
-      
-      // Fetch unified stablecoin data (contains both stablecoin and inflation data)
-      debugPrint('DashboardRemoteDataSource: Fetching unified data from: ${DashboardEndpoints.stablecoinData}');
       final response = await _dioClient.get(
         DashboardEndpoints.stablecoinData,
         queryParameters: range != null ? {'aggregation_period': range} : {'aggregation_period': 'yearly'},
       );
-      debugPrint('DashboardRemoteDataSource: Unified data fetched successfully');
-
-      final stablecoinData = StablecoinChartDataModel.fromJson(response.data);
       
-      // Extract macro data from the same response (inflation rates are included)
+      final stablecoinData = StablecoinChartDataModel.fromJson(response.data);
       final macroData = _extractMacroDataFromUnifiedResponse(response.data);
-
-      debugPrint('DashboardRemoteDataSource: Creating DashboardMetrics entity...');
+      
       return DashboardMetrics(
         stablecoinData: stablecoinData.toEntity(),
         macroTrendsData: macroData.toEntity(),
         lastUpdated: DateTime.now(),
       );
     } catch (e) {
-      debugPrint('DashboardRemoteDataSource: Dashboard metrics fetch failed: $e');
       throw Exception('Failed to fetch dashboard metrics: $e');
     }
   }
 
   MacroTrendsModel _extractMacroDataFromUnifiedResponse(Map<String, dynamic> responseData) {
-    final dataList = responseData['data'] as List<dynamic>;
+    final rawData = responseData['data'];
+    final dataList = rawData is List
+        ? rawData
+        : rawData is Map<String, dynamic>
+            ? (rawData['data'] as List<dynamic>? ?? const [])
+            : const [];
+  final correlationRaw = rawData is Map<String, dynamic>
+    ? (rawData['correlation_table'] as List<dynamic>? ?? const [])
+    : (responseData['correlation_table'] as List<dynamic>? ?? const []);
+  final rollingRaw = rawData is Map<String, dynamic>
+    ? (rawData['rolling_correlations'] as List<dynamic>? ?? const [])
+    : (responseData['rolling_correlations'] as List<dynamic>? ?? const []);
     final inflationRates = <Map<String, dynamic>>[];
     
     for (final item in dataList) {
@@ -63,11 +64,31 @@ class LiveDashboardRemoteDataSource implements DashboardRemoteDataSource {
         });
       }
     }
-    
+
+    final correlationModels = correlationRaw
+        .map(
+          (item) => CorrelationModel.fromJson(
+            item as Map<String, dynamic>,
+          ),
+        )
+        .toList();
+    final inflationRateModels = inflationRates
+        .map((item) => InflationRateModel.fromJson(item))
+        .toList();
+    final rollingModels = rollingRaw
+        .map(
+          (item) => RollingCorrelationModel.fromJson(
+            item as Map<String, dynamic>,
+          ),
+        )
+        .toList();
+
     return MacroTrendsModel(
-      annualInflationRates: inflationRates
-          .map((item) => InflationRateModel.fromJson(item))
-          .toList(),
+      annualInflationRates: inflationRateModels,
+      inflationTimeline: List<InflationRateModel>.from(inflationRateModels),
+      correlationTable: correlationModels,
+      rollingCorrelations: rollingModels,
     );
   }
 }
+

@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Result for OTP verification operation
 class VerifyOtpResult extends Equatable {
   final String message;
   final String email;

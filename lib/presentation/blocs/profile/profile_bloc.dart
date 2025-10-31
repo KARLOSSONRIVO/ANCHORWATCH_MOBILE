@@ -3,8 +3,6 @@ import 'package:injectable/injectable.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 import '../../../services/authentication_service.dart';
-
-/// BLoC for managing profile state
 @injectable
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final AuthenticationService _authService;
@@ -18,8 +16,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileNavigateToContactSupport>(_onProfileNavigateToContactSupport);
     on<ProfileNavigateToFAQs>(_onProfileNavigateToFAQs);
   }
-
-  /// Load user profile data
   void _onProfileLoadRequested(
     ProfileLoadRequested event,
     Emitter<ProfileState> emit,
@@ -27,7 +23,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(state.copyWith(status: ProfileStatus.loading));
 
     try {
-      // Fetch user profile from server
       final user = await _authService.fetchUserProfile();
       
       if (user != null) {
@@ -51,8 +46,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       ));
     }
   }
-
-  /// Update user profile
   void _onProfileUpdateRequested(
     ProfileUpdateRequested event,
     Emitter<ProfileState> emit,
@@ -60,7 +53,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(state.copyWith(status: ProfileStatus.updating));
 
     try {
-      // Simulate API call to update profile
       await Future.delayed(const Duration(seconds: 2));
 
       emit(state.copyWith(
@@ -76,41 +68,30 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       ));
     }
   }
-
-  /// Handle logout request
   void _onProfileLogoutRequested(
     ProfileLogoutRequested event,
     Emitter<ProfileState> emit,
   ) {
-    // Reset profile state to initial state
     emit(const ProfileState());
   }
-
-  /// Handle theme change request
   void _onProfileThemeChangeRequested(
     ProfileThemeChangeRequested event,
     Emitter<ProfileState> emit,
   ) {
     emit(state.copyWith(isDarkTheme: event.isDarkTheme));
   }
-
-  /// Handle navigation to edit account
   void _onProfileNavigateToEditAccount(
     ProfileNavigateToEditAccount event,
     Emitter<ProfileState> emit,
   ) {
     emit(state.copyWith(status: ProfileStatus.navigatingToEditAccount));
   }
-
-  /// Handle navigation to contact support
   void _onProfileNavigateToContactSupport(
     ProfileNavigateToContactSupport event,
     Emitter<ProfileState> emit,
   ) {
     emit(state.copyWith(status: ProfileStatus.navigatingToContactSupport));
   }
-
-  /// Handle navigation to FAQs
   void _onProfileNavigateToFAQs(
     ProfileNavigateToFAQs event,
     Emitter<ProfileState> emit,

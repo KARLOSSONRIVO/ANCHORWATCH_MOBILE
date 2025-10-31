@@ -5,8 +5,8 @@ import '../../injection_container.dart';
 import 'data_quality_indicator.dart';
 import '../../data/models/chart_summary_model.dart';
 import '../../data/models/data_quality_model.dart';
+import '../themes/app_theme.dart';
 
-/// Widget for displaying chart summary with generate button
 class ChartSummaryWidget extends StatelessWidget {
   final String chartType;
   final String chartTitle;
@@ -35,7 +35,7 @@ class ChartSummaryWidget extends StatelessWidget {
   }
 }
 
-class _ChartSummaryContent extends StatelessWidget {
+class _ChartSummaryContent extends StatefulWidget {
   final String chartType;
   final String chartTitle;
   final String? timeFrame;
@@ -49,19 +49,66 @@ class _ChartSummaryContent extends StatelessWidget {
   });
 
   @override
+  State<_ChartSummaryContent> createState() => _ChartSummaryContentState();
+}
+
+class _ChartSummaryContentState extends State<_ChartSummaryContent> {
+  String? _lastTimeFrame;
+  String? _lastChartDataHash;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastTimeFrame = widget.timeFrame;
+    _lastChartDataHash = _generateChartDataHash(widget.chartData);
+  }
+
+  @override
+  void didUpdateWidget(_ChartSummaryContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final currentTimeFrame = widget.timeFrame;
+    final currentChartDataHash = _generateChartDataHash(widget.chartData);
+
+    if (_lastTimeFrame != currentTimeFrame ||
+        _lastChartDataHash != currentChartDataHash) {
+      _lastTimeFrame = currentTimeFrame;
+      _lastChartDataHash = currentChartDataHash;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.read<ChartSummaryBloc>().add(
+            const ChartSummaryClearRequested(),
+          );
+        }
+      });
+    }
+  }
+
+  String? _generateChartDataHash(List<Map<String, dynamic>>? chartData) {
+    if (chartData == null || chartData.isEmpty) return null;
+    final dataString =
+        chartData.length.toString() +
+        (chartData.isNotEmpty ? chartData.first.toString() : '');
+    return dataString.hashCode.toString();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<ChartSummaryBloc, ChartSummaryState>(
       builder: (context, state) {
+        final isLightMode = Theme.of(context).brightness == Brightness.light;
+        final accentColor = isLightMode
+            ? AppTheme.aiSummaryColorLight
+            : const Color(0xFF00D4AA);
+
         return Container(
-          margin: const EdgeInsets.only(top: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.light
-                ? const Color(0xFFF0F8F7) // Light teal background
-                : const Color(0xFF1A2A2A), // Dark teal background
+                ? const Color(0xFFF0F8F7)
+                : const Color(0xFF1A2A2A),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFF00D4AA).withOpacity(0.3),
+              color: accentColor.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -75,7 +122,7 @@ class _ChartSummaryContent extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.analytics_outlined,
-                        color: const Color(0xFF00D4AA),
+                        color: accentColor,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -93,12 +140,14 @@ class _ChartSummaryContent extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(
+                        SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00D4AA)),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              accentColor,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -115,15 +164,26 @@ class _ChartSummaryContent extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         context.read<ChartSummaryBloc>().add(
-                          ChartSummaryGenerateRequested(chartType, timeFrame, chartData),
+                          ChartSummaryGenerateRequested(
+                            widget.chartType,
+                            widget.timeFrame,
+                            widget.chartData,
+                          ),
                         );
                       },
                       icon: const Icon(Icons.auto_awesome, size: 16),
-                      label: const Text('Generate'),
+                      label: Text(
+                        state.summary == null ? 'Generate' : 'Regenerate',
+                      ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00D4AA),
+                        backgroundColor: state.summary == null
+                            ? accentColor
+                            : accentColor.withValues(alpha: 0.8),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         shape: RoundedRectangleBorder(
@@ -139,21 +199,23 @@ class _ChartSummaryContent extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Theme.of(context).brightness == Brightness.light
-                        ? const Color(0xFFF0F8F7) // Light teal background
-                        : const Color(0xFF1A2A2A), // Dark teal background
+                        ? const Color(0xFFF0F8F7)
+                        : const Color(0xFF1A2A2A),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF00D4AA).withOpacity(0.3),
+                      color: accentColor.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
                     children: [
-                      const SizedBox(
+                      SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00D4AA)),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            accentColor,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -164,7 +226,9 @@ class _ChartSummaryContent extends StatelessWidget {
                             Text(
                               'AI is analyzing your chart...',
                               style: TextStyle(
-                                color: Theme.of(context).textTheme.bodyMedium?.color,
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.color,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -173,7 +237,9 @@ class _ChartSummaryContent extends StatelessWidget {
                             Text(
                               'This may take up to 2 minutes for detailed analysis',
                               style: TextStyle(
-                                color: Theme.of(context).textTheme.bodySmall?.color,
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.color,
                                 fontSize: 12,
                               ),
                             ),
@@ -184,7 +250,44 @@ class _ChartSummaryContent extends StatelessWidget {
                   ),
                 ),
               ],
-              if (state.status == ChartSummaryStatus.loaded && state.summary != null) ...[
+              if (state.status == ChartSummaryStatus.initial &&
+                  state.summary == null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? const Color(0xFFF0F8F7).withValues(alpha: 0.5)
+                        : const Color(0xFF1A2A2A).withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: accentColor.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: accentColor.withValues(alpha: 0.7),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Click Generate to get AI analysis for this chart',
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.bodySmall?.color
+                                ?.withValues(alpha: 0.7),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              if (state.status == ChartSummaryStatus.loaded &&
+                  state.summary != null) ...[
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -194,27 +297,42 @@ class _ChartSummaryContent extends StatelessWidget {
                         : const Color(0xFF2A2A2A),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Theme.of(context).dividerColor.withOpacity(0.5),
+                      color: Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.5),
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Data Quality Indicator
-                      if (state.summary is ChartSummaryModel && 
-                          (state.summary as ChartSummaryModel).dataQuality != null) ...[
+                      if (state.summary is ChartSummaryModel &&
+                          (state.summary as ChartSummaryModel).dataQuality !=
+                              null) ...[
                         Row(
                           children: [
                             DataQualityIndicator(
-                              dataQuality: (state.summary as ChartSummaryModel).dataQuality,
-                              onTap: () => _showQualityDetails(context, (state.summary as ChartSummaryModel).dataQuality!),
+                              dataQuality: (state.summary as ChartSummaryModel)
+                                  .dataQuality,
+                              onTap: () => _showQualityDetails(
+                                context,
+                                (state.summary as ChartSummaryModel)
+                                    .dataQuality!,
+                              ),
                             ),
                             const Spacer(),
-                            if ((state.summary as ChartSummaryModel).qualityWarnings.isNotEmpty ||
-                                (state.summary as ChartSummaryModel).qualityIssues.isNotEmpty)
+                            if ((state.summary as ChartSummaryModel)
+                                    .qualityWarnings
+                                    .isNotEmpty ||
+                                (state.summary as ChartSummaryModel)
+                                    .qualityIssues
+                                    .isNotEmpty)
                               IconButton(
                                 icon: const Icon(Icons.info_outline, size: 16),
-                                onPressed: () => _showQualityDetails(context, (state.summary as ChartSummaryModel).dataQuality!),
+                                onPressed: () => _showQualityDetails(
+                                  context,
+                                  (state.summary as ChartSummaryModel)
+                                      .dataQuality!,
+                                ),
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                               ),
@@ -237,21 +355,26 @@ class _ChartSummaryContent extends StatelessWidget {
                           Text(
                             'Source: ${state.summary!.source}',
                             style: TextStyle(
-                              color: Theme.of(context).textTheme.bodySmall?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.color,
                               fontSize: 12,
                             ),
                           ),
                           if (state.summary!.cacheHit)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00D4AA).withOpacity(0.1),
+                                color: accentColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 'Cached',
                                 style: TextStyle(
-                                  color: const Color(0xFF00D4AA),
+                                  color: accentColor,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -268,10 +391,10 @@ class _ChartSummaryContent extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.red.withOpacity(0.3),
+                      color: Colors.red.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Column(
@@ -301,23 +424,28 @@ class _ChartSummaryContent extends StatelessWidget {
                       Text(
                         state.errorMessage?.contains('timeout') == true
                             ? 'The AI analysis is taking longer than expected. Please try again.'
-                            : state.errorMessage ?? 'An unexpected error occurred',
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 11,
-                        ),
+                            : state.errorMessage ??
+                                  'An unexpected error occurred',
+                        style: const TextStyle(color: Colors.red, fontSize: 11),
                       ),
                       const SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: () {
-                        context.read<ChartSummaryBloc>().add(
-                          ChartSummaryGenerateRequested(chartType, timeFrame, chartData),
-                        );
+                          context.read<ChartSummaryBloc>().add(
+                            ChartSummaryGenerateRequested(
+                              widget.chartType,
+                              widget.timeFrame,
+                              widget.chartData,
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00D4AA),
+                          backgroundColor: accentColor,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           shape: RoundedRectangleBorder(

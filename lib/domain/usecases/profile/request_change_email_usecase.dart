@@ -12,7 +12,6 @@ class RequestChangeEmailUseCase {
   Future<RequestChangeEmailResult> execute({
     required String newEmail,
   }) async {
-    // Validate email format
     if (newEmail.trim().isEmpty) {
       throw Exception('New email cannot be empty');
     }

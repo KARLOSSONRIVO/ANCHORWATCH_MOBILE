@@ -15,20 +15,25 @@ class ContactRepositoryImpl implements ContactRepository {
   }) : _remoteDataSource = remoteDataSource;
 
   @override
-  Future<ContactSupportResult> contactSupport({
-    required String message,
-  }) async {
+  Future<ContactSupportResult> contactSupport({required String message}) async {
     try {
-      final request = ContactSupportRequestModel(
-        message: message,
-      );
+    final request = ContactSupportRequestModel(message: message);
 
       final response = await _remoteDataSource.contactSupport(request);
-      return ContactSupportResult(message: response.message);
+
+      // Check if the response indicates success or failure
+      if (response.success == false) {
+        return ContactSupportResult.failure(
+          response.message,
+          retryAfterSeconds: response.retryAfterSeconds,
+        );
+      } else {
+          return ContactSupportResult.success(response.message);
+      }
     } on AppException catch (e) {
-      throw Exception(e.message);
+      return ContactSupportResult.failure(e.message);
     } catch (e) {
-      throw Exception('Contact support failed: $e');
+      return ContactSupportResult.failure('Contact support failed: $e');
     }
   }
 }

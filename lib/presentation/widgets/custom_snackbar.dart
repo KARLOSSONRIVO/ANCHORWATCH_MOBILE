@@ -1,36 +1,29 @@
 import 'package:flutter/material.dart';
 
-/// Custom snackbar widget with modern styling
 class CustomSnackBar extends SnackBar {
   CustomSnackBar({
     super.key,
     required String message,
     SnackBarType type = SnackBarType.info,
-    Duration duration = const Duration(seconds: 3),
+    super.duration = const Duration(milliseconds: 500),
     VoidCallback? onActionPressed,
     String? actionLabel,
   }) : super(
-          content: _SnackBarContent(
-            message: message,
-            type: type,
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          behavior: SnackBarBehavior.floating,
-          duration: duration,
-          margin: const EdgeInsets.all(16),
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          action: onActionPressed != null && actionLabel != null
-              ? SnackBarAction(
-                  label: actionLabel,
-                  onPressed: onActionPressed,
-                  textColor: _getActionColor(type),
-                )
-              : null,
-        );
+         content: _SnackBarContent(message: message, type: type),
+         backgroundColor: Colors.transparent,
+         elevation: 0,
+         behavior: SnackBarBehavior.floating,
+         margin: const EdgeInsets.all(16),
+         padding: EdgeInsets.zero,
+         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+         action: onActionPressed != null && actionLabel != null
+             ? SnackBarAction(
+                 label: actionLabel,
+                 onPressed: onActionPressed,
+                 textColor: _getActionColor(type),
+               )
+             : null,
+       );
 
   static Color _getActionColor(SnackBarType type) {
     switch (type) {
@@ -46,12 +39,8 @@ class CustomSnackBar extends SnackBar {
   }
 }
 
-/// Content widget for the custom snackbar
 class _SnackBarContent extends StatelessWidget {
-  const _SnackBarContent({
-    required this.message,
-    required this.type,
-  });
+  const _SnackBarContent({required this.message, required this.type});
 
   final String message;
   final SnackBarType type;
@@ -65,7 +54,7 @@ class _SnackBarContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: _getColor(type).withOpacity(0.3),
+            color: _getColor(type).withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -73,11 +62,7 @@ class _SnackBarContent extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            _getIcon(type),
-            color: _getIconColor(type),
-            size: 20,
-          ),
+          Icon(_getIcon(type), color: _getIconColor(type), size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -126,10 +111,7 @@ class _SnackBarContent extends StatelessWidget {
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [
-        color,
-        color.withOpacity(0.8),
-      ],
+      colors: [color, color.withValues(alpha: 0.8)],
     );
   }
 
@@ -156,17 +138,9 @@ class _SnackBarContent extends StatelessWidget {
   }
 }
 
-/// Enum for different snackbar types
-enum SnackBarType {
-  success,
-  error,
-  warning,
-  info,
-}
+enum SnackBarType { success, error, warning, info }
 
-/// Helper class for showing custom snackbars
 class SnackBarHelper {
-  /// Show a success snackbar
   static void showSuccess(
     BuildContext context,
     String message, {
@@ -178,14 +152,13 @@ class SnackBarHelper {
       CustomSnackBar(
         message: message,
         type: SnackBarType.success,
-        duration: duration ?? const Duration(seconds: 3),
+        duration: duration ?? const Duration(milliseconds: 500),
         onActionPressed: onActionPressed,
         actionLabel: actionLabel,
       ),
     );
   }
 
-  /// Show an error snackbar
   static void showError(
     BuildContext context,
     String message, {
@@ -197,14 +170,13 @@ class SnackBarHelper {
       CustomSnackBar(
         message: message,
         type: SnackBarType.error,
-        duration: duration ?? const Duration(seconds: 4),
+        duration: duration ?? const Duration(milliseconds: 500),
         onActionPressed: onActionPressed,
         actionLabel: actionLabel,
       ),
     );
   }
 
-  /// Show a warning snackbar
   static void showWarning(
     BuildContext context,
     String message, {
@@ -216,14 +188,13 @@ class SnackBarHelper {
       CustomSnackBar(
         message: message,
         type: SnackBarType.warning,
-        duration: duration ?? const Duration(seconds: 3),
+        duration: duration ?? const Duration(milliseconds: 500),
         onActionPressed: onActionPressed,
         actionLabel: actionLabel,
       ),
     );
   }
 
-  /// Show an info snackbar
   static void showInfo(
     BuildContext context,
     String message, {
@@ -235,14 +206,13 @@ class SnackBarHelper {
       CustomSnackBar(
         message: message,
         type: SnackBarType.info,
-        duration: duration ?? const Duration(seconds: 3),
+        duration: duration ?? const Duration(milliseconds: 500),
         onActionPressed: onActionPressed,
         actionLabel: actionLabel,
       ),
     );
   }
 
-  /// Show a general snackbar (backward compatibility)
   static void show(
     BuildContext context,
     String message, {

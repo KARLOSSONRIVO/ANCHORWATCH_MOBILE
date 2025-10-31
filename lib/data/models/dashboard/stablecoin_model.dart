@@ -1,6 +1,4 @@
 import '../../../domain/entities/stablecoin_chart_data.dart';
-
-// API Response wrapper
 class ApiResponse<T> {
   final bool success;
   final String message;
@@ -23,8 +21,6 @@ class ApiResponse<T> {
     );
   }
 }
-
-// Updated models to match your actual API response
 class UnifiedStablecoinDataModel {
   final String date;
   final double price;
@@ -72,8 +68,6 @@ class UnifiedStablecoinDataModel {
   }
 
   DateTime get dateTime => DateTime.parse(date);
-
-  // Convert to old model format for compatibility
   SupplyDataPoint toSupplyDataPoint() {
     return SupplyDataPoint(
       date: dateTime,
@@ -90,16 +84,19 @@ class UnifiedStablecoinDataModel {
     return NetChangeData(date: dateTime, netChangeUsd: netChangeUsd);
   }
 }
-
-// Updated stablecoin chart data model to work with your API
 class StablecoinChartDataModel {
   final List<UnifiedStablecoinDataModel> data;
 
   StablecoinChartDataModel({required this.data});
 
   factory StablecoinChartDataModel.fromJson(Map<String, dynamic> json) {
-    // Handle the API response wrapper
-    final responseData = json['data'] as List<dynamic>;
+    final rawData = json['data'];
+    final responseData = rawData is List
+        ? rawData
+        : rawData is Map<String, dynamic>
+            ? (rawData['data'] as List<dynamic>? ?? const [])
+            : const [];
+
     return StablecoinChartDataModel(
       data: responseData
           .map(
@@ -122,3 +119,4 @@ class StablecoinChartDataModel {
     );
   }
 }
+

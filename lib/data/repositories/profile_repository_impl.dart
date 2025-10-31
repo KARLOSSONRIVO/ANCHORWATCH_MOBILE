@@ -32,7 +32,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
       );
 
       final response = await _remoteDataSource.changePassword(request);
-      return ChangePasswordResult.success(response.message);
+
+      // Check if the response indicates success or failure
+      if (response.success == false) {
+        return ChangePasswordResult.failure(response.message);
+      } else {
+        return ChangePasswordResult.success(response.message);
+      }
     } on AppException catch (e) {
       return ChangePasswordResult.failure(e.message);
     } catch (e) {
@@ -45,9 +51,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required String newUsername,
   }) async {
     try {
-      final request = ChangeUsernameRequestModel(
-        newUsername: newUsername,
-      );
+      final request = ChangeUsernameRequestModel(newUsername: newUsername);
 
       final response = await _remoteDataSource.changeUsername(request);
       return ChangeUsernameResult.success(response.message);
@@ -63,16 +67,22 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required String newEmail,
   }) async {
     try {
-      final request = RequestChangeEmailRequestModel(
-        newEmail: newEmail,
-      );
+      final request = RequestChangeEmailRequestModel(newEmail: newEmail);
 
       final response = await _remoteDataSource.requestChangeEmail(request);
-      return RequestChangeEmailResult(message: response.message);
+
+      // Check if the response indicates success or failure
+      if (response.success == false) {
+        return RequestChangeEmailResult.failure(response.message);
+      } else {
+        return RequestChangeEmailResult.success(response.message);
+      }
     } on AppException catch (e) {
-      throw Exception(e.message);  // Throw exception to trigger failure state
+      return RequestChangeEmailResult.failure(e.message);
     } catch (e) {
-      throw Exception('Request change email failed: $e');  // Throw exception to trigger failure state
+      return RequestChangeEmailResult.failure(
+        'Request change email failed: $e',
+      );
     }
   }
 
@@ -88,11 +98,19 @@ class ProfileRepositoryImpl implements ProfileRepository {
       );
 
       final response = await _remoteDataSource.confirmChangeEmail(request);
-      return ConfirmChangeEmailResult(message: response.message);
+
+      // Check if the response indicates success or failure
+      if (response.success == false) {
+        return ConfirmChangeEmailResult.failure(response.message);
+      } else {
+        return ConfirmChangeEmailResult.success(response.message);
+      }
     } on AppException catch (e) {
-      throw Exception(e.message);  // Throw exception to trigger failure state
+      return ConfirmChangeEmailResult.failure(e.message);
     } catch (e) {
-      throw Exception('Confirm change email failed: $e');  // Throw exception to trigger failure state
+      return ConfirmChangeEmailResult.failure(
+        'Confirm change email failed: $e',
+      );
     }
   }
 }

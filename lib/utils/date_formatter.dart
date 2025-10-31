@@ -1,15 +1,5 @@
 import 'package:intl/intl.dart';
-
-/// Utility class for formatting dates in the app
 class DateFormatter {
-  /// Formats a date to a human-readable relative time string
-  /// 
-  /// Returns:
-  /// - "Just now" for very recent dates
-  /// - "Xm ago" for minutes ago
-  /// - "Xh ago" for hours ago  
-  /// - "Xd ago" for days ago
-  /// - "MMM d, yyyy" for dates older than 7 days
   static String formatRelativeDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -26,9 +16,6 @@ class DateFormatter {
       return 'Just now';
     }
   }
-
-  /// Formats a date to a compact display format
-  /// Used for dashboard cards and other compact views
   static String formatCompactDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -43,9 +30,46 @@ class DateFormatter {
       return 'Now';
     }
   }
-
-  /// Formats a date to a standard format (MMM d, yyyy)
   static String formatStandardDate(DateTime date) {
     return DateFormat('MMM d, yyyy').format(date);
+  }
+
+  static String formatMonthYear(DateTime date) {
+    return DateFormat('MMM yyyy').format(date);
+  }
+
+  static String formatMonth(DateTime date) {
+    return DateFormat('MMMM').format(date);
+  }
+
+  static DateTime? tryParsePeriodLabel(String rawLabel) {
+    final cleaned = rawLabel.trim();
+    if (cleaned.isEmpty) {
+      return null;
+    }
+
+    final direct = DateTime.tryParse(cleaned);
+    if (direct != null) {
+      return direct;
+    }
+
+    final yearMonthMatch = RegExp(r'^(\d{4})[-/](\d{1,2})$').firstMatch(cleaned);
+    if (yearMonthMatch != null) {
+      final year = int.tryParse(yearMonthMatch.group(1)!);
+      final month = int.tryParse(yearMonthMatch.group(2)!);
+      if (year != null && month != null) {
+        return DateTime(year, month);
+      }
+    }
+
+    final yearOnlyMatch = RegExp(r'^(\d{4})$').firstMatch(cleaned);
+    if (yearOnlyMatch != null) {
+      final year = int.tryParse(yearOnlyMatch.group(1)!);
+      if (year != null) {
+        return DateTime(year);
+      }
+    }
+
+    return null;
   }
 }

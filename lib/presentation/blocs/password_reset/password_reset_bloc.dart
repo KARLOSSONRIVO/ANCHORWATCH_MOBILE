@@ -6,8 +6,6 @@ import '../../../domain/usecases/auth/verify_otp_usecase.dart';
 import '../../../domain/usecases/auth/reset_password_usecase.dart';
 import 'password_reset_event.dart';
 import 'password_reset_state.dart';
-
-/// BLoC for handling password reset flow
 @injectable
 class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
   final ForgotPasswordUseCase _forgotPasswordUseCase;
@@ -39,8 +37,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
     _otpTimer?.cancel();
     return super.close();
   }
-
-  /// Handle email input change
   void _onEmailChanged(
     PasswordResetEmailChanged event,
     Emitter<PasswordResetState> emit,
@@ -52,8 +48,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       errorMessage: null,
     ));
   }
-
-  /// Handle OTP input change
   void _onOtpChanged(
     PasswordResetOtpChanged event,
     Emitter<PasswordResetState> emit,
@@ -65,8 +59,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       errorMessage: null,
     ));
   }
-
-  /// Handle new password input change
   void _onNewPasswordChanged(
     PasswordResetNewPasswordChanged event,
     Emitter<PasswordResetState> emit,
@@ -81,8 +73,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       errorMessage: null,
     ));
   }
-
-  /// Handle confirm password input change
   void _onConfirmPasswordChanged(
     PasswordResetConfirmPasswordChanged event,
     Emitter<PasswordResetState> emit,
@@ -97,8 +87,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       errorMessage: null,
     ));
   }
-
-  /// Handle email request
   Future<void> _onEmailRequested(
     PasswordResetEmailRequested event,
     Emitter<PasswordResetState> emit,
@@ -122,8 +110,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       ));
     }
   }
-
-  /// Handle OTP verification
   Future<void> _onOtpVerified(
     PasswordResetOtpVerified event,
     Emitter<PasswordResetState> emit,
@@ -134,8 +120,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
 
     try {
       final result = await _verifyOtpUseCase.call(otp: event.otpCode);
-      
-      // Store the verified email from the API response
       emit(state.copyWith(
         status: PasswordResetStatus.otpVerified,
         step: PasswordResetStep.newPassword,
@@ -148,8 +132,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       ));
     }
   }
-
-  /// Handle password reset confirmation
   Future<void> _onPasswordResetConfirmed(
     PasswordResetConfirmed event,
     Emitter<PasswordResetState> emit,
@@ -173,8 +155,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       ));
     }
   }
-
-  /// Handle OTP resend request
   Future<void> _onOtpResendRequested(
     PasswordResetOtpResendRequested event,
     Emitter<PasswordResetState> emit,
@@ -198,8 +178,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       ));
     }
   }
-
-  /// Handle next step navigation
   void _onNextStep(
     PasswordResetNextStep event,
     Emitter<PasswordResetState> emit,
@@ -216,19 +194,15 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
         }
         break;
       case PasswordResetStep.newPassword:
-        // Final step, no next step
         break;
     }
   }
-
-  /// Handle previous step navigation
   void _onPreviousStep(
     PasswordResetPreviousStep event,
     Emitter<PasswordResetState> emit,
   ) {
     switch (state.step) {
       case PasswordResetStep.email:
-        // First step, no previous step
         break;
       case PasswordResetStep.otp:
         emit(state.copyWith(
@@ -244,8 +218,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
         break;
     }
   }
-
-  /// Handle flow reset
   void _onFlowReset(
     PasswordResetFlowReset event,
     Emitter<PasswordResetState> emit,
@@ -253,8 +225,6 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
     _otpTimer?.cancel();
     emit(const PasswordResetState());
   }
-
-  /// Start OTP resend timer
   void _startOtpTimer(Emitter<PasswordResetState> emit) {
     _otpTimer?.cancel();
     
@@ -282,23 +252,18 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       }
     });
   }
-
-  /// Validate email format
   bool _validateEmail(String email) {
     return email.isNotEmpty && 
            email.contains('@') && 
            email.contains('.') &&
            RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
-
-  /// Validate OTP format
   bool _validateOtp(String otp) {
     return otp.length == 6 && RegExp(r'^\d{6}$').hasMatch(otp);
   }
-
-  /// Validate password strength
   bool _validatePassword(String password) {
     return password.length >= 8 &&
            RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(password);
   }
 }
+

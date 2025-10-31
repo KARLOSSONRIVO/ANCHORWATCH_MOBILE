@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-/// Navigation stack entry to track navigation history
 class NavigationStackEntry extends Equatable {
   final int pageIndex;
   final String routeName;
@@ -15,21 +13,15 @@ class NavigationStackEntry extends Equatable {
   @override
   List<Object> get props => [pageIndex, routeName, timestamp];
 }
-
-/// States for the NavigationBloc
 abstract class NavigationState extends Equatable {
   const NavigationState();
 
   @override
   List<Object> get props => [];
 }
-
-/// Initial state of navigation
 class NavigationInitial extends NavigationState {
   const NavigationInitial();
 }
-
-/// State when a specific page is selected
 class NavigationPageSelected extends NavigationState {
   final int currentIndex;
   final String pageName;
@@ -45,8 +37,6 @@ class NavigationPageSelected extends NavigationState {
 
   @override
   List<Object> get props => [currentIndex, pageName, navigationStack, canGoBack];
-
-  /// Create a new state with updated navigation stack
   NavigationPageSelected copyWith({
     int? currentIndex,
     String? pageName,
@@ -60,8 +50,6 @@ class NavigationPageSelected extends NavigationState {
       canGoBack: canGoBack ?? this.canGoBack,
     );
   }
-
-  /// Get page name from index
   static String getPageName(int index) {
     switch (index) {
       case 0:
@@ -78,8 +66,6 @@ class NavigationPageSelected extends NavigationState {
         return 'Dashboard';
     }
   }
-
-  /// Get route name from index
   static String getRouteName(int index) {
     switch (index) {
       case 0:

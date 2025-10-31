@@ -43,8 +43,6 @@ class NumberFormatter {
       final scaledValue = absoluteValue / 1e3;
       formattedNumber = '${_formatValue(scaledValue)}K';
     } else {
-      // For currency values, always use consistent decimal formatting
-      // Round to 2 decimal places for cleaner display
       final rounded = (absoluteValue * 100).round() / 100;
       formattedNumber = _formatValue(rounded);
     }
@@ -74,32 +72,20 @@ class NumberFormatter {
     final result = '${_formatValue(millionValue)}M';
     return isNegative ? '-$result' : result;
   }
-
-  /// Removes .00 when appropriate and limits decimal places
   static String _formatValue(double value) {
     if (value == value.truncateToDouble()) {
-      // Value is a whole number
       return value.truncate().toString();
     }
-    
-    // For decimal values, show up to 2 decimal places
     String result = value.toStringAsFixed(2);
-    
-    // Remove trailing zeros but keep at least one decimal if original had decimals
     if (result.endsWith('0')) {
       result = result.replaceAll(RegExp(r'0*$'), '');
     }
-    
-    // Remove decimal point if it's now at the end (was .00)
     if (result.endsWith('.')) {
       result = result.substring(0, result.length - 1);
     }
     
     return result;
   }
-
-  /// Formats a large number for display in data tables
-  /// Similar to formatNumber but with slightly different rules for readability
   static String formatTableValue(double value) {
     if (value.isNaN || value.isInfinite) {
       return '-';
@@ -111,8 +97,6 @@ class NumberFormatter {
 
     return formatNumber(value);
   }
-
-  /// Formats inflation or other macro indicators that might be NaN
   static String formatMacroIndicator(double value) {
     if (value.isNaN || value.isInfinite) {
       return '-';

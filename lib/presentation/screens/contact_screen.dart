@@ -6,16 +6,13 @@ import '../widgets/loading_widget.dart';
 import '../widgets/custom_snackbar.dart';
 import '../../injection_container.dart';
 
-/// Contact screen with BLoC architecture
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    print('[CONTACT_SCREEN] ContactScreen build called');
     return BlocProvider(
       create: (context) {
-        print('[CONTACT_SCREEN] Creating ContactBloc and adding load event');
         return getIt<ContactBloc>()..add(const ContactLoadRequested());
       },
       child: const _ContactView(),
@@ -56,43 +53,31 @@ class _ContactViewState extends State<_ContactView> {
         ),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppTheme.getTextPrimaryColor(context)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppTheme.getTextPrimaryColor(context),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: BlocConsumer<ContactBloc, ContactState>(
         listenWhen: (previous, current) {
-          // Only listen when status actually changes to avoid repeated snackbars
           return previous.status != current.status;
         },
         listener: (context, state) {
           if (state.status == ContactStatus.submitted) {
-            // Clear the text field when form is successfully submitted
             _questionController.clear();
-            
-            // Show success message
             SnackBarHelper.showSuccess(
               context,
               'Your question has been submitted successfully!',
-              duration: const Duration(seconds: 3),
+              duration: const Duration(milliseconds: 1500),
             );
-            
-            // Reset status to prevent repeated snackbars
             context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.failure) {
-            // Show error message
-            SnackBarHelper.showError(
-              context,
-              state.errorMessage,
-              duration: const Duration(seconds: 3),
-            );
-            
-            // Reset status to prevent repeated snackbars
+            SnackBarHelper.showError(context, state.errorMessage);
             context.read<ContactBloc>().add(const ContactStatusReset());
           } else if (state.status == ContactStatus.navigatingToFaq) {
-            // Navigate to FAQ (use regular push instead of replacement)
             Navigator.of(context).pushNamed('/faq').then((_) {
-              // Reset status after navigation
               if (context.mounted) {
                 context.read<ContactBloc>().add(const ContactStatusReset());
               }
@@ -105,7 +90,6 @@ class _ContactViewState extends State<_ContactView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header section
                 Text(
                   'Your Questions, Answered.',
                   style: TextStyle(
@@ -126,8 +110,6 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
-                // Description
                 Text(
                   'Our Help Desk is here to provide clear guidance and practical solutions to dedicated support to empower your financial decisions. Whether you\'re exploring strategic market moves, need help with your account, or want better insights into advanced trading strategies, we\'re here to help, making your AnchorWatch experience intuitive, secure, and precision trading.',
                   style: TextStyle(
@@ -139,8 +121,6 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
-                // How can we help section
                 Text(
                   'How can we help?',
                   style: TextStyle(
@@ -151,8 +131,6 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
-                // Question input field
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
@@ -192,30 +170,32 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
-                // Send button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: state.isFormValid && state.status != ContactStatus.submitting
+                    onPressed:
+                        state.isFormValid &&
+                            state.status != ContactStatus.submitting
                         ? () {
-                            context.read<ContactBloc>().add(const ContactFormSubmitted());
+                            context.read<ContactBloc>().add(
+                              const ContactFormSubmitted(),
+                            );
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: state.isFormValid 
-                          ? const Color(0xFF4CAF50) 
+                      backgroundColor: state.isFormValid
+                          ? const Color(0xFF4CAF50)
                           : const Color(0xFF424242),
-                      foregroundColor: state.isFormValid 
-                          ? Colors.white 
+                      foregroundColor: state.isFormValid
+                          ? Colors.white
                           : const Color(0xFFBBBBBB),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
-                        side: state.isFormValid 
-                            ? BorderSide.none 
+                        side: state.isFormValid
+                            ? BorderSide.none
                             : const BorderSide(
-                                color: Color(0xFF666666), 
+                                color: Color(0xFF666666),
                                 width: 1,
                               ),
                       ),
@@ -233,7 +213,7 @@ class _ContactViewState extends State<_ContactView> {
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
-                              color: state.isFormValid 
+                              color: state.isFormValid
                                   ? AppTheme.getTextPrimaryColor(context)
                                   : AppTheme.getTextSecondaryColor(context),
                             ),
@@ -241,13 +221,12 @@ class _ContactViewState extends State<_ContactView> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
-                // Go to FAQs link
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      // Trigger FAQ navigation through BLoC
-                      context.read<ContactBloc>().add(const ContactNavigateToFaq());
+                      context.read<ContactBloc>().add(
+                        const ContactNavigateToFaq(),
+                      );
                     },
                     child: const Text(
                       'Go to FAQs',

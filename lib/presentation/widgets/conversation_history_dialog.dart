@@ -5,7 +5,6 @@ import '../blocs/anchorwise/anchorwise_bloc.dart';
 import '../blocs/anchorwise/anchorwise_event.dart';
 import '../blocs/anchorwise/anchorwise_state.dart';
 
-/// Dialog to show conversation history
 class ConversationHistoryDialog extends StatelessWidget {
   const ConversationHistoryDialog({super.key});
 
@@ -18,16 +17,16 @@ class ConversationHistoryDialog extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Spacer(),
-                Text(
-                  'Conversation History',
-                  style: Theme.of(context).textTheme.headlineSmall,
+                Expanded(
+                  child: Text(
+                    'Conversation History',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                const Spacer(),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close),
@@ -35,20 +34,15 @@ class ConversationHistoryDialog extends StatelessWidget {
               ],
             ),
             const Divider(),
-            // Conversations list
             Expanded(
               child: BlocBuilder<AnchorWiseBloc, AnchorWiseState>(
                 builder: (context, state) {
                   if (state.isLoadingConversations) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   if (state.conversations.isEmpty) {
-                    return const Center(
-                      child: Text('No conversations found'),
-                    );
+                    return const Center(child: Text('No conversations found'));
                   }
 
                   return ListView.builder(
@@ -58,11 +52,11 @@ class ConversationHistoryDialog extends StatelessWidget {
                       return _ConversationTile(
                         conversation: conversation,
                         onTap: () {
-                          // Select the conversation
-                          context
-                              .read<AnchorWiseBloc>()
-                              .add(AnchorWiseSelectConversation(conversation.conversationId));
-                          // Close the dialog
+                          context.read<AnchorWiseBloc>().add(
+                            AnchorWiseSelectConversation(
+                              conversation.conversationId,
+                            ),
+                          );
                           Navigator.of(context).pop();
                         },
                       );
@@ -78,30 +72,23 @@ class ConversationHistoryDialog extends StatelessWidget {
   }
 }
 
-/// Individual conversation tile widget
 class _ConversationTile extends StatelessWidget {
   final ConversationItem conversation;
   final VoidCallback onTap;
 
-  const _ConversationTile({
-    required this.conversation,
-    required this.onTap,
-  });
+  const _ConversationTile({required this.conversation, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
-          child: Icon(
-            Icons.chat,
-            color: theme.colorScheme.onPrimaryContainer,
-          ),
+          child: Icon(Icons.chat, color: theme.colorScheme.onPrimaryContainer),
         ),
         title: Text(
           conversation.title,
@@ -113,17 +100,17 @@ class _ConversationTile extends StatelessWidget {
           onPressed: () {
             _showDeleteConfirmation(context, conversation);
           },
-          icon: Icon(
-            Icons.delete_outline,
-            color: theme.colorScheme.error,
-          ),
+          icon: Icon(Icons.delete_outline, color: theme.colorScheme.error),
           tooltip: 'Delete conversation',
         ),
       ),
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, ConversationItem conversation) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    ConversationItem conversation,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -139,21 +126,10 @@ class _ConversationTile extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Delete the conversation
-                context
-                    .read<AnchorWiseBloc>()
-                    .add(AnchorWiseDeleteConversation(conversation.conversationId));
-                
-                // Close the confirmation dialog
-                Navigator.of(dialogContext).pop();
-                
-                // Show success message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Conversation "${conversation.title}" deleted'),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ),
+                context.read<AnchorWiseBloc>().add(
+                  AnchorWiseDeleteConversation(conversation.conversationId),
                 );
+                Navigator.of(dialogContext).pop();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,

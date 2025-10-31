@@ -1,6 +1,4 @@
 import 'package:equatable/equatable.dart';
-
-// Chart data models for Syncfusion
 class ChartData {
   final DateTime x;
   final double y;
@@ -24,8 +22,6 @@ class ScatterChartData {
   
   ScatterChartData(this.x, this.y, this.label);
 }
-
-// Data models for dashboard state
 class YearlyPricePoint {
   final int year;
   final int month;
@@ -61,8 +57,6 @@ class YearlyMacro {
   
   YearlyMacro(this.year, this.inflation, this.gdp, {this.month = 1});
 }
-
-// UI data models
 class LinePoint {
   final String x;
   final double y;
@@ -136,8 +130,6 @@ class DashboardLoadedState extends DashboardState {
   final List<LinePoint> rollingCorrSeries;
   final List<HeatCell> heatCells;
   final List<String> heatVars;
-  
-  // Chart data for Syncfusion
   final List<ChartData> supplyChartData;
   final List<ChartData> priceChartData;
   final List<ChartData> inflationChartData;

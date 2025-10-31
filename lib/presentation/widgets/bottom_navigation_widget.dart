@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/navigation_service.dart';
 import '../themes/app_theme.dart';
-
-/// Bottom navigation bar widget with 5 main navigation items
 class BottomNavigationWidget extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -81,7 +79,6 @@ class BottomNavigationWidget extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          // Close drawer if open before navigation
           NavigationService.forceCloseDrawer();
           onTap(index);
         },
@@ -101,7 +98,6 @@ class BottomNavigationWidget extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
               ),
-              // Add small dot indicator for items in navigation stack
               const SizedBox(height: 1),
               _buildStackIndicator(context, index, isSelected),
             ],
@@ -110,11 +106,7 @@ class BottomNavigationWidget extends StatelessWidget {
       ),
     );
   }
-
-  /// Build a small indicator to show if this nav item is in the navigation stack
   Widget _buildStackIndicator(BuildContext context, int index, bool isSelected) {
-    // For now, just return an empty container - you can enhance this later
-    // to show actual stack status by importing navigation bloc
     return Container(
       width: 4,
       height: 4,

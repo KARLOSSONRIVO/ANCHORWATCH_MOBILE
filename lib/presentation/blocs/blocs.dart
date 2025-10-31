@@ -1,5 +1,5 @@
-// Export all BLoCs from this file for easy import
 export 'authentication/authentication.dart';
+export 'signup/signup.dart';
 export 'onboarding/onboarding.dart';
 export 'navigation/navigation_bloc.dart';
 export 'navigation/navigation_event.dart';

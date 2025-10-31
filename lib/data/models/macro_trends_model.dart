@@ -1,17 +1,17 @@
 import '../../domain/entities/macro_trends.dart';
-
-// Data models for API response mapping
 class MacroTrendsModel {
   final List<InflationRateModel> annualInflationRates;
   final List<InflationSupplyModel> inflationVsSupplyGrowth;
   final List<InflationRateModel> inflationTimeline;
   final List<CorrelationModel> correlationTable;
+  final List<RollingCorrelationModel> rollingCorrelations;
 
   MacroTrendsModel({
     required this.annualInflationRates,
     required this.inflationVsSupplyGrowth,
     required this.inflationTimeline,
     required this.correlationTable,
+    required this.rollingCorrelations,
   });
 
   factory MacroTrendsModel.fromJson(Map<String, dynamic> json) {
@@ -48,6 +48,15 @@ class MacroTrendsModel {
               )
               .toList() ??
           [],
+      rollingCorrelations:
+          (json['rolling_correlations'] as List<dynamic>?)
+              ?.map(
+                (item) => RollingCorrelationModel.fromJson(
+                  item as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
+          [],
     );
   }
 
@@ -65,42 +74,78 @@ class MacroTrendsModel {
       correlationTable: correlationTable
           .map((model) => model.toEntity())
           .toList(),
+    rollingCorrelations: rollingCorrelations
+      .map((model) => model.toEntity())
+      .toList(),
     );
   }
 }
 
 class InflationRateModel {
   final int year;
+  final String? period;
   final double? inflationRate;
 
-  InflationRateModel({required this.year, required this.inflationRate});
+  InflationRateModel({required this.year, this.period, required this.inflationRate});
 
   factory InflationRateModel.fromJson(Map<String, dynamic> json) {
+    int yearValue = 0;
+    String? periodValue;
+    
+    if (json['year'] != null) {
+      yearValue = json['year'] as int;
+    } else if (json['period'] != null) {
+      periodValue = json['period'] as String;
+      try {
+        yearValue = int.parse(periodValue.split('-')[0]);
+      } catch (e) {
+        yearValue = 0;
+      }
+    }
+    
     return InflationRateModel(
-      year: json['year'] as int? ?? 0,
+      year: yearValue,
+      period: periodValue,
       inflationRate: (json['inflation_rate'] as num?)?.toDouble(),
     );
   }
 
   InflationRateData toEntity() {
-    return InflationRateData(year: year, inflationRate: inflationRate);
+    return InflationRateData(year: year, period: period, inflationRate: inflationRate);
   }
 }
 
 class InflationSupplyModel {
   final int year;
+  final String? period;
   final double? inflationRate;
   final double? supplyGrowthPct;
 
   InflationSupplyModel({
     required this.year,
+    this.period,
     required this.inflationRate,
     this.supplyGrowthPct,
   });
 
   factory InflationSupplyModel.fromJson(Map<String, dynamic> json) {
+    int yearValue = 0;
+    String? periodValue;
+    
+    if (json['year'] != null) {
+      yearValue = json['year'] as int;
+    } else if (json['period'] != null) {
+      periodValue = json['period'] as String;
+      try {
+        yearValue = int.parse(periodValue.split('-')[0]);
+      } catch (e) {
+        yearValue = 0;
+      }
+    }
+    
     return InflationSupplyModel(
-      year: json['year'] as int? ?? 0,
+      year: yearValue,
+      period: periodValue,
       inflationRate: (json['inflation_rate'] as num?)?.toDouble(),
       supplyGrowthPct: (json['supply_growth_pct'] as num?)?.toDouble(),
     );
@@ -109,6 +154,7 @@ class InflationSupplyModel {
   InflationSupplyData toEntity() {
     return InflationSupplyData(
       year: year,
+      period: period,
       inflationRate: inflationRate,
       supplyGrowthPct: supplyGrowthPct,
     );
@@ -154,3 +200,25 @@ class CorrelationModel {
     );
   }
 }
+
+class RollingCorrelationModel {
+  final String date;
+  final double correlation;
+
+  RollingCorrelationModel({required this.date, required this.correlation});
+
+  factory RollingCorrelationModel.fromJson(Map<String, dynamic> json) {
+    return RollingCorrelationModel(
+      date: json['date'] as String? ?? '',
+      correlation: (json['correlation'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  RollingCorrelationData toEntity() {
+    return RollingCorrelationData(
+      periodLabel: date,
+      correlation: correlation,
+    );
+  }
+}
+

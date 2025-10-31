@@ -1,4 +1,3 @@
-// Profile picture upload related models
 
 class GenerateProfileUploadURLRequestModel {
   final String contentType;
@@ -95,3 +94,4 @@ class ConfirmProfileImageResponseModel {
     };
   }
 }
+

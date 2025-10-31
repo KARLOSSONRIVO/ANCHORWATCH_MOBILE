@@ -1,11 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../injection_container.dart';
 import '../blocs/alerts/alerts.dart';
 import '../widgets/widgets.dart';
 import '../themes/app_theme.dart';
-
-/// Alerts page with comprehensive alert management
 class AlertsScreen extends StatelessWidget {
   const AlertsScreen({super.key});
 
@@ -35,6 +33,9 @@ class _AlertsView extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, AlertsState state) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+    final accentColor = isLightMode ? AppTheme.aiSummaryColorLight : const Color(0xFF00D4AA);
+    
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -53,20 +54,19 @@ class _AlertsView extends StatelessWidget {
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00D4AA).withValues(alpha: 0.1),
+                      color: accentColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(60),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.notifications_outlined,
                       size: 60,
-                      color: Color(0xFF00D4AA),
+                      color: accentColor,
                     ),
                   );
                 },
               ),
             ),
           ),
-
           Row(
             children: [
               Text(
@@ -80,7 +80,7 @@ class _AlertsView extends StatelessWidget {
               ),
               const Spacer(),
               PopupMenuButton<String>(
-                icon: Icon(Icons.filter_list, color: const Color(0xFF00D4AA)),
+                icon: Icon(Icons.filter_list, color: accentColor),
                 onSelected: (value) => _handleFilterSelection(context, value),
                 itemBuilder: (BuildContext context) => [
                   const PopupMenuItem(value: 'all', child: Text('All Alerts')),
@@ -108,13 +108,11 @@ class _AlertsView extends StatelessWidget {
                     const AlertsRefreshRequested(),
                   );
                 },
-                icon: const Icon(Icons.refresh, color: Color(0xFF00D4AA)),
+                icon: Icon(Icons.refresh, color: accentColor),
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
@@ -147,7 +145,6 @@ class _AlertsView extends StatelessWidget {
         break;
       case 'all':
       default:
-        // Clear filters
         break;
     }
 
@@ -157,6 +154,9 @@ class _AlertsView extends StatelessWidget {
   }
 
   Widget _buildStateContent(BuildContext context, AlertsState state) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+    final accentColor = isLightMode ? AppTheme.aiSummaryColorLight : const Color(0xFF00D4AA);
+    
     if (state is AlertsLoading) {
       return const Center(child: LoadingWidget());
     }
@@ -193,7 +193,7 @@ class _AlertsView extends StatelessWidget {
                 context.read<AlertsBloc>().add(const AlertsLoadRequested());
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00D4AA),
+                backgroundColor: accentColor,
                 foregroundColor: Colors.white,
               ),
               child: const Text('Retry'),
@@ -645,3 +645,4 @@ class _AlertsView extends StatelessWidget {
     }
   }
 }
+

@@ -4,9 +4,13 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:injectable/injectable.dart';
 import '../domain/entities/alert.dart';
 import '../data/models/alert_model.dart';
+import 'email_service.dart';
 
 @singleton
 class AlertWebSocketService {
+  final EmailService _emailService;
+
+  AlertWebSocketService(this._emailService);
   WebSocketChannel? _channel;
   StreamController<Alert>? _alertController;
   StreamController<AlertDashboard>? _dashboardController;
@@ -26,8 +30,6 @@ class AlertWebSocketService {
       _alertController ??= StreamController<Alert>.broadcast();
       _dashboardController ??= StreamController<AlertDashboard>.broadcast();
       _connectionController ??= StreamController<bool>.broadcast();
-
-      // Convert HTTP/HTTPS URL to WebSocket URL
       final wsUrl = baseUrl.replaceFirst('http', 'ws');
 
       _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/ws/alerts/'));
@@ -39,18 +41,15 @@ class AlertWebSocketService {
           _handleWebSocketMessage(data);
         },
         onError: (error) {
-          print('WebSocket error: $error');
           _connectionController?.add(false);
           _reconnect(baseUrl);
         },
         onDone: () {
-          print('WebSocket connection closed');
           _connectionController?.add(false);
           _reconnect(baseUrl);
         },
       );
     } catch (e) {
-      print('Failed to connect to WebSocket: $e');
       _connectionController?.add(false);
     }
   }
@@ -59,24 +58,24 @@ class AlertWebSocketService {
     try {
       final jsonData = jsonDecode(data as String);
 
-      if (jsonData['type'] == 'alert') {
+        if (jsonData['type'] == 'alert') {
         final alertModel = AlertModel.fromJson(jsonData['data']);
         final alert = alertModel.toEntity();
         _alertController?.add(alert);
+
+        try {
+          _emailService.sendAlertEmail(alert).then((result) {
+          }).catchError((e) {
+          });
+        } catch (_) {}
       } else if (jsonData['type'] == 'dashboard') {
-        // Handle dashboard updates if needed
-        // final dashboard = AlertDashboardModel.fromJson(jsonData['data']).toEntity();
-        // _dashboardController?.add(dashboard);
       }
-    } catch (e) {
-      print('Error parsing WebSocket message: $e');
-    }
+    } catch (_) {}
   }
 
   void _reconnect(String baseUrl) {
     Timer(const Duration(seconds: 5), () {
       if (!isConnected) {
-        print('Attempting to reconnect to WebSocket...');
         connect(baseUrl: baseUrl);
       }
     });
@@ -112,3 +111,4 @@ class AlertWebSocketService {
     _connectionController = null;
   }
 }
+

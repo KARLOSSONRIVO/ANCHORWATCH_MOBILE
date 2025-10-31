@@ -31,8 +31,6 @@ class AuthRepositoryImpl implements AuthRepository {
     );
 
     final response = await _remoteDataSource.login(request);
-
-    // Convert data models to domain entities
     final user = User(
       id: response.user.id,
       username: response.user.username,
@@ -63,8 +61,6 @@ class AuthRepositoryImpl implements AuthRepository {
     );
 
     final response = await _remoteDataSource.register(request);
-
-    // Convert data models to domain entities
     final user = User(
       id: response.user.id,
       username: response.user.username,

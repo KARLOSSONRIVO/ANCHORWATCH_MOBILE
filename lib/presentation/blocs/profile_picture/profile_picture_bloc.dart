@@ -8,8 +8,6 @@ import '../../../data/models/profile/profile_picture_models.dart';
 import '../../../services/s3_upload_service.dart';
 import 'profile_picture_event.dart';
 import 'profile_picture_state.dart';
-
-/// BLoC for managing profile picture uploads
 @injectable
 class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> {
   final ProfileRemoteDataSource _profileRemoteDataSource;
@@ -27,8 +25,6 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
     on<ProfilePictureRemoveRequested>(_onRemoveRequested);
     on<ProfilePictureResetRequested>(_onResetRequested);
   }
-
-  /// Pick image from gallery or camera
   Future<void> _onPickImageRequested(
     ProfilePicturePickImageRequested event,
     Emitter<ProfilePictureState> emit,
@@ -45,8 +41,6 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
 
       if (pickedFile != null) {
         final File imageFile = File(pickedFile.path);
-
-        // Validate file
         if (!_s3UploadService.validateFileType(imageFile)) {
           emit(state.copyWith(
             status: ProfilePictureStatus.error,
@@ -81,8 +75,6 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
       ));
     }
   }
-
-  /// Upload image to S3
   Future<void> _onUploadRequested(
     ProfilePictureUploadRequested event,
     Emitter<ProfilePictureState> emit,
@@ -93,17 +85,12 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
     ));
 
     try {
-      // Get content type
       final contentType = _s3UploadService.getContentTypeFromFile(event.imageFile);
-
-      // Generate presigned URL
       final presignedResponse = await _profileRemoteDataSource.generateProfileUploadURL(
         GenerateProfileUploadURLRequestModel(contentType: contentType),
       );
 
       emit(state.copyWith(uploadProgress: 0.3));
-
-      // Upload to S3
       final uploadSuccess = await _s3UploadService.uploadToS3(
         file: event.imageFile,
         presignedData: presignedResponse,
@@ -114,8 +101,6 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
           status: ProfilePictureStatus.uploadSuccess,
           uploadProgress: 1.0,
         ));
-
-        // Automatically confirm the upload
         add(ProfilePictureConfirmRequested(s3Key: presignedResponse.key));
       } else {
         emit(state.copyWith(
@@ -130,8 +115,6 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
       ));
     }
   }
-
-  /// Confirm the uploaded image
   Future<void> _onConfirmRequested(
     ProfilePictureConfirmRequested event,
     Emitter<ProfilePictureState> emit,
@@ -156,8 +139,6 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
       ));
     }
   }
-
-  /// Remove profile picture
   Future<void> _onRemoveRequested(
     ProfilePictureRemoveRequested event,
     Emitter<ProfilePictureState> emit,
@@ -165,8 +146,6 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
     emit(state.copyWith(status: ProfilePictureStatus.removing));
 
     try {
-      // For now, we'll just clear the local state
-      // In a full implementation, you might want to call an API to remove from S3
       emit(state.copyWith(
         status: ProfilePictureStatus.removed,
         profileImageUrl: null,
@@ -180,8 +159,6 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
       ));
     }
   }
-
-  /// Reset profile picture state
   void _onResetRequested(
     ProfilePictureResetRequested event,
     Emitter<ProfilePictureState> emit,
@@ -189,3 +166,4 @@ class ProfilePictureBloc extends Bloc<ProfilePictureEvent, ProfilePictureState> 
     emit(const ProfilePictureState());
   }
 }
+

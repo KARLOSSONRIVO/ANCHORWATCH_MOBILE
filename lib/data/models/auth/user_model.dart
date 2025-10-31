@@ -30,8 +30,6 @@ class UserModel {
       'profile_image_url': profileImageUrl,
     };
   }
-
-  // Convert to domain entity
   User toEntity() {
     return User(
       id: id,

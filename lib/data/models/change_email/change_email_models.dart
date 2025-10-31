@@ -1,12 +1,9 @@
 import 'package:equatable/equatable.dart';
 
-/// Request model for requesting email change
 class RequestChangeEmailRequestModel extends Equatable {
   final String newEmail;
 
-  const RequestChangeEmailRequestModel({
-    required this.newEmail,
-  });
+  const RequestChangeEmailRequestModel({required this.newEmail});
 
   factory RequestChangeEmailRequestModel.fromJson(Map<String, dynamic> json) {
     return RequestChangeEmailRequestModel(
@@ -15,40 +12,36 @@ class RequestChangeEmailRequestModel extends Equatable {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'new_email': newEmail,
-    };
+    return {'new_email': newEmail};
   }
 
   @override
   List<Object> get props => [newEmail];
 }
 
-/// Response model for requesting email change
 class RequestChangeEmailResponseModel extends Equatable {
   final String message;
+  final bool? success;
 
-  const RequestChangeEmailResponseModel({
-    required this.message,
-  });
+  const RequestChangeEmailResponseModel({required this.message, this.success});
 
   factory RequestChangeEmailResponseModel.fromJson(Map<String, dynamic> json) {
     return RequestChangeEmailResponseModel(
-      message: json['message'] as String,
+      message:
+          json['message']?.toString() ??
+          'Email change request sent successfully',
+      success: json['success'] as bool?,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'message': message,
-    };
+    return {'message': message, if (success != null) 'success': success};
   }
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message, success];
 }
 
-/// Request model for confirming email change
 class ConfirmChangeEmailRequestModel extends Equatable {
   final String otp;
   final String newEmail;
@@ -66,36 +59,30 @@ class ConfirmChangeEmailRequestModel extends Equatable {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'otp': otp,
-      'new_email': newEmail,
-    };
+    return {'otp': otp, 'new_email': newEmail};
   }
 
   @override
   List<Object> get props => [otp, newEmail];
 }
 
-/// Response model for confirming email change
 class ConfirmChangeEmailResponseModel extends Equatable {
   final String message;
+  final bool? success;
 
-  const ConfirmChangeEmailResponseModel({
-    required this.message,
-  });
+  const ConfirmChangeEmailResponseModel({required this.message, this.success});
 
   factory ConfirmChangeEmailResponseModel.fromJson(Map<String, dynamic> json) {
     return ConfirmChangeEmailResponseModel(
-      message: json['message'] as String,
+      message: json['message']?.toString() ?? 'Email changed successfully',
+      success: json['success'] as bool?,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'message': message,
-    };
+    return {'message': message, if (success != null) 'success': success};
   }
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message, success];
 }

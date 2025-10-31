@@ -1,9 +1,14 @@
 import 'package:equatable/equatable.dart';
 
-/// Authentication status enum
-enum AuthenticationStatus { unknown, authenticated, unauthenticated, loading, signUpSuccess }
+enum AuthenticationStatus {
+  unknown,
+  authenticated,
+  unauthenticated,
+  loading,
+  signUpSuccess,
+  sessionExpired,
+}
 
-/// Authentication state
 class AuthenticationState extends Equatable {
   const AuthenticationState({
     this.status = AuthenticationStatus.unknown,
@@ -16,8 +21,6 @@ class AuthenticationState extends Equatable {
   final String? user;
   final String? error;
   final bool isLoading;
-
-  /// Creates a copy with new values
   AuthenticationState copyWith({
     AuthenticationStatus? status,
     String? user,
@@ -27,7 +30,7 @@ class AuthenticationState extends Equatable {
     return AuthenticationState(
       status: status ?? this.status,
       user: user ?? this.user,
-      error: error ?? this.error,
+      error: error, // This will properly clear error when null is passed
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -36,5 +39,6 @@ class AuthenticationState extends Equatable {
   List<Object?> get props => [status, user, error, isLoading];
 
   @override
-  String toString() => 'AuthenticationState(status: $status, user: $user, error: $error, isLoading: $isLoading)';
+  String toString() =>
+      'AuthenticationState(status: $status, user: $user, error: $error, isLoading: $isLoading)';
 }

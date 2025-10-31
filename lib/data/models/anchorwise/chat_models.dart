@@ -1,4 +1,3 @@
-/// Request model for chat API
 class ChatRequestModel {
   final String query;
 
@@ -12,8 +11,6 @@ class ChatRequestModel {
     };
   }
 }
-
-/// Response model for chat API
 class ChatResponseModel {
   final String response;
   final String timestamp;
@@ -36,8 +33,6 @@ class ChatResponseModel {
     );
   }
 }
-
-/// Response model for new conversation API
 class NewConversationResponseModel {
   final bool success;
   final String message;
@@ -57,8 +52,6 @@ class NewConversationResponseModel {
     );
   }
 }
-
-/// Model for individual conversation item in conversations list
 class ConversationItem {
   final String conversationId;
   final String title;
@@ -90,8 +83,6 @@ class ConversationItem {
     );
   }
 }
-
-/// Response model for conversations list API
 class ConversationsListResponseModel {
   final bool success;
   final List<ConversationItem> conversations;
@@ -116,8 +107,6 @@ class ConversationsListResponseModel {
     );
   }
 }
-
-/// Model for individual message in conversation details
 class ConversationMessage {
   final String id;
   final String role;
@@ -146,8 +135,6 @@ class ConversationMessage {
     );
   }
 }
-
-/// Model for conversation details
 class ConversationDetails {
   final String conversationId;
   final String title;
@@ -181,8 +168,6 @@ class ConversationDetails {
     );
   }
 }
-
-/// Response model for specific conversation details API
 class ConversationDetailsResponseModel {
   final bool success;
   final ConversationDetails conversation;
@@ -202,8 +187,6 @@ class ConversationDetailsResponseModel {
     );
   }
 }
-
-/// Response model for delete conversation API
 class DeleteConversationResponseModel {
   final bool success;
   final String message;

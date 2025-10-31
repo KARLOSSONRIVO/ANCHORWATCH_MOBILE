@@ -2,22 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/navigation/navigation_bloc.dart';
 import '../blocs/navigation/navigation_state.dart';
-import '../blocs/authentication/authentication_bloc.dart';
-import '../blocs/authentication/authentication_state.dart';
 import '../blocs/anchorwise/anchorwise.dart';
 import '../widgets/bottom_navigation_widget.dart';
 import '../widgets/navigation_drawer_widget.dart';
-import '../widgets/custom_snackbar.dart';
 import '../widgets/conversation_history_dialog.dart';
 import '../../services/navigation_service.dart';
 import '../themes/app_theme.dart';
 import 'dashboard_screen.dart';
-import 'discover_screen.dart';
+import 'discover/discover_screen.dart';
 import 'anchorwise_screen.dart';
 import 'alerts_screen.dart';
 import 'profile/profile_screen.dart';
 
-/// Main navigation screen that manages individual screen files using NavigationBloc with stack support
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -31,12 +27,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   void initState() {
     super.initState();
-    // No callback setup needed - NavigationService handles drawer closing directly
   }
 
   @override
   void dispose() {
-    // No cleanup needed
     super.dispose();
   }
 
@@ -62,13 +56,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-    
         const Text(
           'AnchorWise',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w600
-          ),
+          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -80,11 +70,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         return [
           IconButton(
             onPressed: () {
-              // Load conversations and show history dialog
               final anchorWiseBloc = BlocProvider.of<AnchorWiseBloc>(context);
               anchorWiseBloc.add(const AnchorWiseLoadConversations());
-              
-              // Show conversation history dialog
               showDialog(
                 context: context,
                 builder: (dialogContext) => BlocProvider.value(
@@ -98,7 +85,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
           IconButton(
             onPressed: () {
-              // Create new conversation using AnchorWise BLoC
               final anchorWiseBloc = BlocProvider.of<AnchorWiseBloc>(context);
               anchorWiseBloc.add(const AnchorWiseCreateNewConversation());
             },
@@ -113,88 +99,75 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthenticationBloc, AuthenticationState>(
-      listener: (context, authState) {
-        print('🔍 MainNavigationScreen: Auth state changed to ${authState.status}');
-        // If user is logged out, show success message and navigate back to login screen
-        if (authState.status == AuthenticationStatus.unauthenticated) {
-          print('🚪 MainNavigationScreen: Navigating to login due to logout');
-          // Show logout success message before navigation
-          SnackBarHelper.showSuccess(context, 'Logged out successfully');
-          // Small delay to ensure snackbar is shown before navigation
-          Future.delayed(const Duration(milliseconds: 100), () {
-            Navigator.of(context).pushReplacementNamed('/login');
+    return BlocListener<NavigationBloc, NavigationState>(
+      listener: (context, state) {
+        if (state is NavigationPageSelected) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            NavigationService.forceCloseDrawer();
           });
         }
       },
-      child: BlocListener<NavigationBloc, NavigationState>(
-        listener: (context, state) {
-          // Close all drawers whenever navigation changes
-          if (state is NavigationPageSelected) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              NavigationService.forceCloseDrawer();
-            });
-          }
-        },
-        child: BlocBuilder<NavigationBloc, NavigationState>(
+      child: BlocBuilder<NavigationBloc, NavigationState>(
         builder: (context, state) {
           int currentIndex = 0;
           bool canGoBack = false;
-          
+
           if (state is NavigationPageSelected) {
             currentIndex = state.currentIndex;
             canGoBack = state.canGoBack;
           }
 
-        return PopScope(
-          canPop: !canGoBack, // Prevent system back button if we have navigation stack
-          onPopInvokedWithResult: (didPop, result) {
-            if (!didPop && canGoBack) {
-              // Handle back navigation through our stack
-              NavigationService.goBack(context);
-            }
-          },
-          child: Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: AppTheme.getBackgroundColor(context),
-            appBar: AppBar(
-              title: currentIndex == 2 ? _buildAnchorWiseTitle() : Text(
-                _getPageTitle(currentIndex),
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
+          return PopScope(
+            canPop:
+                !canGoBack, // Prevent system back button if we have navigation stack
+            onPopInvokedWithResult: (didPop, result) {
+              if (!didPop && canGoBack) {
+                NavigationService.goBack(context);
+              }
+            },
+            child: Scaffold(
+              key: _scaffoldKey,
+              resizeToAvoidBottomInset: true,
+              backgroundColor: AppTheme.getBackgroundColor(context),
+              appBar: AppBar(
+                title: currentIndex == 2
+                    ? _buildAnchorWiseTitle()
+                    : Text(
+                        _getPageTitle(currentIndex),
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                leading: Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
                 ),
+                actions: _getAppBarActions(context, currentIndex),
               ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
-                ),
+              drawer: const NavigationDrawerWidget(),
+              body: IndexedStack(
+                index: currentIndex,
+                children: const [
+                  DashboardScreen(),
+                  DiscoverScreen(),
+                  AnchorWiseScreen(),
+                  AlertsScreen(),
+                  ProfileScreen(),
+                ],
               ),
-              actions: _getAppBarActions(context, currentIndex),
+              bottomNavigationBar: BottomNavigationWidget(
+                currentIndex: currentIndex,
+                onTap: (index) {
+                  NavigationService.navigateToIndex(context, index);
+                },
+              ),
             ),
-            drawer: const NavigationDrawerWidget(),
-            body: IndexedStack(
-              index: currentIndex,
-              children: const [
-                DashboardScreen(),
-                DiscoverScreen(),
-                AnchorWiseScreen(),
-                AlertsScreen(),
-                ProfileScreen(),
-              ],
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-              currentIndex: currentIndex,
-              onTap: (index) {
-                NavigationService.navigateToIndex(context, index);
-              },
-            ),
-          ),
-        );
+          );
         },
       ),
-      )
     );
   }
 }

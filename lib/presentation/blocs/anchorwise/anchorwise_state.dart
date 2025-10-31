@@ -1,10 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../data/models/anchorwise/chat_models.dart';
-
-/// Message sender type
 enum MessageSender { user, ai }
-
-/// Chat message model
 class ChatMessage extends Equatable {
   const ChatMessage({
     required this.id,
@@ -19,18 +15,12 @@ class ChatMessage extends Equatable {
   final MessageSender sender;
   final DateTime timestamp;
   final String? conversationId;
-
-  /// Check if this message can receive feedback (only AI messages can)
   bool get canReceiveFeedback => sender == MessageSender.ai;
 
   @override
   List<Object?> get props => [id, content, sender, timestamp, conversationId];
 }
-
-/// AnchorWise status enum
 enum AnchorWiseStatus { idle, sending, loading, error }
-
-/// AnchorWise state
 class AnchorWiseState extends Equatable {
   const AnchorWiseState({
     this.status = AnchorWiseStatus.idle,
@@ -49,8 +39,6 @@ class AnchorWiseState extends Equatable {
   final String? currentConversationId;
   final List<ConversationItem> conversations;
   final bool isLoadingConversations;
-
-  /// Creates a copy with new values
   AnchorWiseState copyWith({
     AnchorWiseStatus? status,
     List<ChatMessage>? messages,

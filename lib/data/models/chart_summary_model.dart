@@ -1,7 +1,5 @@
 import '../../domain/entities/chart_summary.dart';
 import 'data_quality_model.dart';
-
-/// Chart summary model for data serialization
 class ChartSummaryModel extends ChartSummary {
   final DataQualityModel? dataQuality;
   final List<String> qualityWarnings;
@@ -17,8 +15,6 @@ class ChartSummaryModel extends ChartSummary {
     this.qualityWarnings = const [],
     this.qualityIssues = const [],
   });
-
-  /// Create model from JSON
   factory ChartSummaryModel.fromJson(Map<String, dynamic> json) {
     return ChartSummaryModel(
       chartType: json['chart_type'] as String? ?? '',
@@ -35,8 +31,6 @@ class ChartSummaryModel extends ChartSummary {
       qualityIssues: (json['quality_issues'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
-
-  /// Convert model to JSON
   Map<String, dynamic> toJson() {
     return {
       'chart_type': chartType,
@@ -49,8 +43,6 @@ class ChartSummaryModel extends ChartSummary {
       'quality_issues': qualityIssues,
     };
   }
-
-  /// Convert to domain entity
   ChartSummary toEntity() {
     return ChartSummary(
       chartType: chartType,
@@ -61,3 +53,4 @@ class ChartSummaryModel extends ChartSummary {
     );
   }
 }
+

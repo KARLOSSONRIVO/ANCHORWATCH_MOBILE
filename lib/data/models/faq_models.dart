@@ -1,4 +1,3 @@
-/// FAQ models for the application
 class FaqCategory {
   final String id;
   final String title;

@@ -1,8 +1,4 @@
-/// Contact support API endpoints
 class ContactEndpoints {
-  // Base paths
-  static const String _accounts = '/accounts';
-  
-  // Contact support endpoint
-  static const String contactSupport = '$_accounts/contact/';
+    static const String _accounts = '/accounts';
+    static const String contactSupport = '$_accounts/contact/';
 }

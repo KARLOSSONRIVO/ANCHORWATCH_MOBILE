@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'discover/macro_trends_screen.dart';
 import 'discover/stablecoin_screen.dart';
 import 'discover/articles_screen.dart';
+import '../themes/app_theme.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -12,14 +13,12 @@ class DiscoverScreen extends StatefulWidget {
 }
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
-  int selectedTab = 0; // 0: Stablecoins, 1: Macro Trends, 2: Articles
+  int selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).brightness == Brightness.light
-          ? const Color(0xFFF8F8F8)
-          : const Color(0xFF1E1E1E),
+      color: AppTheme.getBackgroundColor(context),
       child: Column(
         children: [
           Container(
@@ -65,16 +64,19 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Widget _tabButton(String text, {required bool isSelected, required VoidCallback onTap, required BuildContext context}) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+    final accentColor = isLightMode ? AppTheme.aiSummaryColorLight : const Color(0xFF00D4AA);
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         constraints: const BoxConstraints(minWidth: 100),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00D4AA) : Colors.transparent,
+          color: isSelected ? accentColor : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected ? const Color(0xFF00D4AA) : Theme.of(context).dividerColor,
+            color: isSelected ? accentColor : Theme.of(context).dividerColor,
             width: 1,
           ),
         ),
@@ -82,7 +84,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           text,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isSelected ? Colors.black : Theme.of(context).textTheme.bodyMedium?.color,
+            color: isSelected ? (isLightMode ? Colors.black : Colors.white) : Theme.of(context).textTheme.bodyMedium?.color,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),

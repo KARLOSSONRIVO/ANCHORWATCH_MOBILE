@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-/// Profile status enum
 enum ProfileStatus { loading, loaded, error, updating, navigatingToEditAccount, navigatingToContactSupport, navigatingToFAQs }
-
-/// Profile state
 class ProfileState extends Equatable {
   const ProfileState({
     this.status = ProfileStatus.loading,
@@ -20,8 +16,6 @@ class ProfileState extends Equatable {
   final String? avatar;
   final bool isDarkTheme;
   final String? error;
-
-  /// Creates a copy with new values
   ProfileState copyWith({
     ProfileStatus? status,
     String? name,

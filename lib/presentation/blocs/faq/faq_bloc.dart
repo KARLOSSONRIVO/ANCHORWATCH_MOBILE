@@ -3,8 +3,6 @@ import 'package:injectable/injectable.dart';
 import 'faq_event.dart';
 import 'faq_state.dart';
 import '../../../data/models/faq_models.dart';
-
-/// BLoC to manage FAQ screen state
 @injectable
 class FaqBloc extends Bloc<FaqEvent, FaqState> {
   FaqBloc() : super(const FaqState()) {
@@ -21,10 +19,7 @@ class FaqBloc extends Bloc<FaqEvent, FaqState> {
     emit(state.copyWith(status: FaqStatus.loading));
     
     try {
-      // Simulate loading FAQ information
       await Future.delayed(const Duration(milliseconds: 500));
-      
-      // Load FAQ categories based on your images
       final categories = _getFaqCategories();
       
       emit(state.copyWith(
@@ -46,7 +41,6 @@ class FaqBloc extends Bloc<FaqEvent, FaqState> {
     emit(state.copyWith(status: FaqStatus.loading));
     
     try {
-      // Simulate refreshing FAQ information
       await Future.delayed(const Duration(milliseconds: 300));
       
       final categories = _getFaqCategories();

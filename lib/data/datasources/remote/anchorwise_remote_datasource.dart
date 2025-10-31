@@ -3,28 +3,15 @@ import 'package:injectable/injectable.dart';
 import '../../../services/dio_client.dart';
 import '../../endpoints/anchorwise_endpoints.dart';
 import '../../models/anchorwise/chat_models.dart';
-
-/// Remote data source for AnchorWise chatbot API
 abstract class AnchorWiseRemoteDataSource {
-  /// Send a chat message and get AI response
   Future<ChatResponseModel> sendChatMessage({
     required String query,
     String? conversationId,
   });
-  
-  /// Create a new conversation and get conversation ID
   Future<NewConversationResponseModel> createNewConversation();
-  
-  /// Get all conversations for the user
   Future<ConversationsListResponseModel> getConversations();
-  
-  /// Get specific conversation by ID
   Future<ConversationDetailsResponseModel> getConversationById(String conversationId);
-  
-  /// Delete a conversation by ID
   Future<DeleteConversationResponseModel> deleteConversation(String conversationId);
-  
-  /// Send feedback for a message
   Future<bool> sendFeedback({
     required String conversationId,
     required String messageId,
@@ -159,8 +146,6 @@ class AnchorWiseRemoteDataSourceImpl implements AnchorWiseRemoteDataSource {
           sendTimeout: const Duration(seconds: 15),
         ),
       );
-
-      // Assuming the API returns success: true/false or just 200 status
       return response.data?['success'] ?? (response.statusCode == 200);
     } on DioException catch (e) {
       throw _handleDioError(e);

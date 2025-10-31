@@ -6,14 +6,30 @@ import '../widgets/widgets.dart';
 import 'app_router.dart';
 import 'app_routes.dart';
 
-/// Route guard that handles authentication-based navigation
 class RouteGuard extends StatelessWidget {
-  const RouteGuard({
-    super.key,
-    required this.child,
-  });
-  
+  const RouteGuard({super.key, required this.child});
+
   final Widget child;
+
+  void _showSessionExpiredDialog(BuildContext context) {
+    // Check if dialog is already showing to prevent multiple dialogs
+    if (ModalRoute.of(context)?.settings.name == '/session-expired-dialog') {
+      return;
+    }
+
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        routeSettings: const RouteSettings(name: '/session-expired-dialog'),
+        builder: (context) {
+          return const SessionExpiredCard();
+        },
+      );
+    } catch (e) {
+      // Ignore errors when showing dialog
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +38,7 @@ class RouteGuard extends StatelessWidget {
         BlocListener<OnboardingBloc, OnboardingState>(
           listener: (context, state) {
             final currentRoute = ModalRoute.of(context)?.settings.name;
-            
-            // Handle onboarding completion
             if (state.status == OnboardingStatus.completed) {
-              // If onboarding completed and we're on onboarding screen, navigate to login
               if (currentRoute == AppRoutes.onboarding) {
                 AppRouter.navigateToLogin(context);
               }
@@ -35,36 +48,40 @@ class RouteGuard extends StatelessWidget {
         BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) {
             final currentRoute = ModalRoute.of(context)?.settings.name;
-            
-            // Handle authentication state changes
             switch (state.status) {
               case AuthenticationStatus.authenticated:
-                // If user is authenticated but on login screen, navigate to home
-                if (currentRoute == AppRoutes.login || currentRoute == AppRoutes.splash) {
+                if (currentRoute == AppRoutes.login ||
+                    currentRoute == AppRoutes.splash) {
                   AppRouter.navigateToHome(context);
                 }
                 break;
-                
+
               case AuthenticationStatus.unauthenticated:
-                // If user is unauthenticated and on a protected route, navigate to login
                 if (AppRouter.isProtectedRoute(currentRoute)) {
                   AppRouter.navigateToLogin(context);
                 }
                 break;
-                
-              case AuthenticationStatus.loading:
-                // Handle loading states - stay on current screen
+
+              case AuthenticationStatus.sessionExpired:
+                // Show session expired dialog and prevent navigation
+                // Add a small delay to ensure state is properly processed
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (context.mounted) {
+                    _showSessionExpiredDialog(context);
+                  }
+                });
                 break;
-                
+
+              case AuthenticationStatus.loading:
+                break;
+
               case AuthenticationStatus.signUpSuccess:
-                // After successful signup, navigate to login
                 if (currentRoute != AppRoutes.login) {
                   AppRouter.navigateToLogin(context);
                 }
                 break;
-                
+
               case AuthenticationStatus.unknown:
-                // Handle unknown states if needed
                 break;
             }
           },
@@ -75,50 +92,38 @@ class RouteGuard extends StatelessWidget {
   }
 }
 
-/// Navigation wrapper that provides easy access to navigation methods
 class NavigationHelper {
-  /// Show snackbar message using custom snackbar
-  static void showMessage(BuildContext context, String message, {bool isError = false}) {
+  static void showMessage(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
     SnackBarHelper.show(context, message, isError: isError);
   }
 
-  /// Show success message
   static void showSuccess(BuildContext context, String message) {
     SnackBarHelper.showSuccess(context, message);
   }
 
-  /// Show error message
   static void showError(BuildContext context, String message) {
     SnackBarHelper.showError(context, message);
   }
 
-  /// Show warning message
   static void showWarning(BuildContext context, String message) {
     SnackBarHelper.showWarning(context, message);
   }
 
-  /// Show info message
   static void showInfo(BuildContext context, String message) {
     SnackBarHelper.showInfo(context, message);
   }
 
-  /// DEPRECATED: Handle complete logout process with confirmation, loading screen and success message
-  /// This method is no longer used - logout is now handled directly in NavigationService
-  @deprecated
-  static Future<void> handleLogout(BuildContext context) async {
-    throw UnimplementedError('This method is deprecated. Use NavigationService._handleLogout instead.');
-  }
-
-  /// Show logout loading dialog with specific styling
   static void showLogoutLoading(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         content: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -152,36 +157,64 @@ class NavigationHelper {
       ),
     );
   }
-  
-  /// Hide loading dialog
+
   static void hideLoading(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop();
   }
-  
-  /// Confirm logout action
+
   static Future<bool> confirmLogout(BuildContext context) async {
-    final result = await showDialog<bool>(
+    final result = await showModalBottomSheet<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).padding.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Confirm Logout',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Inter',
+              ),
             ),
-            child: const Text('Logout'),
-          ),
-        ],
+            const SizedBox(height: 12),
+            const Text(
+              'Are you sure you want to logout?',
+              style: TextStyle(fontSize: 14, fontFamily: 'Inter'),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: const Text('Logout'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
-    
+
     return result ?? false;
   }
 }

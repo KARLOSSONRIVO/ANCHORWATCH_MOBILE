@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'dart:io';
-
-/// Profile picture status enum
 enum ProfilePictureStatus {
   initial,
   pickingImage,
@@ -14,8 +12,6 @@ enum ProfilePictureStatus {
   removing,
   removed,
 }
-
-/// Profile picture state
 class ProfilePictureState extends Equatable {
   const ProfilePictureState({
     this.status = ProfilePictureStatus.initial,
@@ -30,8 +26,6 @@ class ProfilePictureState extends Equatable {
   final double uploadProgress;
   final String? profileImageUrl;
   final String? error;
-
-  /// Creates a copy with new values
   ProfilePictureState copyWith({
     ProfilePictureStatus? status,
     File? selectedImage,
@@ -60,3 +54,4 @@ class ProfilePictureState extends Equatable {
   @override
   String toString() => 'ProfilePictureState(status: $status, uploadProgress: $uploadProgress, profileImageUrl: $profileImageUrl, error: $error)';
 }
+

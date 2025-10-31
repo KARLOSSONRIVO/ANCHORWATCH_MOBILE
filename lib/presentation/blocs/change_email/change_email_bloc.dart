@@ -1,98 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:equatable/equatable.dart';
 
 import '../../../domain/usecases/profile/request_change_email_usecase.dart';
 import '../../../domain/usecases/profile/confirm_change_email_usecase.dart';
-import '../../../domain/entities/change_email/request_change_email_result.dart';
-import '../../../domain/entities/change_email/confirm_change_email_result.dart';
+import 'change_email_event.dart';
+import 'change_email_state.dart';
 
-// Events
-abstract class ChangeEmailEvent extends Equatable {
-  const ChangeEmailEvent();
-
-  @override
-  List<Object> get props => [];
-}
-
-class RequestChangeEmailSubmitted extends ChangeEmailEvent {
-  final String newEmail;
-
-  const RequestChangeEmailSubmitted({
-    required this.newEmail,
-  });
-
-  @override
-  List<Object> get props => [newEmail];
-}
-
-class ConfirmChangeEmailSubmitted extends ChangeEmailEvent {
-  final String otp;
-  final String newEmail;
-
-  const ConfirmChangeEmailSubmitted({
-    required this.otp,
-    required this.newEmail,
-  });
-
-  @override
-  List<Object> get props => [otp, newEmail];
-}
-
-class ChangeEmailReset extends ChangeEmailEvent {}
-
-// States
-abstract class ChangeEmailState extends Equatable {
-  const ChangeEmailState();
-
-  @override
-  List<Object> get props => [];
-}
-
-class ChangeEmailInitial extends ChangeEmailState {}
-
-class ChangeEmailRequestLoading extends ChangeEmailState {}
-
-class ChangeEmailRequestSuccess extends ChangeEmailState {
-  final RequestChangeEmailResult result;
-  final String newEmail;
-
-  const ChangeEmailRequestSuccess(this.result, this.newEmail);
-
-  @override
-  List<Object> get props => [result, newEmail];
-}
-
-class ChangeEmailRequestFailure extends ChangeEmailState {
-  final String error;
-
-  const ChangeEmailRequestFailure(this.error);
-
-  @override
-  List<Object> get props => [error];
-}
-
-class ChangeEmailConfirmLoading extends ChangeEmailState {}
-
-class ChangeEmailConfirmSuccess extends ChangeEmailState {
-  final ConfirmChangeEmailResult result;
-
-  const ChangeEmailConfirmSuccess(this.result);
-
-  @override
-  List<Object> get props => [result];
-}
-
-class ChangeEmailConfirmFailure extends ChangeEmailState {
-  final String error;
-
-  const ChangeEmailConfirmFailure(this.error);
-
-  @override
-  List<Object> get props => [error];
-}
-
-// BLoC
 @injectable
 class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
   final RequestChangeEmailUseCase _requestChangeEmailUseCase;
@@ -104,6 +17,7 @@ class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
   ) : super(ChangeEmailInitial()) {
     on<RequestChangeEmailSubmitted>(_onRequestChangeEmailSubmitted);
     on<ConfirmChangeEmailSubmitted>(_onConfirmChangeEmailSubmitted);
+    on<ChangeEmailValidationRequested>(_onChangeEmailValidationRequested);
     on<ChangeEmailReset>(_onChangeEmailReset);
   }
 
@@ -111,17 +25,37 @@ class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
     RequestChangeEmailSubmitted event,
     Emitter<ChangeEmailState> emit,
   ) async {
-    print('[CHANGE_EMAIL_BLOC] Requesting email change for: ${event.newEmail}');
+    // Validate email before proceeding
+    final validationResult = _validateEmail(event.newEmail);
+    if (!validationResult['isValid']) {
+      emit(
+        ChangeEmailValidationState(
+          newEmail: event.newEmail,
+          isValid: false,
+          validationError: validationResult['error'] as String?,
+          hasInteractedWithEmail: true,
+        ),
+      );
+      return;
+    }
+
     emit(ChangeEmailRequestLoading());
 
     try {
       final result = await _requestChangeEmailUseCase.execute(
         newEmail: event.newEmail,
       );
-      print('[CHANGE_EMAIL_BLOC] Email change request successful');
-      emit(ChangeEmailRequestSuccess(result, event.newEmail));
+
+      if (result.success) {
+        emit(ChangeEmailRequestSuccess(result, event.newEmail));
+      } else {
+        emit(
+          ChangeEmailRequestFailure(
+            result.error ?? 'Request change email failed',
+          ),
+        );
+      }
     } catch (e) {
-      print('[CHANGE_EMAIL_BLOC] Email change request failed: $e');
       emit(ChangeEmailRequestFailure(e.toString()));
     }
   }
@@ -137,10 +71,59 @@ class ChangeEmailBloc extends Bloc<ChangeEmailEvent, ChangeEmailState> {
         otp: event.otp,
         newEmail: event.newEmail,
       );
-      emit(ChangeEmailConfirmSuccess(result));
+
+      if (result.success) {
+        emit(ChangeEmailConfirmSuccess(result));
+      } else {
+        emit(
+          ChangeEmailConfirmFailure(
+            result.error ?? 'Confirm change email failed',
+          ),
+        );
+      }
     } catch (e) {
       emit(ChangeEmailConfirmFailure(e.toString()));
     }
+  }
+
+  void _onChangeEmailValidationRequested(
+    ChangeEmailValidationRequested event,
+    Emitter<ChangeEmailState> emit,
+  ) {
+    final validationResult = _validateEmail(event.newEmail);
+
+    emit(
+      ChangeEmailValidationState(
+        newEmail: event.newEmail,
+        isValid: validationResult['isValid'] as bool,
+        validationError: validationResult['error'] as String?,
+        hasInteractedWithEmail: event.hasInteractedWithEmail,
+      ),
+    );
+  }
+
+  Map<String, dynamic> _validateEmail(String email) {
+    if (email.trim().isEmpty) {
+      return <String, dynamic>{
+        'isValid': false,
+        'error': 'Please enter an email address',
+      };
+    }
+
+    final trimmedEmail = email.trim();
+
+    // Basic email validation regex
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    if (!emailRegex.hasMatch(trimmedEmail)) {
+      return <String, dynamic>{
+        'isValid': false,
+        'error': 'Please enter a valid email address',
+      };
+    }
+
+    return <String, dynamic>{'isValid': true, 'error': null};
   }
 
   void _onChangeEmailReset(

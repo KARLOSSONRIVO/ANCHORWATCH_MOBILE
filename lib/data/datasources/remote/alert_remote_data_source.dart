@@ -55,18 +55,13 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
         '/api/alerts/history/',
         queryParameters: queryParams,
       );
-
-      // Defensive parsing: backend may return null or missing keys
       final respData = response.data;
       if (respData is Map<String, dynamic> && respData['success'] == true) {
-        // Check if alerts are directly in response or nested under 'data'
         List<dynamic> alertsJson = <dynamic>[];
 
         if (respData['alerts'] is List<dynamic>) {
-          // Direct alerts property (current backend response)
           alertsJson = respData['alerts'] as List<dynamic>;
         } else if (respData['data'] is Map<String, dynamic>) {
-          // Nested under data property
           final data = respData['data'] as Map<String, dynamic>;
           if (data['alerts'] is List<dynamic>) {
             alertsJson = data['alerts'] as List<dynamic>;
@@ -77,8 +72,6 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
             .map((json) => AlertModel.fromJson(json as Map<String, dynamic>))
             .toList();
       }
-
-      // If response isn't as expected, return an empty list instead of throwing so UI shows "No alerts"
       return <AlertModel>[];
     } catch (e) {
       if (e is DioException) {
@@ -325,3 +318,4 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
     }
   }
 }
+

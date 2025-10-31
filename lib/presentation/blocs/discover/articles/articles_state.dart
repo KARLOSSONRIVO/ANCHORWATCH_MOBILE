@@ -1,15 +1,11 @@
 import 'package:equatable/equatable.dart';
 import '../../../../domain/entities/article.dart';
-
-/// Status enumeration for Articles state
 enum ArticlesStatus {
   initial,
   loading,
   loaded,
   error,
 }
-
-/// State for the Articles BLoC
 class ArticlesState extends Equatable {
   final ArticlesStatus status;
   final List<Article> articles;
@@ -26,8 +22,6 @@ class ArticlesState extends Equatable {
     this.selectedSort = 'Newest First',
     this.errorMessage,
   });
-
-  /// Create a copy of the current state with optional changes
   ArticlesState copyWith({
     ArticlesStatus? status,
     List<Article>? articles,

@@ -27,10 +27,23 @@ class ChangeUsernameSuccess extends ChangeUsernameState {
 class ChangeUsernameFailure extends ChangeUsernameState {
   final String error;
 
-  const ChangeUsernameFailure({
-    required this.error,
-  });
+  const ChangeUsernameFailure({required this.error});
 
   @override
   List<Object> get props => [error];
+}
+
+class ChangeUsernameValidationState extends ChangeUsernameState {
+  final String newUsername;
+  final bool isValid;
+  final String? validationError;
+
+  const ChangeUsernameValidationState({
+    required this.newUsername,
+    required this.isValid,
+    this.validationError,
+  });
+
+  @override
+  List<Object> get props => [newUsername, isValid, validationError ?? ''];
 }

@@ -4,8 +4,6 @@ import '../blocs/faq/faq.dart';
 import '../widgets/loading_widget.dart';
 import '../../data/models/faq_models.dart';
 import '../themes/app_theme.dart';
-
-/// FAQ screen with BLoC architecture
 class FaqScreen extends StatelessWidget {
   const FaqScreen({super.key});
 
@@ -109,7 +107,6 @@ class _FaqView extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Category Header
           InkWell(
             onTap: () {
               context.read<FaqBloc>().add(FaqCategoryToggled(category.id));
@@ -139,7 +136,6 @@ class _FaqView extends StatelessWidget {
               ),
             ),
           ),
-          // Category Content
           if (category.isExpanded) ...[
             Divider(
               color: AppTheme.getBorderColor(context),
@@ -160,7 +156,6 @@ class _FaqView extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Question Header
           InkWell(
             onTap: () {
               context.read<FaqBloc>().add(FaqItemToggled(categoryId, item.id));
@@ -189,7 +184,6 @@ class _FaqView extends StatelessWidget {
               ),
             ),
           ),
-          // Answer Content
           if (item.isExpanded)
             Container(
               width: double.infinity,

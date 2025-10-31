@@ -7,8 +7,6 @@ class GetChartSummaryUseCase {
   final ChartSummaryRepository _repository;
 
   GetChartSummaryUseCase(this._repository);
-
-  /// Execute getting chart summary
   Future<ChartSummary> execute({
     required String chartType,
     String? timeFrame,
@@ -21,3 +19,4 @@ class GetChartSummaryUseCase {
     );
   }
 }
+

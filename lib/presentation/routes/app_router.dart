@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/authentication/authentication.dart';
 import '../blocs/password_reset/password_reset.dart';
+import '../blocs/signup/signup.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
@@ -18,23 +19,18 @@ import '../screens/profile/confirm_change_email_screen.dart';
 import '../../injection_container.dart';
 import 'app_routes.dart';
 
-/// Main app router that handles navigation and route generation
 class AppRouter {
   static PasswordResetBloc? _passwordResetBloc;
-  
-  /// Get shared password reset BLoC instance
   static PasswordResetBloc _getPasswordResetBloc() {
     _passwordResetBloc ??= getIt<PasswordResetBloc>();
     return _passwordResetBloc!;
   }
-  
-  /// Clear password reset BLoC when flow is complete
+
   static void clearPasswordResetBloc() {
     _passwordResetBloc?.close();
     _passwordResetBloc = null;
   }
-  
-  /// Generate routes based on settings and authentication state
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.splash:
@@ -42,26 +38,27 @@ class AppRouter {
           builder: (_) => const _SplashScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.onboarding:
         return MaterialPageRoute(
           builder: (_) => const OnboardingScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.signup:
         return MaterialPageRoute(
-          builder: (_) => const SignUpScreen(),
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<SignUpBloc>(),
+            child: const SignUpScreen(),
+          ),
           settings: settings,
         );
-        
-      // All main navigation routes point to the same screen
       case AppRoutes.dashboard:
       case AppRoutes.discover:
       case AppRoutes.anchorwise:
@@ -71,19 +68,19 @@ class AppRouter {
           builder: (_) => const MainNavigationScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.contact:
         return MaterialPageRoute(
           builder: (_) => const ContactScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.faq:
         return MaterialPageRoute(
           builder: (_) => const FaqScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.resetPasswordEmail:
         return MaterialPageRoute(
           builder: (_) => BlocProvider.value(
@@ -92,7 +89,7 @@ class AppRouter {
           ),
           settings: settings,
         );
-        
+
       case AppRoutes.resetPasswordOtp:
         final email = settings.arguments as String? ?? '';
         return MaterialPageRoute(
@@ -102,7 +99,7 @@ class AppRouter {
           ),
           settings: settings,
         );
-        
+
       case AppRoutes.resetPasswordConfirm:
         return MaterialPageRoute(
           builder: (_) => BlocProvider.value(
@@ -111,32 +108,32 @@ class AppRouter {
           ),
           settings: settings,
         );
-        
+
       case AppRoutes.changePassword:
         return MaterialPageRoute(
           builder: (_) => const ChangePasswordScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.changeUsername:
         return MaterialPageRoute(
           builder: (_) => const ChangeUsernameScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.requestChangeEmail:
         return MaterialPageRoute(
           builder: (_) => const ChangeEmailScreen(),
           settings: settings,
         );
-        
+
       case AppRoutes.confirmChangeEmail:
         final newEmail = settings.arguments as String? ?? '';
         return MaterialPageRoute(
           builder: (_) => ConfirmChangeEmailScreen(newEmail: newEmail),
           settings: settings,
         );
-        
+
       default:
         return MaterialPageRoute(
           builder: (_) => _UnknownRouteScreen(routeName: settings.name),
@@ -144,8 +141,7 @@ class AppRouter {
         );
     }
   }
-  
-  /// Navigate to route based on authentication status
+
   static String getInitialRoute(AuthenticationStatus status) {
     switch (status) {
       case AuthenticationStatus.authenticated:
@@ -156,31 +152,29 @@ class AppRouter {
         return AppRoutes.login; // Stay on login during loading
       case AuthenticationStatus.signUpSuccess:
         return AppRoutes.login; // Redirect to login after successful signup
+      case AuthenticationStatus.sessionExpired:
+        return AppRoutes.login; // Redirect to login when session expired
       case AuthenticationStatus.unknown:
         return AppRoutes.splash;
     }
   }
-  
-  /// Check if route requires authentication
+
   static bool isProtectedRoute(String? route) {
     return AppRoutes.protectedRoutes.contains(route);
   }
-  
-  /// Navigation helpers
+
   static void navigateToOnboarding(BuildContext context) {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.onboarding,
-      (route) => false,
-    );
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(AppRoutes.onboarding, (route) => false);
   }
-  
+
   static void navigateToLogin(BuildContext context) {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.login,
-      (route) => false,
-    );
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
   }
-  
+
   static void navigateToHome(BuildContext context) {
     Navigator.of(context).pushNamedAndRemoveUntil(
       AppRoutes.dashboard, // Navigate to dashboard instead of home
@@ -189,7 +183,6 @@ class AppRouter {
   }
 }
 
-/// Splash screen widget (moved from main.dart for better organization)
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
 
@@ -201,11 +194,7 @@ class _SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.anchor,
-              size: 120,
-              color: Colors.white,
-            ),
+            Icon(Icons.anchor, size: 120, color: Colors.white),
             const SizedBox(height: 24),
             Text(
               'AnchorWatch',
@@ -222,10 +211,9 @@ class _SplashScreen extends StatelessWidget {
   }
 }
 
-/// Screen shown for unknown/unhandled routes
 class _UnknownRouteScreen extends StatelessWidget {
   const _UnknownRouteScreen({required this.routeName});
-  
+
   final String? routeName;
 
   @override
@@ -240,11 +228,7 @@ class _UnknownRouteScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red,
-            ),
+            Icon(Icons.error_outline, size: 80, color: Colors.red),
             const SizedBox(height: 24),
             Text(
               '404 - Page Not Found',
@@ -253,9 +237,9 @@ class _UnknownRouteScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Route "${routeName ?? 'unknown'}" does not exist.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey.shade600),
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(

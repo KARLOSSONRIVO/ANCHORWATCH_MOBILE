@@ -4,8 +4,6 @@ import '../../../../domain/entities/article.dart';
 import '../../../../domain/usecases/get_articles_usecase.dart';
 import 'articles_event.dart';
 import 'articles_state.dart';
-
-/// BLoC for managing articles state
 @injectable
 class ArticlesBloc extends Bloc<ArticlesEvent, ArticlesState> {
   final GetArticlesUseCase _getArticlesUseCase;
@@ -16,8 +14,6 @@ class ArticlesBloc extends Bloc<ArticlesEvent, ArticlesState> {
     on<ArticlesFilterByTopic>(_onArticlesFilterByTopic);
     on<ArticlesSortChanged>(_onArticlesSortChanged);
   }
-
-  /// Handle loading articles
   void _onArticlesLoadRequested(
     ArticlesLoadRequested event,
     Emitter<ArticlesState> emit,
@@ -44,8 +40,6 @@ class ArticlesBloc extends Bloc<ArticlesEvent, ArticlesState> {
       ));
     }
   }
-
-  /// Handle refreshing articles
   void _onArticlesRefreshRequested(
     ArticlesRefreshRequested event,
     Emitter<ArticlesState> emit,
@@ -70,8 +64,6 @@ class ArticlesBloc extends Bloc<ArticlesEvent, ArticlesState> {
       ));
     }
   }
-
-  /// Handle filtering articles by topic
   void _onArticlesFilterByTopic(
     ArticlesFilterByTopic event,
     Emitter<ArticlesState> emit,
@@ -87,8 +79,6 @@ class ArticlesBloc extends Bloc<ArticlesEvent, ArticlesState> {
       filteredArticles: filteredArticles,
     ));
   }
-
-  /// Handle sorting articles
   void _onArticlesSortChanged(
     ArticlesSortChanged event,
     Emitter<ArticlesState> emit,
@@ -104,21 +94,15 @@ class ArticlesBloc extends Bloc<ArticlesEvent, ArticlesState> {
       filteredArticles: filteredArticles,
     ));
   }
-
-  /// Filter and sort articles based on criteria
   List<Article> _filterAndSortArticles(
     List<Article> articles,
     String topic,
     String sortType,
   ) {
     var filtered = articles;
-    
-    // Filter by topic
     if (topic != 'All Topics') {
       filtered = articles.where((article) => article.keyTopics.contains(topic)).toList();
     }
-    
-    // Sort articles
     if (sortType == 'Newest First') {
       filtered.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
     } else if (sortType == 'Oldest First') {

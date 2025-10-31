@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/change_email/change_email_bloc.dart';
+import '../../blocs/change_email/change_email.dart';
 import '../../widgets/custom_snackbar.dart';
 import '../../../injection_container.dart';
+import '../../../utils/validators/form_validators.dart';
 
 class ConfirmChangeEmailScreen extends StatelessWidget {
   final String newEmail;
 
-  const ConfirmChangeEmailScreen({
-    Key? key,
-    required this.newEmail,
-  }) : super(key: key);
+  const ConfirmChangeEmailScreen({super.key, required this.newEmail});
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +23,11 @@ class ConfirmChangeEmailScreen extends StatelessWidget {
 class _ConfirmChangeEmailView extends StatefulWidget {
   final String newEmail;
 
-  const _ConfirmChangeEmailView({
-    Key? key,
-    required this.newEmail,
-  }) : super(key: key);
+  const _ConfirmChangeEmailView({required this.newEmail});
 
   @override
-  State<_ConfirmChangeEmailView> createState() => _ConfirmChangeEmailViewState();
+  State<_ConfirmChangeEmailView> createState() =>
+      _ConfirmChangeEmailViewState();
 }
 
 class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
@@ -48,14 +44,12 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
   Widget build(BuildContext context) {
     return BlocConsumer<ChangeEmailBloc, ChangeEmailState>(
       listenWhen: (previous, current) {
-        // Only listen when the state type actually changes to avoid repeated snackbars
         return previous.runtimeType != current.runtimeType;
       },
       listener: (context, state) {
         if (state is ChangeEmailConfirmSuccess) {
-          // Dismiss keyboard early to avoid jank overlapping IME hide animation
+          SnackBarHelper.showSuccess(context, "Email changed successfully!",duration: const Duration(milliseconds: 1500),);
           FocusScope.of(context).unfocus();
-          // Pass back the verified new email for optimistic update
           Navigator.pop(context, widget.newEmail);
         } else if (state is ChangeEmailConfirmFailure) {
           SnackBarHelper.showError(context, state.error);
@@ -75,7 +69,11 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 32),
-                    Image.asset('assets/images/LOGOnoBG.png', width: 200, height: 200),
+                    Image.asset(
+                      'assets/images/LOGOnoBG.png',
+                      width: 200,
+                      height: 200,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Confirm Email',
@@ -91,7 +89,9 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                       widget.newEmail,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                         fontFamily: 'Inter',
                       ),
                     ),
@@ -111,16 +111,19 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                     const SizedBox(height: 4),
                     TextFormField(
                       controller: _otpController,
-                      validator: _validateOtp,
+                      validator: FormValidators.validateOtp,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         hintText: 'Enter OTP',
                         hintStyle: TextStyle(
-                          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                          color: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
                           fontFamily: 'Inter',
                         ),
                         filled: true,
-                        fillColor: Theme.of(context).brightness == Brightness.light
+                        fillColor:
+                            Theme.of(context).brightness == Brightness.light
                             ? Colors.white
                             : const Color(0xFF2A2A2A),
                         border: OutlineInputBorder(
@@ -144,9 +147,7 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Colors.red,
-                          ),
+                          borderSide: const BorderSide(color: Colors.red),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -155,7 +156,10 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                             width: 2,
                           ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -163,15 +167,21 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: state is ChangeEmailConfirmLoading ? null : _onConfirm,
+                        onPressed: state is ChangeEmailConfirmLoading
+                            ? null
+                            : _onConfirm,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00E5CC), // Consistent with app branding
+                          backgroundColor: const Color(
+                            0xFF00E5CC,
+                          ), // Consistent with app branding
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
-                          disabledBackgroundColor: const Color(0xFF00E5CC).withOpacity(0.5),
+                          disabledBackgroundColor: const Color(
+                            0xFF00E5CC,
+                          ).withValues(alpha: 0.5),
                         ),
                         child: state is ChangeEmailConfirmLoading
                             ? const SizedBox(
@@ -179,7 +189,9 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
                                 width: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : const Text(
@@ -200,16 +212,6 @@ class _ConfirmChangeEmailViewState extends State<_ConfirmChangeEmailView> {
         );
       },
     );
-  }
-
-  String? _validateOtp(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'OTP is required';
-    }
-    if (value.trim().length != 6) {
-      return 'OTP must be 6 digits';
-    }
-    return null;
   }
 
   void _onConfirm() {

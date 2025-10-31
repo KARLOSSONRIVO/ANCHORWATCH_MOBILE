@@ -1,7 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-
-/// Modern loading widget with smooth animations and gradient effects
 class LoadingWidget extends StatefulWidget {
   const LoadingWidget({
     super.key,
@@ -125,8 +123,6 @@ class _LoadingWidgetState extends State<LoadingWidget>
     );
   }
 }
-
-/// Modern painter with gradient effects and smooth animations
 class _ModernLoadingPainter extends CustomPainter {
   const _ModernLoadingPainter({
     required this.color,
@@ -144,34 +140,29 @@ class _ModernLoadingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
-
-    // Background track
     final trackPaint = Paint()
-      ..color = color.withOpacity(0.1)
+      ..color = color.withValues(alpha: 0.1)
       ..strokeWidth = strokeWidth * 0.8
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
     canvas.drawCircle(center, radius, trackPaint);
-
-    // Main arc
     final paint = Paint()
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
     if (showGradient) {
-      // Gradient effect
       final gradient = SweepGradient(
         startAngle: 0,
         endAngle: math.pi * 2,
         colors: [
-          color.withOpacity(0.1),
-          color.withOpacity(0.3),
+          color.withValues(alpha: 0.1),
+          color.withValues(alpha: 0.3),
           color,
           color,
-          color.withOpacity(0.3),
-          color.withOpacity(0.1),
+          color.withValues(alpha: 0.3),
+          color.withValues(alpha: 0.1),
         ],
         stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
       );
@@ -182,12 +173,8 @@ class _ModernLoadingPainter extends CustomPainter {
     } else {
       paint.color = color;
     }
-
-    // Draw multiple arcs for modern effect
     final arcLength = math.pi * 1.5;
     final startAngle = -math.pi / 2;
-
-    // Main arc
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       startAngle,
@@ -195,10 +182,8 @@ class _ModernLoadingPainter extends CustomPainter {
       false,
       paint,
     );
-
-    // Secondary smaller arc for trailing effect
     final trailingPaint = Paint()
-      ..color = color.withOpacity(0.6)
+      ..color = color.withValues(alpha: 0.6)
       ..strokeWidth = strokeWidth * 0.6
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
@@ -219,8 +204,6 @@ class _ModernLoadingPainter extends CustomPainter {
            oldDelegate.strokeWidth != strokeWidth;
   }
 }
-
-/// Modern dots loading animation
 class DotsLoadingWidget extends StatefulWidget {
   const DotsLoadingWidget({
     super.key,
@@ -293,13 +276,13 @@ class _DotsLoadingWidgetState extends State<DotsLoadingWidget>
                   width: widget.size,
                   height: widget.size,
                   decoration: BoxDecoration(
-                    color: widget.color.withOpacity(
+                    color: widget.color.withValues(alpha: 
                       0.3 + (_animations[index].value * 0.7),
                     ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: widget.color.withOpacity(0.3),
+                        color: widget.color.withValues(alpha: 0.3),
                         blurRadius: widget.size * 0.5,
                         spreadRadius: 0,
                       ),
@@ -314,8 +297,6 @@ class _DotsLoadingWidgetState extends State<DotsLoadingWidget>
     );
   }
 }
-
-/// Simple modern circular loading indicator
 class SimpleLoadingWidget extends StatelessWidget {
   const SimpleLoadingWidget({
     super.key,
@@ -338,7 +319,7 @@ class SimpleLoadingWidget extends StatelessWidget {
       child: CircularProgressIndicator(
         strokeWidth: strokeWidth,
         color: color,
-        backgroundColor: backgroundColor ?? color.withOpacity(0.1),
+        backgroundColor: backgroundColor ?? color.withValues(alpha: 0.1),
         strokeCap: StrokeCap.round,
       ),
     );
