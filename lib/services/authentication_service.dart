@@ -77,8 +77,8 @@ class AuthenticationService {
             AuthEndpoints.logout,
             data: {'access': accessToken, 'refresh': refreshToken},
           );
-        } catch (e) {
-          return false;
+        } catch (_) {
+          // Continue local logout even if server token blacklist call fails.
         }
       }
 
@@ -92,7 +92,7 @@ class AuthenticationService {
       _dioClient.clearAuthToken();
 
       return tokensCleared;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }

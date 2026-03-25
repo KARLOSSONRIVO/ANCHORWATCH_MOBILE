@@ -61,6 +61,8 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
 
         if (respData['alerts'] is List<dynamic>) {
           alertsJson = respData['alerts'] as List<dynamic>;
+        } else if (respData['data'] is List<dynamic>) {
+          alertsJson = respData['data'] as List<dynamic>;
         } else if (respData['data'] is Map<String, dynamic>) {
           final data = respData['data'] as Map<String, dynamic>;
           if (data['alerts'] is List<dynamic>) {
@@ -318,4 +320,3 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
     }
   }
 }
-

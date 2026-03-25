@@ -12,6 +12,7 @@ class AlertWebSocketService {
 
   AlertWebSocketService(this._emailService);
   WebSocketChannel? _channel;
+  bool _connected = false;
   StreamController<Alert>? _alertController;
   StreamController<AlertDashboard>? _dashboardController;
   StreamController<bool>? _connectionController;
@@ -23,7 +24,7 @@ class AlertWebSocketService {
   Stream<bool> get connectionStream =>
       _connectionController?.stream ?? const Stream.empty();
 
-  bool get isConnected => _channel != null;
+  bool get isConnected => _connected;
 
   void connect({required String baseUrl}) {
     try {
@@ -33,6 +34,7 @@ class AlertWebSocketService {
       final wsUrl = baseUrl.replaceFirst('http', 'ws');
 
       _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/ws/alerts/'));
+      _connected = true;
 
       _connectionController?.add(true);
 
@@ -41,35 +43,45 @@ class AlertWebSocketService {
           _handleWebSocketMessage(data);
         },
         onError: (error) {
+          _connected = false;
+          _channel = null;
           _connectionController?.add(false);
           _reconnect(baseUrl);
         },
         onDone: () {
+          _connected = false;
+          _channel = null;
           _connectionController?.add(false);
           _reconnect(baseUrl);
         },
       );
     } catch (e) {
+      _connected = false;
+      _channel = null;
       _connectionController?.add(false);
     }
   }
 
   void _handleWebSocketMessage(dynamic data) {
     try {
-      final jsonData = jsonDecode(data as String);
+      final jsonData = jsonDecode(data as String) as Map<String, dynamic>;
+      final messageType = jsonData['type'];
 
-        if (jsonData['type'] == 'alert') {
-        final alertModel = AlertModel.fromJson(jsonData['data']);
+      if (messageType == 'alert') {
+        final payload =
+            jsonData['alert_data'] as Map<String, dynamic>? ??
+            jsonData['data'] as Map<String, dynamic>?;
+        if (payload == null) {
+          return;
+        }
+
+        final alertModel = AlertModel.fromJson(payload);
         final alert = alertModel.toEntity();
         _alertController?.add(alert);
 
-        try {
-          _emailService.sendAlertEmail(alert).then((result) {
-          }).catchError((e) {
-          });
-        } catch (_) {}
-      } else if (jsonData['type'] == 'dashboard') {
-      }
+        unawaited(_emailService.sendAlertEmail(alert));
+      } else if (messageType == 'dashboard' ||
+          messageType == 'dashboard_update') {}
     } catch (_) {}
   }
 
@@ -88,16 +100,20 @@ class AlertWebSocketService {
   }
 
   void subscribe(String alertType) {
-    sendMessage({'action': 'subscribe', 'alert_type': alertType});
+    sendMessage({
+      'type': 'subscribe_alerts',
+      'alert_types': [alertType],
+    });
   }
 
-  void unsubscribe(String alertType) {
-    sendMessage({'action': 'unsubscribe', 'alert_type': alertType});
+  void unsubscribe(String _) {
+    sendMessage({'type': 'subscribe_alerts', 'alert_types': <String>[]});
   }
 
   void disconnect() {
     _channel?.sink.close();
     _channel = null;
+    _connected = false;
     _connectionController?.add(false);
   }
 
@@ -111,4 +127,3 @@ class AlertWebSocketService {
     _connectionController = null;
   }
 }
-

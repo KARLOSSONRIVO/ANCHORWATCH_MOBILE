@@ -24,16 +24,23 @@ class AlertModel {
   });
 
   factory AlertModel.fromJson(Map<String, dynamic> json) {
+    final createdAtValue = json['created_at'] ?? json['triggered_at'];
+
     return AlertModel(
-      id: json['id'] as String? ?? '',
-      type: json['type'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      message: json['message'] as String? ?? '',
-      createdAt: json['created_at'] as String? ?? '',
-      severity: json['severity'] as String? ?? 'low',
-      status: json['status'] as String? ?? 'active',
-      data: json['data'] as Map<String, dynamic>?,
-      description: json['description'] as String?,
+      id: json['id']?.toString() ?? '',
+      type: (json['type'] ?? json['alert_type'])?.toString() ?? '',
+      title:
+          (json['title'] ?? json['rule_name'] ?? json['alert_type'])
+              ?.toString() ??
+          '',
+      message: json['message']?.toString() ?? '',
+      createdAt: createdAtValue?.toString() ?? '',
+      severity: json['severity']?.toString() ?? 'low',
+      status: json['status']?.toString() ?? 'active',
+      data: json['data'] is Map
+          ? Map<String, dynamic>.from(json['data'] as Map)
+          : null,
+      description: json['description']?.toString(),
     );
   }
 
@@ -151,19 +158,63 @@ class AlertDashboardModel {
   });
 
   factory AlertDashboardModel.fromJson(Map<String, dynamic> json) {
+    final alertsSection = json['alerts'] as Map<String, dynamic>?;
+    final statistics = alertsSection?['statistics'] as Map<String, dynamic>?;
+    final recentAlertsJson =
+        (alertsSection?['recent'] as List<dynamic>?) ??
+        (json['recent_alerts'] as List<dynamic>?) ??
+        <dynamic>[];
+    final bySeverity = statistics?['by_severity'] is Map
+        ? Map<String, dynamic>.from(statistics?['by_severity'] as Map)
+        : <String, dynamic>{};
+    final byStatus = statistics?['by_status'] is Map
+        ? Map<String, dynamic>.from(statistics?['by_status'] as Map)
+        : <String, dynamic>{};
+    final byType =
+        (statistics?['by_type'] is Map
+            ? Map<String, dynamic>.from(statistics?['by_type'] as Map)
+            : null) ??
+        (json['alerts_by_type'] is Map
+            ? Map<String, dynamic>.from(json['alerts_by_type'] as Map)
+            : <String, dynamic>{});
+
+    int asInt(dynamic value) {
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value) ?? 0;
+      return 0;
+    }
+
+    int valueWithFallback(dynamic primary, dynamic fallback) {
+      final primaryValue = asInt(primary);
+      if (primaryValue > 0 || primary == 0) {
+        return primaryValue;
+      }
+      return asInt(fallback);
+    }
+
     return AlertDashboardModel(
-      totalAlerts: (json['total_alerts'] as num?)?.toInt() ?? 0,
-      activeAlerts: (json['active_alerts'] as num?)?.toInt() ?? 0,
-      criticalAlerts: (json['critical_alerts'] as num?)?.toInt() ?? 0,
-      highAlerts: (json['high_alerts'] as num?)?.toInt() ?? 0,
-      mediumAlerts: (json['medium_alerts'] as num?)?.toInt() ?? 0,
-      lowAlerts: (json['low_alerts'] as num?)?.toInt() ?? 0,
-      recentAlerts:
-          (json['recent_alerts'] as List<dynamic>?)
-              ?.map((e) => AlertModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      alertsByType: Map<String, int>.from(json['alerts_by_type'] as Map? ?? {}),
+      totalAlerts: valueWithFallback(
+        statistics?['total_alerts'],
+        json['total_alerts'],
+      ),
+      activeAlerts: valueWithFallback(
+        byStatus['active'],
+        json['active_alerts'],
+      ),
+      criticalAlerts: valueWithFallback(
+        bySeverity['critical'],
+        json['critical_alerts'],
+      ),
+      highAlerts: valueWithFallback(bySeverity['high'], json['high_alerts']),
+      mediumAlerts: valueWithFallback(
+        bySeverity['medium'],
+        json['medium_alerts'],
+      ),
+      lowAlerts: valueWithFallback(bySeverity['low'], json['low_alerts']),
+      recentAlerts: recentAlertsJson
+          .map((e) => AlertModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      alertsByType: byType.map((k, v) => MapEntry(k, asInt(v))),
     );
   }
 

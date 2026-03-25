@@ -13,6 +13,12 @@ class DioClient {
   static BuildContext? _globalContext;
   static bool _isHandlingSessionExpiry = false;
   static bool _isSessionExpired = false;
+  static const String _localDevHost = '10.189.28.70';
+  static const String _localDevPort = '8000';
+  static const String _localDevBaseUrl = 'http://$_localDevHost:$_localDevPort/';
+  static const String _configuredBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+  );
 
   static void setGlobalContext(BuildContext context) {
     _globalContext = context;
@@ -23,14 +29,18 @@ class DioClient {
   }
 
   static String get _baseUrl {
+    if (_configuredBaseUrl.isNotEmpty) {
+      return _configuredBaseUrl;
+    }
+
     if (kIsWeb) {
       return 'http://127.0.0.1:8000'; // Web can use localhost directly
     } else if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000'; // Android emulator special IP
+      return _localDevBaseUrl;
     } else if (Platform.isIOS) {
-      return 'http://127.0.0.1:8000'; // iOS simulator uses localhost
+      return _localDevBaseUrl;
     } else {
-      return 'http://127.0.0.1:8000'; // Default for other platforms
+      return _localDevBaseUrl;
     }
   }
 
@@ -76,10 +86,8 @@ class DioClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Prevent API calls when session is expired, but allow login and signup calls
-          if (_isSessionExpired &&
-              !options.path.contains('/accounts/login/') &&
-              !options.path.contains('/accounts/signup/')) {
+          // Prevent API calls when session is expired, but allow auth calls.
+          if (_isSessionExpired && !_isAuthExemptPath(options.path)) {
             handler.reject(
               DioException(
                 requestOptions: options,
@@ -92,10 +100,9 @@ class DioClient {
           handler.next(options);
         },
         onResponse: (response, handler) {
-          // If this is a successful login or signup response, reset the session expired flag
-          if ((response.requestOptions.path.contains('/accounts/login/') ||
-                  response.requestOptions.path.contains('/accounts/signup/')) &&
-              response.statusCode == 200) {
+          // Reset session flag after successful auth response.
+          if (_isAuthExemptPath(response.requestOptions.path) &&
+              (response.statusCode == 200 || response.statusCode == 201)) {
             _isSessionExpired = false;
             _isHandlingSessionExpiry = false;
           }
@@ -104,10 +111,8 @@ class DioClient {
         onError: (error, handler) {
           // Check for 401 errors which might indicate session expiration
           if (error.response?.statusCode == 401 && !_isHandlingSessionExpiry) {
-            // Only treat as session expiration if it's NOT a login/signup request
-            // Login/signup 401 errors should be handled normally (invalid credentials)
-            if (!error.requestOptions.path.contains('/accounts/login/') &&
-                !error.requestOptions.path.contains('/accounts/signup/')) {
+            // Only treat as session expiration if it's NOT an auth request.
+            if (!_isAuthExemptPath(error.requestOptions.path)) {
               _isHandlingSessionExpiry = true;
 
               // Set session expired flag to block further API calls
@@ -140,6 +145,12 @@ class DioClient {
         },
       ),
     );
+  }
+
+  bool _isAuthExemptPath(String path) {
+    return path.contains('/accounts/login/') ||
+        path.contains('/accounts/register/') ||
+        path.contains('/accounts/signup/');
   }
 
   void setAuthToken(String token) {

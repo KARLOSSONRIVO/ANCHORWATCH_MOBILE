@@ -8,6 +8,8 @@ class ContactSupportDebugScreen extends StatefulWidget {
 }
 
 class _ContactSupportDebugScreenState extends State<ContactSupportDebugScreen> {
+  static const String _localDevHost = '192.168.5.235';
+  static const String _localDevPort = '8000';
   final _messageController = TextEditingController();
   String _result = '';
   bool _loading = false;
@@ -20,7 +22,7 @@ class _ContactSupportDebugScreenState extends State<ContactSupportDebugScreen> {
 
     try {
       final dio = Dio(BaseOptions(
-        baseUrl: 'http://127.0.0.1:8000',
+        baseUrl: 'http://$_localDevHost:$_localDevPort/',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         headers: {
